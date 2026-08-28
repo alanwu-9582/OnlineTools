@@ -59,7 +59,6 @@
   gap: 8px;
   align-items: center;
 }
-.tool-actions .tool-actions-end { margin-left: auto; }
 
 .tool-subhead {
   font-size: var(--text-label);
@@ -250,55 +249,13 @@ select.tool-input { cursor: pointer; }
   color: var(--text-dim);
 }
 
-/* ================= 各工具的小東西 ================= */
-/* 顏色工具的預覽塊。 */
-.tool-swatch {
-  height: 72px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--swatch, var(--card-bg));
-}
-
-/* 單位換算的整排結果。 */
+/* ================= 其他共用的小東西 ================= */
+/* 一次列出一整排結果（字數統計那種）。 */
 .tool-convert-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 6px;
 }
-
-/* 正則測試的命中結果。 */
-.tool-highlight {
-  padding: 10px 12px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  background: var(--card-bg);
-  font-family: var(--font-mono);
-  font-size: 13.5px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  max-height: 260px;
-  overflow-y: auto;
-}
-.tool-highlight mark {
-  background: color-mix(in srgb, var(--cffy-theme-warning-a0) 30%, transparent);
-  color: var(--cffy-theme-warning-a20);
-  border-radius: var(--radius-xs);
-  padding: 0 1px;
-}
-
-/* 一次多筆輸出用的鍵值表（雜湊、時間戳）。 */
-.doc-content .tool-table,
-.tool-table { width: 100%; border-collapse: collapse; font-size: var(--text-supporting); }
-.doc-content .tool-table th, .doc-content .tool-table td,
-.tool-table th, .tool-table td {
-  padding: 7px 10px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-soft);
-}
-.tool-table tr:last-child th, .tool-table tr:last-child td { border-bottom: none; }
-.tool-table th { width: 120px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
-.tool-table td { font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
 
 @media (max-width: 560px) {
   .tool-panel { padding: 14px; }
@@ -311,7 +268,6 @@ select.tool-input { cursor: pointer; }
   .tool-copy, .tool-seg { min-height: var(--hit-min); }
 }
 
-/* 正則測試的旗標與命中清單。 */
 .tool-flag {
   display: inline-flex;
   align-items: center;
@@ -337,115 +293,4 @@ select.tool-input { cursor: pointer; }
   margin: 0;
   accent-color: var(--primary);
   cursor: pointer;
-}
-
-.tool-matches { display: flex; flex-direction: column; gap: 8px; }
-.tool-match {
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  background: var(--card-bg);
-  overflow: hidden;
-}
-.tool-match-head {
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--border-soft);
-  background: var(--card-bg-alt);
-  font-size: var(--text-caption);
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-/* ================= 手工紙袋計算機 ================= */
-.bag-net-host {
-  padding: 12px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
-  background: var(--card-bg);
-  overflow-x: auto;
-}
-.bag-net {
-  display: block;
-  width: 100%;
-  height: auto;
-  /* 手機上整張縮到 250px 寬，尺寸數字會小到看不見。給一個下限，
-     讓它在外框裡橫向捲動，總比縮到讀不出來好。 */
-  min-width: 480px;
-  /* 展開圖很扁，太高會把步驟圖擠到看不見。 */
-  max-height: 70vh;
-}
-
-.bag-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  font-size: var(--text-caption);
-  color: var(--text-muted);
-}
-.bag-legend-item { display: inline-flex; align-items: center; gap: 6px; }
-.bag-legend-mark {
-  width: 22px;
-  height: 0;
-  flex-shrink: 0;
-  border-top: 2px solid currentColor;
-}
-.bag-legend-item.is-cut { color: var(--text); }
-.bag-legend-item.is-mountain { color: var(--info); }
-.bag-legend-item.is-valley { color: var(--warning); }
-.bag-legend-item.is-diagonal { color: var(--success); }
-.bag-legend-item.is-guide { color: var(--text-dim); }
-.bag-legend-item.is-hole { color: var(--critical); }
-.bag-legend-item.is-mountain .bag-legend-mark { border-top-style: dashed; }
-.bag-legend-item.is-valley .bag-legend-mark { border-top-style: dotted; border-top-width: 3px; }
-.bag-legend-item.is-diagonal .bag-legend-mark { border-top-style: dashed; }
-.bag-legend-item.is-guide .bag-legend-mark { border-top-style: dotted; border-top-width: 1px; }
-.bag-legend-item.is-hole .bag-legend-mark {
-  width: 10px;
-  height: 10px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-}
-
-/* 步驟用分解圖而不是動畫：手上拿著紙的時候要六張一起看得到，也要印得出來。 */
-.doc-content .bag-steps,
-.bag-steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: none;
-}
-.doc-content .bag-step,
-.bag-step {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0;
-  padding: 12px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
-  background: var(--card-bg);
-}
-.bag-step-figure {
-  border-radius: var(--radius-sm);
-  background: var(--cffy-theme-surface-a0);
-  padding: 6px;
-}
-.bag-step-svg { display: block; width: 100%; height: auto; }
-.bag-step-title {
-  font-size: var(--text-label);
-  font-weight: 700;
-  color: var(--text);
-}
-.doc-content .bag-step-desc,
-.bag-step-desc {
-  margin: 0;
-  font-size: var(--text-supporting);
-  line-height: 1.6;
-  color: var(--text-muted);
-}
-
-@media print {
-  .bag-net-host, .bag-step, .bag-step-figure { background: #fff; }
 }

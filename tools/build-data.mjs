@@ -286,8 +286,9 @@ for (const file of walkMarkdown(CONTENT_DIR)) {
 
   const toolIds = extractToolIds(body);
   for (const id of toolIds) {
-    if (!existsSync(path.join(TOOL_MODULE_DIR, `${id}.js`))) {
-      warn(`${rel}：找不到工具模組 js/tools/${id}.js`);
+    // 一個工具一個資料夾，進入點固定是 index.js。
+    if (!existsSync(path.join(TOOL_MODULE_DIR, id, "index.js"))) {
+      warn(`${rel}：找不到工具模組 js/tools/${id}/index.js`);
     }
   }
 
@@ -364,10 +365,15 @@ searchDocs.sort(
 
 const referenced = new Set(entries.flatMap((doc) => doc.tools || []));
 if (existsSync(TOOL_MODULE_DIR)) {
-  for (const file of readdirSync(TOOL_MODULE_DIR)) {
-    if (!file.endsWith(".js") || file === "kit.js") continue;
-    const id = file.slice(0, -3);
-    if (!referenced.has(id)) warn(`js/tools/${file}：沒有任何 .md 用到它`);
+  for (const entry of readdirSync(TOOL_MODULE_DIR)) {
+    const full = path.join(TOOL_MODULE_DIR, entry);
+    // 資料夾才是工具；kit.js 那種放在外面的是共用元件。
+    if (!statSync(full).isDirectory()) continue;
+    if (!existsSync(path.join(full, "index.js"))) {
+      warn(`js/tools/${entry}/：少了 index.js，工具載不起來`);
+    } else if (!referenced.has(entry)) {
+      warn(`js/tools/${entry}/：沒有任何 .md 用到它`);
+    }
   }
 }
 

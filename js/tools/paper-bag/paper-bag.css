@@ -1,0 +1,172 @@
+/* js/tools/paper-bag/paper-bag.css — 只有這個工具會用到的樣式。
+   由 index.js 的 styles 宣告，tool-host 在掛載前才載進來。 */
+
+.bag-net-host {
+  padding: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  overflow-x: auto;
+}
+.bag-net {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* 手機上整張縮到 250px 寬，尺寸數字會小到看不見。給一個下限，
+     讓它在外框裡橫向捲動，總比縮到讀不出來好。 */
+  min-width: 480px;
+  /* 展開圖很扁，太高會把步驟圖擠到看不見。 */
+  max-height: 70vh;
+}
+
+.bag-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+}
+.bag-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.bag-legend-mark {
+  width: 22px;
+  height: 0;
+  flex-shrink: 0;
+  border-top: 2px solid currentColor;
+}
+.bag-legend-item.is-cut { color: var(--text); }
+.bag-legend-item.is-mountain { color: var(--info); }
+.bag-legend-item.is-valley { color: var(--warning); }
+.bag-legend-item.is-diagonal { color: var(--success); }
+.bag-legend-item.is-guide { color: var(--text-dim); }
+.bag-legend-item.is-hole { color: var(--critical); }
+.bag-legend-item.is-mountain .bag-legend-mark { border-top-style: dashed; }
+.bag-legend-item.is-valley .bag-legend-mark { border-top-style: dotted; border-top-width: 3px; }
+.bag-legend-item.is-diagonal .bag-legend-mark { border-top-style: dashed; }
+.bag-legend-item.is-guide .bag-legend-mark { border-top-style: dotted; border-top-width: 1px; }
+.bag-legend-item.is-hole .bag-legend-mark {
+  width: 10px;
+  height: 10px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+/* 組裝動畫。內容是照使用者的尺寸算的，所以是即時投影的 SVG 而不是一張 GIF。 */
+.bag-anim {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bag-anim-stage {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--cffy-theme-surface-a0);
+  overflow: hidden;
+}
+.bag-anim-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* viewBox 固定 3:2，元素高度才不會每一格都在跳。 */
+  aspect-ratio: 3 / 2;
+}
+
+.bag-anim-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.bag-anim-play { flex: 0 0 auto; min-width: 86px; }
+.bag-anim-play-ico { display: inline-flex; align-items: center; }
+
+.doc-content .bag-anim-scrub,
+.bag-anim-scrub {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  height: 22px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  appearance: none;
+  cursor: pointer;
+}
+.bag-anim-scrub:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
+.bag-anim-scrub::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+}
+.bag-anim-scrub::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+}
+/* 滑桿的拇指是刻意的正圓例外 —— 圓的才看得出來可以拖。 */
+.bag-anim-scrub::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+}
+.bag-anim-scrub::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+}
+
+.bag-anim-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.bag-anim-chip {
+  font-family: inherit;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--easing-standard),
+              border-color var(--duration-fast) var(--easing-standard),
+              background var(--duration-fast) var(--easing-standard);
+}
+.bag-anim-chip:hover { color: var(--text); border-color: var(--cffy-theme-surface-a40); }
+.bag-anim-chip:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+.bag-anim-chip.is-active {
+  color: var(--interactive);
+  border-color: color-mix(in srgb, var(--primary) 60%, transparent);
+  background: var(--surface-selected);
+}
+
+.bag-anim-caption {
+  padding: 10px 12px;
+  border-left: 3px solid var(--primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--card-bg);
+}
+.bag-anim-title {
+  font-size: var(--text-label);
+  font-weight: 700;
+  color: var(--text);
+}
+.doc-content .bag-anim-desc,
+.bag-anim-desc {
+  margin: 4px 0 0;
+  font-size: var(--text-supporting);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+  .bag-anim-controls { flex-wrap: wrap; }
+  .bag-anim-play { width: 100%; }
+}
+
+@media print {
+  .bag-net-host, .bag-anim-stage, .bag-anim-caption { background: #fff; }
+}

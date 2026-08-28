@@ -11,7 +11,7 @@
 //
 // 改動下面的 SHELL 清單時，記得把 CACHE_VERSION 往上加一版，舊快取才會被丟掉。
 
-const CACHE_VERSION = "onlinetools-v3";
+const CACHE_VERSION = "onlinetools-v4";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -49,11 +49,19 @@ const SHELL = [
   "js/utils/search.js",
   "js/utils/markdown.js",
   "js/utils/clipboard.js",
-  // 工具模組是動態載入的，沒先快取起來，離線時工具會變成錯誤訊息。
+  // 工具模組與它們自己的樣式都是動態載入的，沒先快取起來，
+  // 離線時工具會變成錯誤訊息。加新工具時這裡要一起補。
   "js/tools/kit.js",
-  "js/tools/timestamp.js",
-  "js/tools/text-stats.js",
-  "js/tools/paper-bag.js",
+  "js/tools/timestamp/index.js",
+  "js/tools/text-stats/index.js",
+  "js/tools/paper-bag/index.js",
+  "js/tools/paper-bag/geometry.js",
+  "js/tools/paper-bag/svg.js",
+  "js/tools/paper-bag/net.js",
+  "js/tools/paper-bag/fold-model.js",
+  "js/tools/paper-bag/fold-view.js",
+  "js/tools/paper-bag/assembly.js",
+  "js/tools/paper-bag/paper-bag.css",
   "pages/home.html",
   "pages/catalog.html",
   "pages/entry.html",

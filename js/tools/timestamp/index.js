@@ -1,4 +1,4 @@
-// js/tools/timestamp.js — Unix 時間戳與日期互轉。
+// js/tools/timestamp/index.js — Unix 時間戳與日期互轉。
 //
 // 兩個方向各一塊，中間夾一個一直在跳的「現在」。
 // 時間戳的單位（秒／毫秒）預設用位數自動判斷 —— 貼進來的值幾乎都是
@@ -6,7 +6,7 @@
 
 import {
   panel, row, field, textInput, select, outputRow, status, note, subhead, el,
-} from "./kit.js";
+} from "../kit.js";
 
 export const meta = { title: "時間戳轉換" };
 

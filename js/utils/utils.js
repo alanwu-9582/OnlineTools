@@ -19,6 +19,8 @@ const ICON_PATHS = {
   external: '<path d="M14 4h6v6"></path><path d="M20 4 11 13"></path><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"></path>',
   tool: '<path d="M14.5 3.5a5.5 5.5 0 0 0-7.3 6.9l-4.1 4.1a2.4 2.4 0 0 0 3.4 3.4l4.1-4.1a5.5 5.5 0 0 0 6.9-7.3l-3 3-2.5-2.5z"></path><path d="M14 15.5 19.5 21"></path>',
   grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"></rect>',
+  play: '<path d="M8.5 5.6v12.8L19 12z"></path>',
+  pause: '<line x1="9.5" y1="5.5" x2="9.5" y2="18.5"></line><line x1="14.5" y1="5.5" x2="14.5" y2="18.5"></line>',
   clock: '<circle cx="12" cy="12" r="8.5"></circle><polyline points="12 7 12 12 15.5 14"></polyline>',
   rss: '<path d="M5 19.5v.01"></path><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path>',
 };

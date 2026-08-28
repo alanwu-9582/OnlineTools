@@ -1,11 +1,11 @@
-// js/tools/text-stats.js — 字數統計。
+// js/tools/text-stats/index.js — 字數統計。
 //
 // 中英文混排的字數不能只算一種：中文論「字」，英文論「詞」。
 // 這裡把兩種分開數，再給一個常見的「總字數」（中文字 + 英文詞）。
 
 import {
   panel, textArea, outputRow, note, el,
-} from "./kit.js";
+} from "../kit.js";
 
 export const meta = { title: "字數統計" };
 

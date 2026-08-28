@@ -13,13 +13,23 @@
 
 ### 1. 寫工具模組
 
-在 `js/tools/` 建一個檔案，檔名就是這個工具的 id（小寫英文、數字、連字號）。
-例如 `js/tools/gear-ratio.js`：
+**一個工具一個資料夾**，資料夾名稱就是這個工具的 id（小寫英文、數字、連字號），
+進入點固定是 `index.js`：
+
+```text
+js/tools/gear-ratio/
+  index.js          ← 進入點，一定要有
+  gear-ratio.css    ← 選填，只有這個工具會用到的樣式
+  ratio-math.js     ← 選填，拆多少個檔案是你自己的事
+```
+
+外面只認 `index.js`，裡面要怎麼拆隨你 —— 小工具就一個檔案，
+複雜的可以像 `js/tools/paper-bag/` 那樣分成幾何、繪圖、動畫幾層。
 
 ```js
-// js/tools/gear-ratio.js — 齒輪比計算。
+// js/tools/gear-ratio/index.js — 齒輪比計算。
 
-import { panel, row, field, numberInput, outputRow, note } from "./kit.js";
+import { panel, row, field, numberInput, outputRow, note } from "../kit.js";
 
 export const meta = { title: "齒輪比" };
 
@@ -45,14 +55,29 @@ export function mount(host, { options = {} } = {}) {
 }
 ```
 
-模組的介面只有兩個規定：
+`index.js` 的介面只有三個規定：
 
 | 匯出 | 必要 | 說明 |
 | --- | --- | --- |
 | `mount(host, { options })` | 是 | 把 UI 掛到 `host` 上。回傳 cleanup 函式或 `null`。 |
 | `meta` | 否 | `{ title }`，目前只是備註用途。 |
+| `styles` | 否 | 這個工具自己的樣式表網址（或陣列）。 |
 
 `options` 來自佔位元素的 `data-options`，等一下會講。
+
+### 自己的樣式
+
+只有這個工具會用到的 CSS 就放在自己的資料夾裡，用 `import.meta.url` 指過去：
+
+```js
+export const styles = new URL("./gear-ratio.css", import.meta.url).href;
+```
+
+`tool-host` 會在掛載**之前**把它載進來並等它下載完，所以不會先閃一下沒排版的樣子；
+同一個網址只會載一次，而且沒用到這個工具的頁面完全不會去抓它。
+
+跨工具共用的樣式（`.tool-panel`、`.tool-out` 那些）還是留在 `css/tools.css`。
+判斷方式很簡單：**別的工具會不會用到？** 會就放共用的，不會就放自己的資料夾。
 
 ### 2. 寫內容
 
@@ -136,7 +161,8 @@ node tools/build-data.mjs --check
 
 ## kit.js 有什麼
 
-`js/tools/kit.js` 收了所有工具共用的元件，用它們做出來的工具長相會一致：
+`js/tools/kit.js` 收了所有工具共用的元件（放在資料夾外面，因為它不是工具），
+用它們做出來的工具長相會一致：
 
 | 函式 | 用途 |
 | --- | --- |
