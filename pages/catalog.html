@@ -1,0 +1,50 @@
+<section class="catalog">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title" id="catalog-title">列表</h1>
+      <p class="page-sub" id="catalog-sub"></p>
+    </div>
+  </div>
+
+  <div class="list-toolbar">
+    <!-- 搜尋框與篩選鈕共用一個外框。 -->
+    <label class="search-label" for="catalog-search" id="catalog-search-label">搜尋</label>
+    <div class="search-bar" id="search-bar">
+      <div class="search-box">
+        <span class="ico" id="search-ico" aria-hidden="true"></span>
+        <input id="catalog-search" type="search" placeholder="搜尋標題、內文、程式碼、標籤…" autocomplete="off"
+          aria-label="搜尋" title="按 / 或 Ctrl+K 聚焦，↑ ↓ 選擇，Enter 開啟">
+        <kbd class="search-kbd" id="search-kbd" aria-hidden="true">/</kbd>
+      </div>
+      <button class="filter-toggle" id="filter-toggle" type="button" aria-haspopup="dialog"
+        aria-label="篩選類別與標籤" title="篩選類別與標籤">
+        <span class="filter-toggle-ico" aria-hidden="true"></span>
+        <span class="filter-toggle-count" id="filter-count" hidden>0</span>
+      </button>
+    </div>
+
+    <div class="list-meta">
+      <span><strong id="result-count">0</strong> <span id="result-unit">筆</span></span>
+      <div class="active-filters" id="active-filters"></div>
+      <label class="sort-field">
+        <span class="sr-only">排序方式</span>
+        <select id="sort-select" aria-label="排序方式">
+          <option value="newest">最新發佈</option>
+          <option value="updated">最近更新</option>
+          <option value="title">標題</option>
+        </select>
+      </label>
+      <button id="clear-filters" class="btn btn-sm btn-ghost" type="button" hidden>清除篩選</button>
+    </div>
+  </div>
+
+  <div class="doc-table">
+    <div class="doc-list-head" id="doc-list-head" aria-hidden="true">
+      <span>標題</span>
+      <span>類別</span>
+      <span>標籤</span>
+      <span class="col-date">發佈</span>
+    </div>
+    <div id="doc-list" class="doc-list" aria-live="polite"></div>
+  </div>
+</section>

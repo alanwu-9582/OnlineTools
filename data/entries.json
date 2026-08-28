@@ -1,0 +1,87 @@
+{
+  "entries": [
+    {
+      "id": "paper-bag",
+      "type": "tool",
+      "title": "手工紙袋計算機",
+      "description": "輸入袋子或物品尺寸，算出展開圖、裁切折線與組裝步驟",
+      "path": "content/tools/paper-bag.md",
+      "category": "design",
+      "tags": [
+        "math"
+      ],
+      "tools": [
+        "paper-bag"
+      ],
+      "publishedDate": "2026/08/28",
+      "updatedDate": "2026/08/28",
+      "readingMinutes": 3
+    },
+    {
+      "id": "timestamp",
+      "type": "tool",
+      "title": "時間戳轉換",
+      "description": "Unix 時間戳與日期互轉，自動判斷秒／毫秒，同時顯示本地與 UTC",
+      "path": "content/tools/timestamp.md",
+      "category": "convert",
+      "tags": [
+        "datetime"
+      ],
+      "tools": [
+        "timestamp"
+      ],
+      "publishedDate": "2026/08/26",
+      "updatedDate": "2026/08/26",
+      "readingMinutes": 2
+    },
+    {
+      "id": "text-stats",
+      "type": "tool",
+      "title": "字數統計",
+      "description": "中文字與英文詞分開計算，另有字元數、行數、位元組與閱讀時間",
+      "path": "content/tools/text-stats.md",
+      "category": "text",
+      "tags": [
+        "writing"
+      ],
+      "tools": [
+        "text-stats"
+      ],
+      "publishedDate": "2026/08/20",
+      "updatedDate": "2026/08/20",
+      "readingMinutes": 1
+    },
+    {
+      "id": "add-a-tool",
+      "type": "doc",
+      "title": "怎麼加一個新工具",
+      "description": "寫一個 js/tools 模組、在 Markdown 裡放一個佔位、跑一次 build，就完成了",
+      "path": "content/docs/add-a-tool.md",
+      "category": "guide",
+      "tags": [
+        "meta"
+      ],
+      "publishedDate": "2026/08/19",
+      "updatedDate": "2026/08/19",
+      "readingMinutes": 3
+    },
+    {
+      "id": "markdown-guide",
+      "type": "doc",
+      "title": "內容能寫些什麼",
+      "description": "這個網站支援的 Markdown 語法：程式碼、表格、數學式、流程圖、圖片與工具佔位",
+      "path": "content/docs/markdown-guide.md",
+      "category": "guide",
+      "tags": [
+        "meta",
+        "writing"
+      ],
+      "tools": [
+        "text-stats"
+      ],
+      "publishedDate": "2026/08/18",
+      "updatedDate": "2026/08/18",
+      "readingMinutes": 2
+    }
+  ]
+}

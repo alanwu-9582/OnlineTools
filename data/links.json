@@ -1,0 +1,94 @@
+{
+  "groups": {
+    "dev": {
+      "label": "開發",
+      "desc": "程式、編碼、除錯。",
+      "color": "#7dff95"
+    },
+    "data": {
+      "label": "文字與資料",
+      "desc": "比對、轉換、圖表。",
+      "color": "#ffbc5e"
+    },
+    "design": {
+      "label": "設計",
+      "desc": "配色、字體、版面。",
+      "color": "#ff8080"
+    },
+    "media": {
+      "label": "圖片與影音",
+      "desc": "壓縮、轉檔、修圖。",
+      "color": "#b9a1ff"
+    },
+    "learn": {
+      "label": "學習與參考",
+      "desc": "資料、數學、文件。",
+      "color": "#87d1ff"
+    }
+  },
+  "sites": [
+    {
+      "name": "regex101",
+      "url": "https://regex101.com",
+      "group": "dev",
+      "desc": "正則表達式測試器，會把每個符號在做什麼逐條解釋，還能切換 JS/PCRE/Python 方言。",
+      "tags": ["正則", "偵錯"]
+    },
+    {
+      "name": "appicon-forge",
+      "url": "https://zhangyu1818.github.io/appicon-forge",
+      "group": "design",
+      "desc": "可以用來創建不同尺寸的 App Icon。",
+      "tags": ["設計", "圖標"]
+    },
+    {
+      "name": "Book Of Shapes",
+      "url": "https://www.bookofshapes.com",
+      "group": "design",
+      "desc": "快速生成各種形狀。",
+      "tags": ["設計", "圖形"]
+    },
+    {
+      "name": "Terraink",
+      "url": "https://terraink.app",
+      "group": "design",
+      "desc": "生成地圖海報設計",
+      "tags": ["設計", "地圖"]
+    },
+    {
+      "name": "PhotoPea",
+      "url": "https://www.photopea.com",
+      "group": "design",
+      "desc": "免費的 Photoshop 替代品。",
+      "tags": ["設計", "圖像"]
+    },
+    {
+      "name": "Desmos",
+      "url": "https://www.desmos.com",
+      "group": "learn",
+      "desc": "線上圖形計算器",
+      "tags": ["數學", "圖形"]
+    },
+    {
+      "name": "Colorffy",
+      "url": "https://colorffy.com/dark-theme-generator",
+      "group": "design",
+      "desc": "生成深色主題的顏色配色。",
+      "tags": ["設計", "配色"]
+    },
+    {
+      "name": "Photo Manager",
+      "url": "https://wayne-1211.github.io/photoManager/",
+      "group": "media",
+      "desc": "相機圖片分類管理工具",
+      "tags": ["圖片", "管理"]
+    },
+    {
+      "name": "Resource Boy",
+      "url": "https://resourceboy.com/",
+      "group": "design",
+      "desc": "免費素材網站，提供各種設計資源。",
+      "tags": ["設計", "素材"]
+    }
+  ]
+}

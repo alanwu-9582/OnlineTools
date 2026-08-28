@@ -1,0 +1,79 @@
+{
+  "title": "OnlineTools",
+  "tagline": "一些工具",
+  "description": "一堆前端的小工具與文檔。",
+  "language": "zh-Hant",
+  "siteUrl": "",
+  "repo": "",
+  "logo": "assets/images/icon.svg",
+  "links": [
+    {
+      "label": "GitHub",
+      "url": "https://github.com/alanwu-9582"
+    },
+    {
+      "label": "個人網站",
+      "url": "https://alanwu-9582.github.io"
+    }
+  ],
+  "categories": {
+    "convert": {
+      "label": "換算",
+      "color": "#87d1ff"
+    },
+    "dev": {
+      "label": "開發",
+      "color": "#7dff95"
+    },
+    "text": {
+      "label": "文字",
+      "color": "#ffbc5e"
+    },
+    "design": {
+      "label": "設計",
+      "color": "#ff8080"
+    },
+    "guide": {
+      "label": "說明",
+      "color": "#afafaf"
+    }
+  },
+  "tags": {
+    "math": {
+      "label": "數學",
+      "color": "#87d1ff"
+    },
+    "encoding": {
+      "label": "編碼",
+      "color": "#7dff95"
+    },
+    "datetime": {
+      "label": "時間",
+      "color": "#ffbc5e"
+    },
+    "color": {
+      "label": "顏色",
+      "color": "#ff8080"
+    },
+    "regex": {
+      "label": "正則",
+      "color": "#b9a1ff"
+    },
+    "json": {
+      "label": "JSON",
+      "color": "#7dff95"
+    },
+    "security": {
+      "label": "安全",
+      "color": "#ff8080"
+    },
+    "writing": {
+      "label": "寫作",
+      "color": "#ffbc5e"
+    },
+    "meta": {
+      "label": "站務",
+      "color": "#afafaf"
+    }
+  }
+}

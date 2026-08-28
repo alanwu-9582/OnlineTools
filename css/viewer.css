@@ -1,0 +1,637 @@
+/* css/viewer.css — 單篇文章的版面與 Markdown 排版。 */
+
+/* ================= Viewer layout ================= */
+/* 內文欄寬約 800px，再加 240px 的大綱側欄；行太長會很難讀，所以是置中不是撐滿。 */
+.viewer {
+  max-width: 1064px;
+  margin-inline: auto;
+}
+
+/* 固定在視窗而不是欄位上：長文章捲到一半時仍然需要看得到進度。 */
+.read-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: var(--z-progress);
+  background: transparent;
+  pointer-events: none;
+}
+.read-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 80ms linear;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.back-link:hover { color: var(--text); text-decoration: none; }
+.back-link .back-ico { font-size: 16px; }
+
+.doc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 24px;
+  align-items: start;
+}
+.doc-main { padding: 28px 32px; min-width: 0; }
+
+/* ---------- 文章標頭 ---------- */
+.doc-cover {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--cffy-theme-surface-a0);
+  margin-bottom: 18px;
+}
+.doc-header {
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.doc-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.doc-date { font-size: 12.5px; color: var(--text-dim); }
+.doc-readtime { font-size: 12.5px; color: var(--text-dim); }
+.doc-readtime::before { content: "·"; margin-right: 12px; color: var(--border); }
+.doc-title { font-size: 28px; font-weight: 800; margin: 0 0 8px; line-height: 1.3; }
+.doc-desc { font-size: 15px; color: var(--text-muted); margin: 0 0 12px; }
+
+/* ---------- 頁尾：上／下一篇 + 原始檔 ---------- */
+.doc-foot {
+  margin-top: 34px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-soft);
+}
+.doc-foot[hidden] { display: none; }
+.doc-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.doc-nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--card-bg-alt);
+  color: inherit;
+  min-width: 0;
+}
+.doc-nav-link:hover { border-color: var(--primary); text-decoration: none; }
+.doc-nav-link:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+/* 空的一格讓剩下的連結留在自己那一側。 */
+.doc-nav-link.is-empty { border-color: transparent; background: none; pointer-events: none; }
+.doc-nav-link.is-next { text-align: right; }
+.doc-nav-dir { font-size: var(--text-caption); font-weight: 700; color: var(--text-dim); }
+.doc-nav-link:hover .doc-nav-dir { color: var(--interactive); }
+.doc-nav-title {
+  font-size: var(--text-supporting);
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doc-source {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: var(--text-caption);
+  color: var(--text-dim);
+}
+
+@media (max-width: 560px) {
+  .doc-nav { grid-template-columns: 1fr; }
+  .doc-nav-link.is-empty { display: none; }
+  .doc-nav-link.is-next { text-align: left; }
+}
+
+/* ---------- 大綱（右側） ---------- */
+.doc-outline {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding-left: 4px;
+}
+.outline-title {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding: 0 0 0 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--easing-standard);
+}
+.outline-title:hover { color: var(--interactive); }
+.outline-title:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
+.outline-nav { display: flex; flex-direction: column; gap: 1px; }
+.outline-link {
+  /* 用格線讓自動編號自成一欄，標題換行時才不會縮到編號底下。 */
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+  padding: 5px 10px 5px calc(12px + var(--indent, 0) * 13px);
+  border-left: 2px solid transparent;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.outline-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.outline-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.outline-link:hover { color: var(--text); background: var(--card-bg-alt); text-decoration: none; }
+.outline-link:hover .outline-num { color: var(--text-muted); }
+.outline-link:focus-visible { outline: var(--focus-ring); outline-offset: -2px; }
+.outline-link.is-active {
+  color: var(--interactive);
+  border-left-color: var(--primary);
+  background: var(--surface-selected);
+  font-weight: 600;
+}
+.outline-link.is-active .outline-num { color: var(--interactive); }
+
+@media (max-width: 1100px) {
+  .doc-layout { grid-template-columns: 1fr; }
+  .doc-outline {
+    position: static;
+    max-height: none;
+    order: -1;
+    background: var(--card-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .outline-nav { max-height: 200px; overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  .doc-main { padding: 20px 18px; }
+  .doc-title { font-size: 22px; }
+  .doc-cover { max-height: 180px; }
+}
+
+/* ================= Markdown 內文排版 ================= */
+.doc-content { font-size: 15.5px; line-height: 1.75; color: var(--text); }
+.doc-content > *:first-child { margin-top: 0; }
+
+.doc-content h1, .doc-content h2, .doc-content h3,
+.doc-content h4, .doc-content h5, .doc-content h6 {
+  font-weight: 700;
+  line-height: 1.35;
+  scroll-margin-top: 20px;
+}
+
+/* ---------- 章節錨點 ---------- */
+/* 整個網站活在 hash 裡，純 #id 錨點會把路由洗掉，所以改成複製完整網址的按鈕。 */
+.doc-heading { position: relative; }
+.heading-anchor {
+  margin-left: 8px;
+  padding: 2px 4px;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  opacity: 0;
+  vertical-align: middle;
+  transition: opacity var(--duration-fast) var(--easing-standard),
+              color var(--duration-fast) var(--easing-standard);
+}
+.doc-heading:hover .heading-anchor,
+.heading-anchor:focus-visible { opacity: 1; }
+.heading-anchor:hover { color: var(--interactive); background: var(--card-bg-alt); }
+.heading-anchor:focus-visible { outline: var(--focus-ring); outline-offset: 1px; }
+@media (hover: none) { .heading-anchor { opacity: 0.5; } }
+
+/* 從分享連結或搜尋結果進來時閃一下，指出停在哪一節。 */
+.doc-heading.is-targeted {
+  animation: heading-flash 2s var(--easing-standard);
+  border-radius: var(--radius-xs);
+}
+@keyframes heading-flash {
+  0%, 45% { background: color-mix(in srgb, var(--cffy-theme-warning-a0) 22%, transparent); }
+  100% { background: transparent; }
+}
+
+.doc-content h1 { font-size: 25px; margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); }
+.doc-content h2 { font-size: 21px; margin: 30px 0 14px; padding-bottom: 6px; border-bottom: 1px solid var(--border-soft); }
+.doc-content h3 { font-size: 18px; margin: 26px 0 12px; }
+.doc-content h4 { font-size: 16px; margin: 22px 0 10px; }
+.doc-content h5, .doc-content h6 { font-size: 14.5px; margin: 18px 0 8px; color: var(--text-muted); }
+
+.doc-content p { margin: 0 0 16px; }
+
+/* 行內連結：hover 時加淡色底與較亮的底線。左右的 padding／負 margin 成對，
+   確保 highlight 不會把文字擠位移。 */
+.doc-content a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--link) 45%, transparent);
+  padding: 1px 3px;
+  margin: 0 -3px;
+  border-radius: var(--radius-xs);
+  transition: background var(--duration-fast) var(--easing-standard),
+              color var(--duration-fast) var(--easing-standard),
+              text-decoration-color var(--duration-fast) var(--easing-standard);
+}
+.doc-content a:hover {
+  color: var(--cffy-theme-info-a10);
+  background: color-mix(in srgb, var(--link) 14%, transparent);
+  text-decoration-color: currentColor;
+}
+.doc-content a:focus-visible { outline: var(--focus-ring); outline-offset: 1px; }
+/* 圖片連結不要套文字連結的樣式。 */
+.doc-content a:has(img) {
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  background: none;
+}
+
+.doc-content ul, .doc-content ol { margin: 0 0 16px; padding-left: 26px; }
+.doc-content li { margin: 4px 0; }
+.doc-content li > ul, .doc-content li > ol { margin: 4px 0; }
+.doc-content input[type="checkbox"] {
+  width: auto;
+  margin-right: 6px;
+  accent-color: var(--primary);
+}
+
+.doc-content blockquote {
+  margin: 4px 0 20px;
+  padding: 12px 16px;
+  border: none;
+  border-left: 4px solid var(--primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--card-bg-alt);
+  color: var(--text);
+  line-height: 1.7;
+}
+.doc-content blockquote > *:first-child { margin-top: 0; }
+.doc-content blockquote p:last-child { margin-bottom: 0; }
+.doc-content blockquote ul,
+.doc-content blockquote ol { margin-bottom: 0; }
+.doc-content blockquote blockquote {
+  margin: 12px 0 0;
+  background: var(--cffy-theme-surface-a10);
+}
+
+@media (max-width: 480px) {
+  .doc-content blockquote { padding: 10px 12px; }
+}
+
+.doc-content hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+.doc-img, .doc-content img {
+  display: block;
+  /* 保留小圖的原始寬度；只有超過內容區時才等比例縮小。 */
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin: 8px 0 18px;
+  /* 圖片大小差很多，圓角要小到連 18px 高的圖也符合短邊 1/3 的規則。 */
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: var(--cffy-theme-surface-a10);
+}
+
+/* ---------- 圖片 + hover 說明 ---------- */
+/* 外框收縮到圖片實際寬度，說明列才會跟圖片同寬。 */
+.doc-content .doc-figure {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 8px 0 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--cffy-theme-surface-a10);
+}
+.doc-content .doc-figure .doc-img {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+}
+.doc-figure-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 7px 12px;
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--cffy-theme-light-a0);
+  background: rgba(0, 0, 0, 0.74);
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity var(--duration-default) var(--easing-standard),
+              transform var(--duration-default) var(--easing-standard);
+  pointer-events: none;
+}
+.doc-figure:hover .doc-figure-cap,
+.doc-figure:focus-within .doc-figure-cap {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* 觸控裝置沒有 hover，說明就固定顯示，不然永遠看不到。 */
+@media (hover: none) {
+  .doc-figure-cap { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- 可放大的圖片 ---------- */
+.doc-content img.is-zoomable { cursor: zoom-in; }
+.doc-content img.is-zoomable:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  background: rgba(0, 0, 0, 0.88);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--easing-standard);
+}
+.lightbox.open { opacity: 1; pointer-events: auto; }
+.lightbox-img {
+  max-width: 100%;
+  max-height: calc(100vh - 120px);
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: var(--cffy-theme-surface-a10);
+}
+.lightbox-cap {
+  max-width: 720px;
+  text-align: center;
+  font-size: var(--text-supporting);
+  color: var(--cffy-theme-light-a0);
+}
+.lightbox-cap[hidden] { display: none; }
+.lightbox-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  min-width: var(--hit-min);
+  min-height: var(--hit-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  line-height: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+}
+.lightbox-close:hover { background: var(--card-bg-alt); }
+.lightbox-close:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+
+@media (max-width: 480px) {
+  .lightbox { padding: 16px; }
+}
+
+/* ---------- 表格 ---------- */
+/* 外框負責圓角與橫向捲動；表格本身用 separate border，內部格線才不會疊成兩條。 */
+.doc-content .table-wrap {
+  margin: 0 0 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  overflow-x: auto;
+  background: var(--cffy-theme-surface-a10);
+}
+.doc-content table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 0;
+  font-size: 14px;
+}
+.doc-content th, .doc-content td {
+  padding: 9px 13px;
+  text-align: left;
+  border-right: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+.doc-content th:last-child, .doc-content td:last-child { border-right: none; }
+.doc-content tbody tr:last-child td { border-bottom: none; }
+.doc-content thead th {
+  background: var(--card-bg-alt);
+  font-weight: 700;
+  color: var(--text);
+  border-bottom-color: var(--border);
+  white-space: nowrap;
+}
+.doc-content tbody tr:nth-child(even) { background: rgba(var(--rgb-info), 0.04); }
+
+/* ---------- 行內程式碼 ---------- */
+.doc-content code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--card-bg-alt);
+  color: var(--cffy-theme-primary-a50);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-soft);
+}
+
+/* ---------- 程式碼區塊 + 複製鈕 ---------- */
+/* 按鈕掛在外層，長行左右捲動時它才不會跟著跑掉。 */
+.doc-content .code-wrap { position: relative; margin: 0 0 18px; }
+.doc-content .code-wrap > pre.code-block { margin: 0; padding-right: 96px; }
+
+.code-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card-bg-alt);
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity var(--duration-fast) var(--easing-standard),
+              color var(--duration-fast) var(--easing-standard),
+              border-color var(--duration-fast) var(--easing-standard),
+              background var(--duration-fast) var(--easing-standard);
+}
+.code-wrap:hover .code-copy { opacity: 1; }
+.code-copy:hover { color: var(--text); border-color: var(--cffy-theme-surface-a40); background: var(--border); }
+.code-copy:focus-visible { outline: var(--focus-ring); outline-offset: 2px; opacity: 1; }
+.code-copy .code-copy-ico { display: inline-flex; align-items: center; flex-shrink: 0; }
+.code-copy.is-copied {
+  opacity: 1;
+  color: var(--cffy-theme-success-a0);
+  border-color: color-mix(in srgb, var(--cffy-theme-success-a0) 45%, transparent);
+  background: color-mix(in srgb, var(--cffy-theme-success-a0) 14%, transparent);
+}
+/* 觸控裝置沒有 hover，按鈕一律保持看得見。 */
+@media (hover: none) {
+  .code-copy { opacity: 1; }
+  .code-copy .code-copy-label { display: none; }
+  .doc-content .code-wrap > pre.code-block { padding-right: 60px; }
+}
+
+.doc-content pre.code-block {
+  margin: 0 0 18px;
+  padding: 16px 18px;
+  background: var(--cffy-theme-surface-a0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  line-height: 1.6;
+}
+.doc-content pre.code-block code {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text);
+}
+
+/* ---------- Mermaid ---------- */
+.doc-content pre.mermaid {
+  margin: 0 0 18px;
+  padding: 24px;
+  background: var(--cffy-theme-surface-a0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+  overflow-x: auto;
+}
+.doc-content pre.mermaid:not([data-processed]) { color: var(--text-dim); font-family: var(--font-mono); font-size: 12px; }
+.doc-content pre.mermaid svg {
+  display: block;
+  width: auto;
+  max-width: none;
+  height: auto;
+  margin-inline: auto;
+  font-family: var(--font-family);
+}
+.doc-content pre.mermaid .node rect,
+.doc-content pre.mermaid .node polygon,
+.doc-content pre.mermaid .node path { stroke-width: 1.5px; }
+.doc-content pre.mermaid .node rect { rx: var(--radius-xs); ry: var(--radius-xs); }
+.doc-content pre.mermaid .flowchart-link {
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.doc-content pre.mermaid .edgeLabel,
+.doc-content pre.mermaid .edgeLabel p {
+  color: var(--text);
+  background: var(--cffy-theme-surface-a0);
+}
+.doc-content pre.mermaid .edgeLabel p { padding: 2px 5px; border-radius: var(--radius-xs); }
+
+@media (max-width: 480px) {
+  .doc-content pre.mermaid { padding: 16px; }
+}
+
+/* ---------- KaTeX ---------- */
+.doc-content .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+
+/* ---------- 內文中的 iframe（投影片、PDF、影片） ---------- */
+.doc-content iframe {
+  display: block;
+  width: 100%;
+  margin: 8px 0 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--cffy-theme-surface-a0);
+}
+
+/* ================= highlight.js 主題（顏色全部走變數） ================= */
+.hljs { color: var(--text); background: transparent; }
+.hljs-comment,
+.hljs-quote { color: var(--text-dim); font-style: italic; }
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-doctag,
+.hljs-type,
+.hljs-name,
+.hljs-strong { color: var(--cffy-theme-danger-a10); }
+.hljs-string,
+.hljs-title.class_,
+.hljs-regexp,
+.hljs-addition,
+.hljs-meta-string { color: var(--cffy-theme-success-a0); }
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link,
+.hljs-selector-attr,
+.hljs-selector-pseudo { color: var(--cffy-theme-warning-a0); }
+.hljs-title,
+.hljs-title.function_,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-attr,
+.hljs-attribute,
+.hljs-variable.language_ { color: var(--cffy-theme-info-a0); }
+.hljs-variable,
+.hljs-template-variable,
+.hljs-params,
+.hljs-selector-id,
+.hljs-selector-class { color: var(--cffy-theme-info-a20); }
+.hljs-meta,
+.hljs-tag { color: var(--cffy-theme-primary-a30); }
+.hljs-deletion { color: var(--cffy-theme-danger-a0); }
+.hljs-emphasis { font-style: italic; }

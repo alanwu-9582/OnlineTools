@@ -1,0 +1,20 @@
+{
+  "name": "OnlineTools",
+  "short_name": "OnlineTools",
+  "description": "一堆純前端的小工具與教學文檔。全部在瀏覽器裡跑，資料不會離開你的電腦。",
+  "start_url": "./#/home",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#121212",
+  "theme_color": "#252525",
+  "lang": "zh-Hant",
+  "icons": [
+    {
+      "src": "assets/images/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
