@@ -11,7 +11,7 @@
 //
 // 改動下面的 SHELL 清單時，記得把 CACHE_VERSION 往上加一版，舊快取才會被丟掉。
 
-const CACHE_VERSION = "onlinetools-v2";
+const CACHE_VERSION = "onlinetools-v3";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -51,7 +51,6 @@ const SHELL = [
   "js/utils/clipboard.js",
   // 工具模組是動態載入的，沒先快取起來，離線時工具會變成錯誤訊息。
   "js/tools/kit.js",
-  "js/tools/unit-converter.js",
   "js/tools/timestamp.js",
   "js/tools/text-stats.js",
   "js/tools/paper-bag.js",

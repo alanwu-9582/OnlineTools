@@ -200,7 +200,8 @@ function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   // 線寬與字級跟著紙張大小走，不然大袋子的標示會小到看不見。
   const sw = Math.max(0.25, paperW / 900);
   const fs = Math.max(4, paperW / 58);
-  const pad = { l: fs * 5.2, t: fs * 5.4, r: fs * 1.6, b: fs * 4.6 };
+  // 上／左各有三層標示（分段、累計刻度、總長），右／下放提把孔的座標。
+  const pad = { l: fs * 11.2, t: fs * 11.2, r: showHoles ? fs * 5.2 : fs * 1.6, b: fs * 6.6 };
 
   const svg = s("svg", {
     xmlns: SVG_NS,
@@ -306,7 +307,12 @@ function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   ];
   for (const [px, text, width] of names) {
     if (width < fs * 1.4) continue;
-    svg.appendChild(label(px, bodyMid, text, { size: fs * 1.5, weight: 700, fill: c.dim }));
+    svg.appendChild(label(px, bodyMid - fs * 0.75, text, { size: fs * 1.5, weight: 700, fill: c.dim }));
+    // 每個面自己的長寬。折起來之後這一面就是這麼大，比只寫「前」有用。
+    const size = `${mm(width)} × ${mm(geo.H)}`;
+    if (width >= size.length * fs * 0.55) {
+      svg.appendChild(label(px, bodyMid + fs * 1.05, size, { size: fs * 0.78, fill: c.dim }));
+    }
   }
   if (geo.glue >= fs * 0.9) {
     svg.appendChild(label(geo.glue / 2, bodyMid, "黏合邊", { size: fs * 0.9, fill: c.dim, rotate: -90 }));
@@ -328,61 +334,147 @@ function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
 
   // 窄的區段（黏合邊、上緣折邊）擠不下標示，就把數字挪高一階再拉一條引線回去。
   // 直接省略不畫是不行的 —— 那兩段的長度正是最容易忘記留的。
-  const fits = (span, text) => span >= String(text).length * fs * 0.62;
+  /**
+   * 粗估一段文字有多寬。中日韓字元大約佔一個字身，數字與英文只有六成左右 ——
+   * 一律用字數乘同一個係數會把「上緣 30」這種中英混排低估掉，標示就會疊在一起。
+   */
+  const textWidth = (text, size) => {
+    let units = 0;
+    for (const ch of String(text)) units += /[⺀-鿿＀-￯　-〿]/.test(ch) ? 1 : 0.6;
+    return units * size;
+  };
+  const fits = (span, text) => span >= textWidth(text, fs * 0.85);
   const leader = (x1, y1, x2, y2) => s("line", {
     x1, y1, x2, y2, stroke: c.dim, "stroke-width": sw, "stroke-dasharray": `${sw * 2} ${sw * 2}`,
   });
 
-  // 上方：整張紙的寬，以及每一段的寬。
-  const topOuter = -fs * 4.1;
-  const topInner = -fs * 1.1;
-  svg.appendChild(arrow(0, topOuter, paperW, topOuter));
-  svg.appendChild(label(paperW / 2, topOuter - fs * 0.8, `紙寬 ${mm(paperW)}`, { size: fs * 0.95, weight: 700 }));
-  const segments = [
+  /**
+   * 一條「從邊緣量起」的累計刻度。
+   * 真的在紙上畫線時，是拿尺壓著同一個邊一路量到底，不是一段一段接力量 ——
+   * 接力量每一段都會累積誤差。所以這排數字才是照著做的人真正會用到的。
+   *
+   * @param {number[]} positions  沿著軸的位置（公釐）
+   * @param {{axis:"x"|"y", offset:number, side:1|-1, caption?:string}} cfg
+   */
+  const tickScale = (positions, { axis, offset, side = -1, caption }) => {
+    const g = s("g", {});
+    const horizontal = axis === "x";
+    const span = horizontal ? paperW : paperH;
+    const tick = fs * 0.4;
+
+    g.appendChild(horizontal
+      ? s("line", { x1: 0, y1: offset, x2: span, y2: offset, stroke: c.dim, "stroke-width": sw })
+      : s("line", { x1: offset, y1: 0, x2: offset, y2: span, stroke: c.dim, "stroke-width": sw }));
+
+    // 數字擠在一起時錯開到第二排，再拉一條引線指回自己的刻度。
+    const ends = [-Infinity, -Infinity];
+    for (const pos of positions) {
+      const text = mm(pos);
+      const halfWidth = textWidth(text, fs * 0.8) / 2;
+      const tier = pos - halfWidth < ends[0] + fs * 0.4 ? 1 : 0;
+      ends[tier] = pos + halfWidth;
+      const away = fs * (0.9 + tier * 1.15) * side;
+
+      if (horizontal) {
+        g.appendChild(s("line", {
+          x1: pos, y1: offset - tick, x2: pos, y2: offset + tick,
+          stroke: c.dim, "stroke-width": sw * 1.5,
+        }));
+        if (tier) g.appendChild(leader(pos, offset + tick * side, pos, offset + away - fs * 0.45 * side));
+        g.appendChild(label(pos, offset + away, text, { size: fs * 0.8, fill: c.dim }));
+      } else {
+        g.appendChild(s("line", {
+          x1: offset - tick, y1: pos, x2: offset + tick, y2: pos,
+          stroke: c.dim, "stroke-width": sw * 1.5,
+        }));
+        if (tier) g.appendChild(leader(offset + tick * side, pos, offset + away - fs * 0.45 * side, pos));
+        g.appendChild(label(offset + away, pos, text, { size: fs * 0.8, fill: c.dim, rotate: -90 }));
+      }
+    }
+
+    if (caption) {
+      // 直向刻度的說明也轉成直排。橫排的話它會往左伸進分段標示那一欄，
+      // 大尺寸時就會跟「上緣 30」之類的標籤疊在一起。
+      g.appendChild(horizontal
+        ? label(-fs * 0.8, offset, caption, { size: fs * 0.72, fill: c.dim, anchor: "end" })
+        : label(offset, -fs * 2.0, caption, { size: fs * 0.72, fill: c.dim, rotate: -90 }));
+    }
+    return g;
+  };
+
+  /** 一整排「起點 → 終點」的分段標示，太窄就把數字挪開再拉引線。 */
+  const segmentBand = (parts, { axis, offset }) => {
+    const horizontal = axis === "x";
+    for (const [a, b, text] of parts) {
+      svg.appendChild(horizontal ? arrow(a, offset, b, offset) : arrow(offset, a, offset, b));
+      const mid = (a + b) / 2;
+      const roomy = fits(b - a, text);
+      const away = fs * (roomy ? 0.8 : 2.9);
+      if (!roomy) {
+        svg.appendChild(horizontal
+          ? leader(mid, offset - fs * 0.3, mid, offset - fs * 2.4)
+          : leader(offset - fs * 0.3, mid, offset - fs * 2.4, mid));
+      }
+      svg.appendChild(horizontal
+        ? label(mid, offset - away, text, { size: fs * 0.85, fill: c.dim })
+        : label(offset - away, mid, text, { size: fs * 0.85, fill: c.dim, rotate: -90 }));
+    }
+  };
+
+  /* 上方三層（由內而外）：各段寬度 → 自左邊量的累計刻度 → 整張紙的寬。 */
+  segmentBand([
     [x.left, x.glue, mm(geo.glue)],
     [x.glue, x.front, mm(geo.W)],
     [x.front, x.side1, mm(geo.D)],
     [x.side1, x.back, mm(geo.W)],
     [x.back, x.right, mm(geo.D)],
-  ];
-  for (const [x1, x2, text] of segments) {
-    svg.appendChild(arrow(x1, topInner, x2, topInner));
-    const mid = (x1 + x2) / 2;
-    if (fits(x2 - x1, text)) {
-      svg.appendChild(label(mid, topInner - fs * 0.8, text, { size: fs * 0.85, fill: c.dim }));
-    } else {
-      svg.appendChild(leader(mid, topInner - fs * 0.3, mid, topInner - fs * 2.4));
-      svg.appendChild(label(mid, topInner - fs * 2.9, text, { size: fs * 0.85, fill: c.dim }));
-    }
-  }
+  ], { axis: "x", offset: -fs * 1.1 });
 
-  // 左方：整張紙的高，以及每一段的高。
-  const leftOuter = -fs * 3.9;
-  const leftInner = -fs * 1.1;
-  svg.appendChild(arrow(leftOuter, 0, leftOuter, paperH));
-  svg.appendChild(label(leftOuter - fs * 0.8, paperH / 2, `紙長 ${mm(paperH)}`, { size: fs * 0.95, weight: 700, rotate: -90 }));
-  const rows = [
+  // 每一條直向折線的位置，側面中線也算 —— 不然使用者得自己去算 D/2 落在哪。
+  svg.appendChild(tickScale(
+    [x.glue, x.front, geo.gusset1, x.side1, x.back, geo.gusset2, x.right],
+    { axis: "x", offset: -fs * 6.2, caption: "自左邊量" },
+  ));
+
+  svg.appendChild(arrow(0, -fs * 9.5, paperW, -fs * 9.5));
+  svg.appendChild(label(paperW / 2, -fs * 10.3, `紙寬 ${mm(paperW)}`, { size: fs * 0.95, weight: 700 }));
+
+  /* 左方三層：各段高度 → 自上緣量的累計刻度 → 整張紙的長。 */
+  segmentBand([
     [y.top, y.hem, `上緣 ${mm(geo.hem)}`],
     [y.hem, y.bottomFold, `袋高 ${mm(geo.H)}`],
-    [y.bottomFold, y.end, `底部 ${mm(geo.bottom)}`],
-  ];
-  for (const [y1, y2, text] of rows) {
-    svg.appendChild(arrow(leftInner, y1, leftInner, y2));
-    const mid = (y1 + y2) / 2;
-    if (fits(y2 - y1, text)) {
-      svg.appendChild(label(leftInner - fs * 0.8, mid, text, { size: fs * 0.85, fill: c.dim, rotate: -90 }));
-    } else {
-      svg.appendChild(leader(leftInner - fs * 0.3, mid, leftInner - fs * 2.4, mid));
-      svg.appendChild(label(leftInner - fs * 2.9, mid, text, { size: fs * 0.85, fill: c.dim, rotate: -90 }));
-    }
-  }
+    // 底部拆成兩段：斜折線到得了的深度，跟前後兩片互相蓋住的量。
+    [y.bottomFold, y.base, `斜折 ${mm(geo.D / 2)}`],
+    [y.base, y.end, `重疊 ${mm(geo.overlap)}`],
+  ], { axis: "y", offset: -fs * 1.1 });
 
-  // 下方：提把孔的間距。
-  if (showHoles && geo.holeSpan >= fs * 2) {
-    const hy = paperH + fs * 1.4;
-    svg.appendChild(arrow(geo.frontCenter - geo.holeSpan / 2, hy, geo.frontCenter + geo.holeSpan / 2, hy));
-    svg.appendChild(label(geo.frontCenter, hy + fs * 0.9,
-      `孔距 ${mm(geo.holeSpan)}　離上緣 ${mm(geo.holeTop)}`, { size: fs * 0.85, fill: c.dim }));
+  svg.appendChild(tickScale(
+    [y.hem, y.bottomFold, y.base, y.end],
+    { axis: "y", offset: -fs * 6.2, caption: "自上緣量" },
+  ));
+
+  svg.appendChild(arrow(-fs * 9.5, 0, -fs * 9.5, paperH));
+  svg.appendChild(label(-fs * 10.3, paperH / 2, `紙長 ${mm(paperH)}`, { size: fs * 0.95, weight: 700, rotate: -90 }));
+
+  /* 提把孔：橫向位置放下面，縱向位置放右邊，兩個一起就能定出八個孔。 */
+  if (showHoles) {
+    const holeXs = [geo.frontCenter, geo.backCenter]
+      .flatMap((center) => [center - geo.holeSpan / 2, center + geo.holeSpan / 2])
+      .sort((a, b) => a - b);
+    svg.appendChild(tickScale(holeXs, {
+      axis: "x", offset: paperH + fs * 1.7, side: 1, caption: "提把孔",
+    }));
+
+    if (geo.holeSpan >= fs * 2) {
+      const spanY = paperH + fs * 5.0;
+      svg.appendChild(arrow(geo.frontCenter - geo.holeSpan / 2, spanY, geo.frontCenter + geo.holeSpan / 2, spanY));
+      svg.appendChild(label(geo.frontCenter, spanY + fs * 0.85, `孔距 ${mm(geo.holeSpan)}`, { size: fs * 0.85, fill: c.dim }));
+    }
+
+    // 兩排孔對稱地落在上緣折線的兩側，折起來剛好疊在一起。
+    svg.appendChild(tickScale([y.hem - geo.holeTop, y.hem + geo.holeTop], {
+      axis: "y", offset: paperW + fs * 1.7, side: 1, caption: "提把孔",
+    }));
   }
 
   return svg;
@@ -815,7 +907,8 @@ export function mount(host, { options = {} } = {}) {
     netHost,
     buildLegend(),
     actions(download),
-    note("圖面朝上時看到的是紙袋的外側。除了兩條側面中線是谷折，其餘折線都往後折。下載的 SVG 標了公釐單位，列印時選「實際大小／100%」就是 1:1。"),
+    note("圖面朝上時看到的是紙袋的外側。除了兩條側面中線是谷折，其餘折線都往後折。"),
+    note("畫線時用外圈那兩排「自左邊量／自上緣量」的累計數字 —— 一段一段接力量，誤差會一路累積下去。下載的 SVG 標了公釐單位，列印選「實際大小／100%」時圖面就是 1:1（含四周的標示，所以印出來的紙會比裁切用的紙大一圈）。"),
 
     subhead("組裝步驟"),
     stepHost,
