@@ -89,6 +89,20 @@
       "group": "design",
       "desc": "免費素材網站，提供各種設計資源。",
       "tags": ["設計", "素材"]
+    },
+    {
+      "name": "123APPS",
+      "url": "https://123apps.com/tw/",
+      "group": "media",
+      "desc": "影片、音訊、PDF 和檔案轉換線上工具",
+      "tags": ["轉檔", "影音"]
+    },
+    {
+      "name": "creative commons",
+      "url": "https://creativecommons.org/chooser/",
+      "group": "design",
+      "desc": "CC 授權設定網站。",
+      "tags": ["設計", "素材"]
     }
   ]
 }
