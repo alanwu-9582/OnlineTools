@@ -33,6 +33,14 @@
       "label": "設計",
       "color": "#ff8080"
     },
+    "craft": {
+      "label": "製作",
+      "color": "#b9a1ff"
+    },
+    "life": {
+      "label": "生活",
+      "color": "#ffd8a4"
+    },
     "guide": {
       "label": "說明",
       "color": "#afafaf"
@@ -70,6 +78,10 @@
     "writing": {
       "label": "寫作",
       "color": "#ffbc5e"
+    },
+    "money": {
+      "label": "金錢",
+      "color": "#7dff95"
     },
     "meta": {
       "label": "站務",

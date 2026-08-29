@@ -1,0 +1,140 @@
+/* js/tools/split-bill/split-bill.css — 分帳結算。 */
+
+.sb-empty {
+  font-size: var(--text-supporting);
+  color: var(--text-dim);
+}
+
+/* ---------- 成員 ---------- */
+.sb-members { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 4px 4px 11px;
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--surface-selected);
+  font-size: var(--text-supporting);
+  font-weight: 600;
+  color: var(--text);
+}
+.sb-chip-x {
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  padding: 2px 5px;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.sb-chip-x:hover { color: var(--critical); background: var(--card-bg-alt); }
+.sb-chip-x:focus-visible { outline: var(--focus-ring); outline-offset: 1px; }
+
+/* ---------- 支出 ---------- */
+.sb-expenses { display: flex; flex-direction: column; gap: 10px; }
+.sb-expense {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+}
+/* 刪除鈕靠右，跟上面那排欄位底部對齊。 */
+.sb-expense-head { display: flex; align-items: flex-end; gap: 10px; }
+.sb-expense-head > .tool-row { flex: 1 1 auto; min-width: 0; }
+.sb-remove {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg-alt);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.sb-remove:hover {
+  color: var(--critical);
+  border-color: color-mix(in srgb, var(--critical) 50%, transparent);
+}
+.sb-remove:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+
+.sb-expense-who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+}
+.sb-who-label {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.sb-participants { display: flex; flex-wrap: wrap; gap: 6px; }
+.sb-participant { padding: 4px 9px; font-size: var(--text-caption); }
+
+/* ---------- 結果 ---------- */
+.sb-balances {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+.sb-balance {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-soft);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+}
+.sb-balance.is-plus { border-left-color: var(--success); }
+.sb-balance.is-minus { border-left-color: var(--warning); }
+.sb-balance.is-even { border-left-color: var(--border); }
+.sb-balance-name { font-size: var(--text-supporting); font-weight: 700; color: var(--text); }
+.sb-balance-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-supporting);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+.sb-balance.is-plus .sb-balance-value { color: var(--success); }
+.sb-balance.is-minus .sb-balance-value { color: var(--warning); }
+
+.sb-transfers { display: flex; flex-direction: column; gap: 6px; }
+.sb-transfer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  font-size: var(--text-body);
+}
+.sb-transfer-from, .sb-transfer-to { font-weight: 700; color: var(--text); }
+.sb-transfer-arrow { color: var(--interactive); }
+.sb-transfer-amount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--text);
+}
+
+@media (max-width: 480px) {
+  .sb-expense-head { flex-wrap: wrap; }
+  .sb-remove { width: 100%; }
+}

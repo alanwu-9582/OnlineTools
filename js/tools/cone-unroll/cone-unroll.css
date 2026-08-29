@@ -1,0 +1,20 @@
+/* js/tools/cone-unroll/cone-unroll.css — 扇形裁切圖。 */
+
+.cone-figure {
+  padding: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  overflow-x: auto;
+}
+.cone-figure:empty { display: none; }
+
+.cone-pattern {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* 扇形常常是接近正方形的，撐滿寬度會高到把下面的說明擠出畫面。 */
+  max-height: 62vh;
+  max-width: 520px;
+  margin-inline: auto;
+}

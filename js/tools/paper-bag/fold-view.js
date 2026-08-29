@@ -1,6 +1,6 @@
 // js/tools/paper-bag/fold-view.js — 把 fold-model 算出來的那一格畫成 SVG。
 
-import { s } from "./svg.js";
+import { s } from "../svg.js";
 import {
   foldState, cameraAt, buildFaces, signedArea, centroid2, holePoints,
   shadeOf, PANEL_NAME,

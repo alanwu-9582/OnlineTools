@@ -1,0 +1,24 @@
+/* js/tools/spacing/spacing.css — 等分排列的示意圖。 */
+
+.spacing-figure {
+  padding: 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  overflow-x: auto;
+}
+.spacing-figure:empty { display: none; }
+
+.spacing-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* 手機上整段縮到 300px 寬時，位置數字會小到看不見。給個下限讓它橫向捲動。 */
+  min-width: 460px;
+}
+/* 圓周圖是方的，撐到滿版會變成一顆佔掉整個畫面的大圓。 */
+.spacing-diagram.is-circle {
+  min-width: 0;
+  max-width: 340px;
+  margin-inline: auto;
+}

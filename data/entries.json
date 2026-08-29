@@ -1,12 +1,63 @@
 {
   "entries": [
     {
+      "id": "split-bill",
+      "type": "tool",
+      "title": "分帳結算",
+      "description": "誰付了什麼、誰分攤，算出誰轉給誰多少，轉帳次數壓到最少",
+      "path": "content/tools/split-bill.md",
+      "category": "life",
+      "tags": [
+        "money"
+      ],
+      "tools": [
+        "split-bill"
+      ],
+      "publishedDate": "2026/08/29",
+      "updatedDate": "2026/08/29",
+      "readingMinutes": 1
+    },
+    {
+      "id": "spacing",
+      "type": "tool",
+      "title": "等分排列計算機",
+      "description": "一段長度平均放 N 個東西，算出每個從邊緣量起的位置，附尺規圖",
+      "path": "content/tools/spacing.md",
+      "category": "craft",
+      "tags": [
+        "math"
+      ],
+      "tools": [
+        "spacing"
+      ],
+      "publishedDate": "2026/08/29",
+      "updatedDate": "2026/08/29",
+      "readingMinutes": 1
+    },
+    {
+      "id": "cone-unroll",
+      "type": "tool",
+      "title": "圓錐展開圖",
+      "description": "上下口徑與高度換成要裁的扇形，含弦長，可下載 1:1 SVG",
+      "path": "content/tools/cone-unroll.md",
+      "category": "craft",
+      "tags": [
+        "math"
+      ],
+      "tools": [
+        "cone-unroll"
+      ],
+      "publishedDate": "2026/08/29",
+      "updatedDate": "2026/08/29",
+      "readingMinutes": 1
+    },
+    {
       "id": "paper-bag",
       "type": "tool",
       "title": "手工紙袋計算機",
       "description": "輸入袋子或物品尺寸，算出展開圖、裁切折線與組裝步驟",
       "path": "content/tools/paper-bag.md",
-      "category": "design",
+      "category": "craft",
       "tags": [
         "math"
       ],

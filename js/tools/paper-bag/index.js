@@ -24,6 +24,7 @@ import {
   mm, roundUp5, PAPER_SIZES, suggestPaper, fitToPaper, buildGeometry,
 } from "./geometry.js";
 import { buildNetSvg, buildLegend } from "./net.js";
+import { downloadSvg } from "../svg.js";
 import { buildAssembly } from "./assembly.js";
 
 /** 這個工具自己的樣式。tool-host 會在掛載前先把它載進來。 */
@@ -166,17 +167,7 @@ export function mount(host, { options = {} } = {}) {
     onClick: () => {
       if (!geo) return;
       const svg = buildNetSvg(geo, { print: true, showHoles: holeToggle.checked });
-      const blob = new Blob([svg.outerHTML], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = el("a", {
-        href: url,
-        download: `紙袋展開圖-${mm(geo.W)}x${mm(geo.D)}x${mm(geo.H)}.svg`,
-      });
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      // 立刻釋放會讓部分瀏覽器來不及讀，等一拍再收。
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      downloadSvg(svg, `紙袋展開圖-${mm(geo.W)}x${mm(geo.D)}x${mm(geo.H)}.svg`);
       notify.success("已下載，用瀏覽器或 Illustrator 開就是實際大小");
     },
   });

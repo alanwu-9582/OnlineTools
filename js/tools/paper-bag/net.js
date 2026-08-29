@@ -1,6 +1,6 @@
 // js/tools/paper-bag/net.js — 展開圖：裁切線、折線、尺寸標示、提把孔位。
 
-import { s, SVG_NS } from "./svg.js";
+import { s, SVG_NS } from "../svg.js";
 import { mm } from "./geometry.js";
 import { el } from "../kit.js";
 

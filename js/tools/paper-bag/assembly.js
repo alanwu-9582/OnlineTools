@@ -1,7 +1,7 @@
 // js/tools/paper-bag/assembly.js — 組裝動畫的播放器：播放／暫停、
 // 進度條、章節，以及捲出畫面就停下來的那套邏輯。
 
-import { s, SVG_NS } from "./svg.js";
+import { s, SVG_NS } from "../svg.js";
 import { el, icon, note } from "../kit.js";
 import { STAGES, clamp01 } from "./fold-model.js";
 import { buildFoldFrame } from "./fold-view.js";
