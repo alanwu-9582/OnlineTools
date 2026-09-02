@@ -47,14 +47,14 @@ export function normalizeText(value) {
 /** 取 JSON，失敗時給出清楚的訊息。 */
 export async function loadJSON(path) {
   const res = await fetch(path, { cache: "no-cache" });
-  if (!res.ok) throw new Error(`載入失敗 (${res.status})：${path}`);
+  if (!res.ok) throw new Error(`載入失敗 (${res.status}): ${path}`);
   return res.json();
 }
 
 /** 取純文字（例如 Markdown 原始檔）。 */
 export async function loadText(path) {
   const res = await fetch(path, { cache: "no-cache" });
-  if (!res.ok) throw new Error(`載入失敗 (${res.status})：${path}`);
+  if (!res.ok) throw new Error(`載入失敗 (${res.status}): ${path}`);
   return res.text();
 }
 
@@ -85,7 +85,7 @@ function parseDate(value) {
   return Date.parse(String(value ?? "").replace(/\//g, "-"));
 }
 
-/** 人看得懂的相對時間：今天 / 3 天前 / 2 個月前。 */
+/** 人看得懂的相對時間: 今天 / 3 天前 / 2 個月前。 */
 export function relativeDate(value) {
   const t = parseDate(value);
   if (isNaN(t)) return "";
@@ -112,7 +112,7 @@ export function compareDateDesc(a, b) {
   return (isNaN(tb) ? -Infinity : tb) - (isNaN(ta) ? -Infinity : ta);
 }
 
-/** 標題比較：語系正確且能認得數字（02 < 10）。 */
+/** 標題比較: 語系正確且能認得數字（02 < 10）。 */
 export function compareTitle(a, b) {
   return String(a ?? "").localeCompare(String(b ?? ""), "zh-Hant", {
     numeric: true,

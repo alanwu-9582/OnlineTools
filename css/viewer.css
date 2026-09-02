@@ -7,7 +7,7 @@
   margin-inline: auto;
 }
 
-/* 固定在視窗而不是欄位上：長文章捲到一半時仍然需要看得到進度。 */
+/* 固定在視窗而不是欄位上: 長文章捲到一半時仍然需要看得到進度。 */
 .read-progress {
   position: fixed;
   top: 0;
@@ -76,7 +76,7 @@
 .doc-title { font-size: 28px; font-weight: 800; margin: 0 0 8px; line-height: 1.3; }
 .doc-desc { font-size: 15px; color: var(--text-muted); margin: 0 0 12px; }
 
-/* ---------- 頁尾：上／下一篇 + 原始檔 ---------- */
+/* ---------- 頁尾: 上／下一篇 + 原始檔 ---------- */
 .doc-foot {
   margin-top: 34px;
   padding-top: 20px;
@@ -259,7 +259,7 @@
 
 .doc-content p { margin: 0 0 16px; }
 
-/* 行內連結：hover 時加淡色底與較亮的底線。左右的 padding／負 margin 成對，
+/* 行內連結: hover 時加淡色底與較亮的底線。左右的 padding／負 margin 成對，
    確保 highlight 不會把文字擠位移。 */
 .doc-content a {
   color: var(--link);

@@ -80,7 +80,7 @@ export function mount(host) {
     const now = new Date();
     nowSeconds.set(Math.floor(now.getTime() / 1000));
     nowMillis.set(now.getTime());
-    nowLocal.set(`${formatLocal(now)}　${offsetLabel(now)}`);
+    nowLocal.set(`${formatLocal(now)} ${offsetLabel(now)}`);
   };
   const timer = setInterval(tick, 1000);
   tick();
@@ -126,7 +126,7 @@ export function mount(host) {
       for (const out of outs) out.set("");
       return;
     }
-    stampLocal.set(`${formatLocal(date)}　${offsetLabel(date)}`);
+    stampLocal.set(`${formatLocal(date)} ${offsetLabel(date)}`);
     stampUTC.set(formatUTC(date));
     stampISO.set(date.toISOString());
     stampRel.set(relative(ms));

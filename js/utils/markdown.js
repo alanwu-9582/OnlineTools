@@ -1,6 +1,6 @@
 // js/utils/markdown.js — Markdown → HTML 的渲染流程。
 //
-// 需要時才從 jsdelivr 載入：marked@4（舊版 renderer API）、highlight.js、
+// 需要時才從 jsdelivr 載入: marked@4（舊版 renderer API）、highlight.js、
 // KaTeX（含 auto-render）、mermaid。
 // 支援圖片、圖片連結、原生 HTML（工具佔位就是靠它）、程式碼區塊（語法上色）、
 // 表格、清單、LaTeX（$…$、$$…$$）、Mermaid，以及標題大綱。
@@ -27,7 +27,7 @@ function loadScript(src) {
     if (existing) {
       if (existing.dataset.loaded) return resolve();
       existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () => reject(new Error(`載入失敗：${src}`)));
+      existing.addEventListener("error", () => reject(new Error(`載入失敗: ${src}`)));
       return;
     }
     const s = document.createElement("script");
@@ -35,7 +35,7 @@ function loadScript(src) {
     s.async = false;
     s.dataset.mdSrc = src;
     s.addEventListener("load", () => { s.dataset.loaded = "1"; resolve(); });
-    s.addEventListener("error", () => reject(new Error(`載入失敗：${src}`)));
+    s.addEventListener("error", () => reject(new Error(`載入失敗: ${src}`)));
     document.head.appendChild(s);
   });
 }
@@ -98,7 +98,7 @@ export function loadMarkdownLibs() {
   return libsPromise;
 }
 
-/** 改寫圖片路徑：先套舊前綴對照，其餘相對路徑補上基準資料夾。 */
+/** 改寫圖片路徑: 先套舊前綴對照，其餘相對路徑補上基準資料夾。 */
 function rewriteImageSrc(src) {
   const raw = String(src || "").trim();
   if (!raw) return raw;
@@ -129,7 +129,7 @@ function buildRenderer() {
     const titleAttr = title ? ` title="${escapeHtml(title)}"` : "";
     const img = `<img src="${escapeHtml(src)}" alt="${alt}"${titleAttr} loading="lazy" class="doc-img">`;
     // alt / title 會在滑過圖片時當成說明浮出來。用 <span>（樣式設成 block）而不是
-    // <figure>：後者放在 marked 產生的 <p> 裡不合法，會被 HTML parser 拉出去，把段落切斷。
+    // <figure>: 後者放在 marked 產生的 <p> 裡不合法，會被 HTML parser 拉出去，把段落切斷。
     const caption = title || text || "";
     if (!caption) return img;
     return `<span class="doc-figure">${img}`
@@ -176,12 +176,12 @@ function buildRenderer() {
 }
 
 /**
- * marked 4 遇到 `**文字（abbr）**：` 這種、右括號後面直接接中文標點的情況，
+ * marked 4 遇到 `**文字（abbr）**: ` 這種、右括號後面直接接中文標點的情況，
  * 有時會整段不處理。先把這個特例換成語意 HTML，作者就能照常用中文標點。
  */
 function normalizeStrongBeforeCjkPunctuation(markdown) {
   return String(markdown).replace(
-    /\*\*([^*\r\n]+[)\]）】])\*\*(?=[：；，。、！？])/g,
+    /\*\*([^*\r\n]+[)\]）】])\*\*(?=[: ；，。、！？])/g,
     "<strong>$1</strong>",
   );
 }
@@ -217,12 +217,12 @@ export async function enhanceMarkdown(container) {
         ],
         throwOnError: false,
       });
-    } catch (err) { console.warn("KaTeX 渲染問題：", err); }
+    } catch (err) { console.warn("KaTeX 渲染問題: ", err); }
   }
   const diagrams = container.querySelectorAll("pre.mermaid");
   if (diagrams.length && window.mermaid) {
     try { await window.mermaid.run({ nodes: diagrams }); }
-    catch (err) { console.warn("Mermaid 渲染問題：", err); }
+    catch (err) { console.warn("Mermaid 渲染問題: ", err); }
   }
 }
 

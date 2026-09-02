@@ -24,7 +24,7 @@ function cached() {
 }
 const load = cached();
 
-/** data/site.json 全部內容：站台資訊、類別與標籤。 */
+/** data/site.json 全部內容: 站台資訊、類別與標籤。 */
 export async function getSite() {
   return load(SITE_URL, (data) => data || {});
 }
@@ -40,14 +40,14 @@ export async function getEntries() {
   return load(ENTRIES_URL, (data) => (Array.isArray(data) ? data : data.entries || []));
 }
 
-/** 只要某一種：`"tool"` 或 `"doc"`。 */
+/** 只要某一種: `"tool"` 或 `"doc"`。 */
 export async function getEntriesByKind(kind) {
   const entries = await getEntries();
   return kind ? entries.filter((doc) => doc.type === kind) : entries;
 }
 
 /**
- * 全文索引：Map<entryId, Array<{h, i, t}>>（標題 / 標題 id / 內文）。
+ * 全文索引: Map<entryId, Array<{h, i, t}>>（標題 / 標題 id / 內文）。
  * 延後載入 —— 只有第一次搜尋要付這個成本。
  */
 export async function getSearchIndex() {
@@ -55,7 +55,7 @@ export async function getSearchIndex() {
     new Map((data.entries || []).map((doc) => [doc.id, doc.blocks || []])));
 }
 
-/** data/links.json：其他人做的工具網站。 */
+/** data/links.json: 其他人做的工具網站。 */
 export async function getLinks() {
   return load(LINKS_URL, (data) => ({
     groups: data.groups || {},

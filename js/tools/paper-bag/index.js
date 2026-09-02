@@ -1,19 +1,19 @@
 // js/tools/paper-bag.js — 手工紙袋計算機。
 //
-// 算的是最常見的那種「方底提袋」（SOS bag）：一張長方形紙，捲成筒、
+// 算的是最常見的那種「方底提袋」（SOS bag）: 一張長方形紙，捲成筒、
 // 折出兩側的內凹側面，底部收成平的長方形。照片上那種牛皮紙袋就是這個結構。
 //
-// 展開圖的幾何：
+// 展開圖的幾何: 
 //
 //   橫向  [黏合邊 G][前 W][側 D][後 W][側 D]        紙寬 = G + 2W + 2D
 //   縱向  [上緣折邊 T][袋身 H][底部 B]              紙高 = T + H + B
 //
-// 底部高度 B = D/2 + 重疊。理由：底面是一個 W×D 的長方形，前後兩片各要
+// 底部高度 B = D/2 + 重疊。理由: 底面是一個 W×D 的長方形，前後兩片各要
 // 蓋過中線才黏得住 —— 剛好蓋到中線是 D/2，再多出來的就是重疊量。
 // 側面在底部收成兩個 45° 的三角形，頂點落在離底線 D/2 的地方，
 // 所以斜折線一定是 45°，這不是估的。
 //
-// 提把只標打洞位置：真正的紙繩提把要另外穿，怎麼穿跟紙張怎麼裁無關。
+// 提把只標打洞位置: 真正的紙繩提把要另外穿，怎麼穿跟紙張怎麼裁無關。
 
 import {
   panel, row, field, numberInput, select, segmented, button, actions, outputRow,
@@ -59,7 +59,7 @@ export function mount(host, { options = {} } = {}) {
   const presetSelect = select({
     options: [
       { value: "", label: "自訂尺寸" },
-      ...PAPER_SIZES.map((size) => ({ value: size.label, label: `${size.label}　${size.w} × ${size.h}` })),
+      ...PAPER_SIZES.map((size) => ({ value: size.label, label: `${size.label} ${size.w} × ${size.h}` })),
     ],
     value: "A4",
     onChange: () => {
@@ -246,7 +246,7 @@ export function mount(host, { options = {} } = {}) {
     outPaper.set(`${mm(geo.paperW)} × ${mm(geo.paperH)} mm`);
     outBag.set(`${mm(W)} × ${mm(D)} × ${mm(H)} mm（寬 × 深 × 高）`);
     outVolume.set(`${(geo.volume).toFixed(2)} 公升`);
-    outBottom.set(`${mm(geo.bottom)} mm　＝ 袋深一半 ${mm(D / 2)} ＋ 重疊 ${mm(o)}`);
+    outBottom.set(`${mm(geo.bottom)} mm ＝ 袋深一半 ${mm(D / 2)} ＋ 重疊 ${mm(o)}`);
 
     const stock = suggestPaper(geo.paperW, geo.paperH);
     outStock.set(stock
@@ -268,7 +268,7 @@ export function mount(host, { options = {} } = {}) {
 
     if (warnings.length || note) info.set([note, ...warnings].filter(Boolean).join("；"), "warn");
     else if (mode === "paper") info.set(`這張紙最大能做 ${mm(W)} × ${mm(D)} × ${mm(H)} mm，${geo.volume.toFixed(2)} 公升`, "ok");
-    else if (derived) info.set(`已從物品尺寸推算出袋子：${mm(W)} × ${mm(D)} × ${mm(H)} mm`, "ok");
+    else if (derived) info.set(`已從物品尺寸推算出袋子: ${mm(W)} × ${mm(D)} × ${mm(H)} mm`, "ok");
     else info.set(`共 ${mm(geo.paperW * geo.paperH / 100)} 平方公分的紙`, "ok");
 
     netHost.replaceChildren(buildNetSvg(geo, { showHoles: holeToggle.checked }));

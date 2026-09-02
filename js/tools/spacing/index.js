@@ -1,7 +1,7 @@
 // js/tools/spacing/index.js — 等分排列計算機。
 //
 // 一段長度要平均放 N 個東西，算出每個「從邊緣量起」的位置。
-// 主要輸出是那一串累計位置：實際劃線是拿尺壓著同一個邊量到底，
+// 主要輸出是那一串累計位置: 實際劃線是拿尺壓著同一個邊量到底，
 // 一段一段接力量的話誤差會一路累積。
 
 import {
@@ -110,13 +110,13 @@ export function mount(host, { options = {} } = {}) {
       outAngle.set(`${round(result.angle)}°`);
       outChord.set(`${round(result.chord)} mm`);
       outArc.set(`${round(result.arc)} mm`);
-      outList.set(positions.length <= 6 ? positions.join("　") : `${positions.length} 個座標`);
+      outList.set(positions.length <= 6 ? positions.join(" ") : `${positions.length} 個座標`);
       figure.replaceChildren(circleDiagram({
         diameter: Number(diameterInput.value),
         points: result.points,
         chord: result.chord,
       }));
-      info.set("座標是相對圓心的（X 向右、Y 向上）。手工劃線的話用弦長比較快：定好第一點，用圓規張開弦長，沿著圓周依序點下去。", "ok");
+      info.set("座標是相對圓心的（X 向右、Y 向上）。手工劃線的話用弦長比較快: 定好第一點，用圓規張開弦長，沿著圓周依序點下去。", "ok");
       setEnabled(true);
       return;
     }
@@ -127,7 +127,7 @@ export function mount(host, { options = {} } = {}) {
     const result = linearLayout({ length, count, width, mode, step });
     if (!result) {
       const total = width * count;
-      if (total > length) fail(`放不下：${count} 個 × ${round(width)} = ${round(total)}，比總長 ${round(length)} 還大。`);
+      if (total > length) fail(`放不下: ${count} 個 × ${round(width)} = ${round(total)}，比總長 ${round(length)} 還大。`);
       else if (mode === "between" && count < 2) fail("「兩端不留邊」至少要放 2 個。");
       else fail("每一欄都要填正數，數量要是整數。");
       return;
@@ -136,7 +136,7 @@ export function mount(host, { options = {} } = {}) {
     positions = result.positions.map((p) => round(p));
     outGap.set(`${round(result.gap)} mm`);
     outCell.set(`${round(result.cell)} mm`);
-    outList.set(positions.length <= 8 ? positions.join("　") : `${positions.length} 個位置`);
+    outList.set(positions.length <= 8 ? positions.join(" ") : `${positions.length} 個位置`);
 
     figure.replaceChildren(linearDiagram({
       length, width,

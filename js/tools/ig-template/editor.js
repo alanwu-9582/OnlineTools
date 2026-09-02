@@ -1,51 +1,24 @@
 // js/tools/ig-template/editor.js — 直接在畫布上編輯。
 //
-// 沒有「一層一個控制欄位」的清單了。想改哪裡就點哪裡：
+// 沒有「一層一個控制欄位」的清單了。想改哪裡就點哪裡: 
 //   空的照片框  → 點一下開檔案選擇
 //   放好的照片  → 拖曳平移，選取後用工具列換圖／縮放
 //   文字        → 點一下就地打字
-//   被蓋住的層  → 左上角圖層鈕展開清單去選
+//   被蓋住的層  → 右上角圖層鈕展開清單去選
 //
-// 做法上的關鍵：canvas 上面疊一層 DOM 覆蓋層，用 transform: scale() 縮到
+// 做法上的關鍵: canvas 上面疊一層 DOM 覆蓋層，用 transform: scale() 縮到
 // 跟顯示尺寸一致。覆蓋層裡面的東西全部用「畫布座標」（1080 那一套）擺，
 // 不用到處乘除比例，旋轉過的圖層也能直接把 rotate 套在命中框上。
 
 import { el, icon } from "../kit.js";
-import { FONT_FAMILIES, WEIGHTS } from "./schema.js";
+import { FONT_FAMILIES, WEIGHTS, MAX_FONT_SIZE, MAX_STROKE_WIDTH } from "./schema.js";
 import { renderTemplate, loadImage, exportBlob } from "./render.js";
 import { layoutText, clampOffset } from "./layout.js";
 import { extForType } from "./bundle.js";
+import { rgbPart, alphaOf, withAlpha, withRgb } from "./color.js";
 
 const TYPE_ICON = { photo: "grid", image: "grid", text: "book", rect: "filter" };
 const TYPE_NAME = { photo: "照片", image: "素材", text: "文字", rect: "色塊" };
-
-/* ---------------- 顏色 ---------------- */
-
-// <input type="color"> 只吃 #rrggbb。模板裡的漸層卻常常是 rgba()，
-// 直接塞進去會變成空值。所以統一先用 canvas 把任何 CSS 色字串解析成 rgba，
-// 改顏色時把原本的透明度保留下來。
-let probe = null;
-function parseColor(css) {
-  if (!probe) probe = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
-  probe.clearRect(0, 0, 1, 1);
-  probe.fillStyle = "#000000";
-  probe.fillStyle = css;
-  probe.fillRect(0, 0, 1, 1);
-  const [r, g, b, a] = probe.getImageData(0, 0, 1, 1).data;
-  return { r, g, b, a: a / 255 };
-}
-const hex2 = (n) => n.toString(16).padStart(2, "0");
-function toHex(css) {
-  const { r, g, b } = parseColor(css);
-  return `#${hex2(r)}${hex2(g)}${hex2(b)}`;
-}
-/** 換掉 RGB、留住原本的 alpha。 */
-function recolor(original, hex) {
-  const { a } = parseColor(original);
-  if (a >= 0.999) return hex;
-  const { r, g, b } = parseColor(hex);
-  return `rgba(${r}, ${g}, ${b}, ${Number(a.toFixed(3))})`;
-}
 
 /* ---------------- 主體 ---------------- */
 
@@ -56,7 +29,9 @@ function recolor(original, hex) {
  */
 export function createEditor({ bundle, onRender, onNotify }) {
   const template = bundle.template;
-  const size = template.canvas.size;
+  // 畫布可以是正方形也可以是長方形，所以兩個邊都要各自帶著走。
+  const canvasW = template.canvas.width;
+  const canvasH = template.canvas.height;
   /** @type {Map<string, {path:string, img:HTMLImageElement, scale:number, dx:number, dy:number}>} */
   const slots = new Map();
   const byId = new Map(template.layers.map((l) => [l.id, l]));
@@ -68,12 +43,12 @@ export function createEditor({ bundle, onRender, onNotify }) {
 
   /* ---- DOM ---- */
 
-  const canvas = el("canvas", { class: "ige-canvas", width: size, height: size });
+  const canvas = el("canvas", { class: "ige-canvas", width: canvasW, height: canvasH });
   const ctx = canvas.getContext("2d");
 
   const overlay = el("div", { class: "ige-overlay" });
-  overlay.style.width = `${size}px`;
-  overlay.style.height = `${size}px`;
+  overlay.style.width = `${canvasW}px`;
+  overlay.style.height = `${canvasH}px`;
 
   const toolbar = el("div", { class: "ige-toolbar", hidden: true, role: "toolbar" });
   const layerList = el("div", { class: "ige-layer-list", role: "listbox" });
@@ -85,11 +60,15 @@ export function createEditor({ bundle, onRender, onNotify }) {
     class: "ige-layers-toggle",
     type: "button",
     title: "圖層",
+    "aria-label": "圖層",
     "aria-expanded": "false",
     onclick: () => toggleLayers(),
-  }, el("span", { class: "ige-ico", html: icon("grid", { size: "15px" }) }), "圖層");
+  }, el("span", { class: "ige-ico", html: icon("grid", { size: "15px" }) }));
 
   const stage = el("div", { class: "ige-stage" }, canvas, overlay, layerToggle, layerPanel, toolbar);
+  // 舞台的長寬比由模板決定，不能寫死在 CSS 裡 —— 寫死的話直式模板會被
+  // 壓成正方形，命中框的位置就跟畫出來的東西對不上了。
+  stage.style.aspectRatio = `${canvasW} / ${canvasH}`;
   const root = el("div", { class: "ige-editor" }, stage);
 
   // 檔案選擇器共用一個，用完把 value 清掉，同一個檔案才選得了第二次。
@@ -113,7 +92,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
       class: `ige-hit ige-hit-${layer.type}`,
       type: "button",
       dataset: { id: layer.id },
-      "aria-label": `${TYPE_NAME[layer.type]}：${layer.label}`,
+      "aria-label": `${TYPE_NAME[layer.type]}: ${layer.label}`,
     });
     const { x, y, w, h } = layer.rect;
     Object.assign(hit.style, {
@@ -131,13 +110,21 @@ export function createEditor({ bundle, onRender, onNotify }) {
   /* ---- 縮放同步 ---- */
 
   function syncScale() {
-    const width = canvas.clientWidth || stage.clientWidth || size;
-    scaleFactor = width / size;
+    const width = canvas.clientWidth || stage.clientWidth || canvasW;
+    // 舞台的 aspect-ratio 跟畫布一致，所以只用寬度算比例就夠，
+    // 橫向與縱向永遠是同一個縮放值（不會把圖拉變形）。
+    scaleFactor = width / canvasW;
     overlay.style.transform = `scale(${scaleFactor})`;
     if (selectedId) placeToolbar();
   }
   const resizeObserver = new ResizeObserver(syncScale);
   resizeObserver.observe(stage);
+
+  // 保險：萬一瀏覽器不吃 overflow: clip，退回 hidden 之後還是捲得動。
+  // 一被捲走就拉回原位，成品預覽永遠對齊舞台。
+  stage.addEventListener("scroll", () => {
+    if (stage.scrollLeft || stage.scrollTop) { stage.scrollLeft = 0; stage.scrollTop = 0; }
+  });
 
   /* ---- 繪製 ---- */
 
@@ -186,7 +173,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
       select(layer.id);
       onNotify?.(`已放上「${layer.label}」。拖曳可以調整位置。`, "ok");
     } catch (err) {
-      onNotify?.(`圖片讀不進來：${err.message}`, "error");
+      onNotify?.(`圖片讀不進來: ${err.message}`, "error");
     }
   }
 
@@ -263,12 +250,35 @@ export function createEditor({ bundle, onRender, onNotify }) {
     }, iconName ? el("span", { class: "ige-ico", html: icon(iconName, { size: "14px" }) }) : label);
   }
 
+  /**
+   * 色票 + 透明度。
+   *
+   * <input type="color"> 只吃 6 位 hex，塞 8 位進去透明度會被丟掉，
+   * 所以透明度另外用一個 0–100 的欄位，兩邊合成回 #RRGGBBAA。
+   *
+   * @param {string} value    目前的顏色（任何 CSS 寫法都行）
+   * @param {(hex:string)=>void} onPick  收到的一律是正規化過的 hex
+   */
   function tbColor(value, onPick, label) {
-    const input = el("input", {
-      class: "ige-tb-color", type: "color", value: toHex(value), title: label, "aria-label": label,
+    let current = value;
+    const swatch = el("input", {
+      class: "ige-tb-color", type: "color", value: rgbPart(current),
+      title: `${label}`, "aria-label": label,
     });
-    input.addEventListener("input", () => { onPick(input.value); render(); });
-    return input;
+    const alpha = el("input", {
+      class: "ige-tb-num ige-tb-alpha", type: "number", min: "0", max: "100", step: "1",
+      value: String(Math.round(alphaOf(current) * 100)),
+      title: `${label}的不透明度（%）`, "aria-label": `${label}的不透明度`,
+    });
+    const push = (next) => { current = next; onPick(next); render(); };
+    swatch.addEventListener("input", () => push(withRgb(current, swatch.value)));
+    alpha.addEventListener("input", () => {
+      const v = Number(alpha.value);
+      if (!Number.isFinite(v) || v < 0 || v > 100) return;
+      push(withAlpha(current, v / 100));
+    });
+    // 兩個欄位是一組，包在一起才不會被 flex 換行拆開。
+    return el("span", { class: "ige-tb-colorset" }, swatch, alpha);
   }
 
   function buildToolbar() {
@@ -282,23 +292,29 @@ export function createEditor({ bundle, onRender, onNotify }) {
         ...bundle.fonts.map(({ value, label }) => ({ value, label: `${label} (模板)` })),
         ...FONT_FAMILIES,
       ];
-      if (!fontFamilies.some((font) => font.value === layer.font.family)) {
+      // 比對只看第一個字族名，不看後面的備援串。匯入的圖層寫的是
+      // `"Roboto", sans-serif`，模板字型註冊的是 `"Roboto"` —— 逐字比的話
+      // 會被當成兩種字型，下拉選單就會多出一個醜的重複項。
+      const primary = (css) => String(css).split(",")[0].trim().replace(/^["']|["']$/g, "").toLowerCase();
+      const want = primary(layer.font.family);
+      const match = fontFamilies.find((font) => primary(font.value) === want);
+      if (!match) {
         fontFamilies.unshift({ value: layer.font.family, label: `${layer.font.family}（模板指定）` });
       }
       const fontSel = el("select", { class: "ige-tb-select", title: "字型", "aria-label": "字型" },
         ...fontFamilies.map((f) => el("option", { value: f.value }, f.label)));
-      fontSel.value = layer.font.family;
+      fontSel.value = match ? match.value : layer.font.family;
       fontSel.addEventListener("change", () => {
         layer.font.family = fontSel.value; render(); syncInlineStyle();
       });
 
       const sizeInput = el("input", {
-        class: "ige-tb-num", type: "number", min: "6", max: "400", step: "1",
+        class: "ige-tb-num", type: "number", min: "6", max: String(MAX_FONT_SIZE), step: "1",
         value: String(Math.round(layer.font.size)), title: "字級", "aria-label": "字級",
       });
       sizeInput.addEventListener("input", () => {
         const v = Number(sizeInput.value);
-        if (Number.isFinite(v) && v >= 6 && v <= 400) {
+        if (Number.isFinite(v) && v >= 6 && v <= MAX_FONT_SIZE) {
           layer.font.size = v; render(); syncInlineStyle();
         }
       });
@@ -321,12 +337,33 @@ export function createEditor({ bundle, onRender, onNotify }) {
             layer.align = value; render(); syncInlineStyle(); buildToolbar();
           }, { active: layer.align === value })));
 
+      // 文字外框。粗細填 0 就是關掉 —— 這樣不用另外做一個開關。
+      const strokeWidth = el("input", {
+        class: "ige-tb-num", type: "number", min: "0", max: String(MAX_STROKE_WIDTH), step: "0.5",
+        value: String(layer.stroke ? layer.stroke.width : 0),
+        title: "外框粗細（0 = 不描邊）", "aria-label": "外框粗細",
+      });
+      const applyStroke = (width, color) => {
+        if (width > 0) layer.stroke = { color, width };
+        else delete layer.stroke;
+        render();
+        syncInlineStyle();
+      };
+      strokeWidth.addEventListener("input", () => {
+        const v = Number(strokeWidth.value);
+        if (!Number.isFinite(v) || v < 0 || v > MAX_STROKE_WIDTH) return;
+        applyStroke(v, layer.stroke?.color || "#ffffff");
+      });
+      const strokeColor = tbColor(layer.stroke?.color || "#ffffff",
+        (hex) => applyStroke(layer.stroke?.width || Number(strokeWidth.value) || 0, hex), "外框");
+
       toolbar.append(
         tbGroup("", fontSel),
         tbGroup("", sizeInput),
         tbGroup("", weightSel),
-        tbGroup("", tbColor(layer.color, (hex) => { layer.color = hex; syncInlineStyle(); }, "文字顏色")),
+        tbGroup("", tbColor(layer.color, (hex) => { layer.color = hex; syncInlineStyle(); }, "文字")),
         tbGroup("", alignGroup),
+        tbGroup("外框", strokeColor, strokeWidth),
       );
     } else if (layer.type === "photo" || layer.type === "image") {
       const has = slots.has(layer.id);
@@ -348,8 +385,22 @@ export function createEditor({ bundle, onRender, onNotify }) {
           state.dx = fixed.dx; state.dy = fixed.dy;
           render();
         });
+        // 照片沒有「顏色」可以調透明度，所以給圖層本身的不透明度。
+        const opacity = el("input", {
+          class: "ige-tb-num ige-tb-alpha", type: "number", min: "0", max: "100", step: "1",
+          value: String(Math.round(layer.opacity * 100)),
+          title: "不透明度（%）", "aria-label": "不透明度",
+        });
+        opacity.addEventListener("input", () => {
+          const v = Number(opacity.value);
+          if (!Number.isFinite(v) || v < 0 || v > 100) return;
+          layer.opacity = v / 100;
+          render();
+        });
+
         toolbar.append(
           tbGroup("縮放", zoom),
+          tbGroup("透明", opacity),
           tbGroup("", tbButton("置中", () => {
             state.scale = 1; state.dx = 0; state.dy = 0; render(); buildToolbar();
           })),
@@ -360,13 +411,13 @@ export function createEditor({ bundle, onRender, onNotify }) {
       if (layer.gradient) {
         toolbar.append(
           tbGroup("起", tbColor(layer.gradient.from,
-            (hex) => { layer.gradient.from = recolor(layer.gradient.from, hex); }, "漸層起點")),
+            (hex) => { layer.gradient.from = hex; }, "漸層起點")),
           tbGroup("迄", tbColor(layer.gradient.to,
-            (hex) => { layer.gradient.to = recolor(layer.gradient.to, hex); }, "漸層終點")),
+            (hex) => { layer.gradient.to = hex; }, "漸層終點")),
         );
       } else {
         toolbar.append(tbGroup("", tbColor(layer.color,
-          (hex) => { layer.color = recolor(layer.color, hex); }, "顏色")));
+          (hex) => { layer.color = hex; }, "顏色")));
       }
     }
 
@@ -401,9 +452,12 @@ export function createEditor({ bundle, onRender, onNotify }) {
       lineHeight: String(layer.font.lineHeight),
       letterSpacing: `${layer.font.letterSpacing || 0}px`,
       color: layer.color,
+      // 讓行內輸入框也帶上外框，打字時看到的跟放開之後一致。
+      WebkitTextStrokeWidth: layer.stroke ? `${layer.stroke.width}px` : "",
+      WebkitTextStrokeColor: layer.stroke ? layer.stroke.color : "",
       textAlign: layer.align,
       transform: layer.rotate ? `rotate(${layer.rotate}deg)` : "",
-      // 旋轉的基準要對齊 canvas：canvas 是繞 rect 中心轉，這裡的框卻是
+      // 旋轉的基準要對齊 canvas: canvas 是繞 rect 中心轉，這裡的框卻是
       // 從 top 開始量，所以把原點挪到 rect 中心相對於框的位置。
       transformOrigin: layer.rotate ? `${w / 2}px ${y + h / 2 - top}px` : "",
     });
@@ -453,7 +507,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
     placeToolbar();
   }
 
-  /* ---- 指標：點一下 vs 拖曳 ---- */
+  /* ---- 指標: 點一下 vs 拖曳 ---- */
 
   const DRAG_SLOP = 4;   // px，超過這個距離才算拖曳而不是點擊
 
@@ -511,7 +565,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
     }
   }
 
-  // 鍵盤操作：命中框是 <button>，Enter / Space 會發 click。
+  // 鍵盤操作: 命中框是 <button>，Enter / Space 會發 click。
   overlay.addEventListener("click", (e) => {
     const hit = e.target.closest(".ige-hit");
     if (!hit || e.detail !== 0) return;        // detail 0 = 鍵盤觸發
@@ -555,7 +609,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
           toggleLayers(false);
           activate(layer);
           // 文字層 activate 之後焦點在行內輸入框上，再 focus 命中框會把它踢掉。
-          if (layer.type !== "text") hits.get(layer.id)?.focus();
+          if (layer.type !== "text") hits.get(layer.id)?.focus({ preventScroll: true });
         },
       },
         el("span", { class: "ige-ico", html: icon(TYPE_ICON[layer.type], { size: "14px" }) }),

@@ -1,4 +1,4 @@
-// js/pages/links.js — 其他工具：外部工具網站的清單，可搜尋、可依分類篩選。
+// js/pages/links.js — 其他工具: 外部工具網站的清單，可搜尋、可依分類篩選。
 //
 // 資料來自 data/links.json，全部手動維護 —— 這頁不是自動爬來的，
 // 每一個都是真的用過才放上來。
@@ -39,7 +39,7 @@ export async function mountPage({ params }) {
     console.error(err);
     const body = $("#links-body");
     if (body) body.innerHTML =
-      `<div class="banner banner-danger" role="alert">連結載入失敗：${escapeHtml(err.message)}。請確認網路連線後重新整理。</div>`;
+      `<div class="banner banner-danger" role="alert">連結載入失敗: ${escapeHtml(err.message)}。請確認網路連線後重新整理。</div>`;
   }
   return null;
 }

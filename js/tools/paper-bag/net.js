@@ -1,4 +1,4 @@
-// js/tools/paper-bag/net.js — 展開圖：裁切線、折線、尺寸標示、提把孔位。
+// js/tools/paper-bag/net.js — 展開圖: 裁切線、折線、尺寸標示、提把孔位。
 
 import { s, SVG_NS } from "../svg.js";
 import { mm } from "./geometry.js";
@@ -76,7 +76,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     transform: opts.rotate ? `rotate(${opts.rotate} ${tx} ${ty})` : null,
   }, text);
 
-  /* ---- 面的底色：相鄰的面深淺交錯，一眼看得出邊界在哪 ---- */
+  /* ---- 面的底色: 相鄰的面深淺交錯，一眼看得出邊界在哪 ---- */
   const panels = [
     [x.left, x.glue, c.panelB],
     [x.glue, x.front, c.panelA],
@@ -94,7 +94,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     fill: "none", stroke: c.cut, "stroke-width": sw * 2,
   }));
 
-  /* ---- 山折：四條直的分隔線 + 上緣 + 底部 ---- */
+  /* ---- 山折: 四條直的分隔線 + 上緣 + 底部 ---- */
   const mountainDash = `${sw * 6} ${sw * 4}`;
   for (const px of [x.glue, x.front, x.side1, x.back]) {
     svg.appendChild(line(px, 0, px, paperH, c.mountain, mountainDash));
@@ -102,13 +102,13 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   svg.appendChild(line(0, y.hem, paperW, y.hem, c.mountain, mountainDash));
   svg.appendChild(line(0, y.bottomFold, paperW, y.bottomFold, c.mountain, mountainDash));
 
-  /* ---- 谷折：兩片側面的中線。只有這兩條要往反方向折。 ---- */
+  /* ---- 谷折: 兩片側面的中線。只有這兩條要往反方向折。 ---- */
   const valleyDash = `${sw * 8} ${sw * 3} ${sw * 1.5} ${sw * 3}`;
   for (const px of [geo.gusset1, geo.gusset2]) {
     svg.appendChild(line(px, 0, px, paperH, c.valley, valleyDash));
   }
 
-  /* ---- 底部：45° 斜折線 + 底面中線 ---- */
+  /* ---- 底部: 45° 斜折線 + 底面中線 ---- */
   // 每一個「袋角」的兩側各一條 45° 斜線。紙的右邊緣捲起來之後會貼到黏合線上，
   // 所以它跟 x.glue 是同一個角，兩邊都要有斜線，只是各自被紙邊切掉一半。
   const half = geo.D / 2;
@@ -119,7 +119,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     if (left > 0) svg.appendChild(line(px, y.bottomFold, px - left, y.bottomFold + left, c.diagonal, diagDash));
     if (right > 0) svg.appendChild(line(px, y.bottomFold, px + right, y.bottomFold + right, c.diagonal, diagDash));
   }
-  // 底面中線：三角形的頂點都落在這裡。是對位用的參考線，不是折線。
+  // 底面中線: 三角形的頂點都落在這裡。是對位用的參考線，不是折線。
   svg.appendChild(line(0, y.base, paperW, y.base, c.dim, `${sw * 1.5} ${sw * 3}`));
 
   /* ---- 提把孔 ---- */
@@ -184,7 +184,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
    */
   const textWidth = (text, size) => {
     let units = 0;
-    for (const ch of String(text)) units += /[⺀-鿿＀-￯　-〿]/.test(ch) ? 1 : 0.6;
+    for (const ch of String(text)) units += /[⺀-鿿＀-￯ -〿]/.test(ch) ? 1 : 0.6;
     return units * size;
   };
   const fits = (span, text) => span >= textWidth(text, fs * 0.85);
@@ -265,7 +265,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     }
   };
 
-  /* 上方三層（由內而外）：各段寬度 → 自左邊量的累計刻度 → 整張紙的寬。 */
+  /* 上方三層（由內而外）: 各段寬度 → 自左邊量的累計刻度 → 整張紙的寬。 */
   segmentBand([
     [x.left, x.glue, mm(geo.glue)],
     [x.glue, x.front, mm(geo.W)],
@@ -283,11 +283,11 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   svg.appendChild(arrow(0, -fs * 9.5, paperW, -fs * 9.5));
   svg.appendChild(label(paperW / 2, -fs * 10.3, `紙寬 ${mm(paperW)}`, { size: fs * 0.95, weight: 700 }));
 
-  /* 左方三層：各段高度 → 自上緣量的累計刻度 → 整張紙的長。 */
+  /* 左方三層: 各段高度 → 自上緣量的累計刻度 → 整張紙的長。 */
   segmentBand([
     [y.top, y.hem, `上緣 ${mm(geo.hem)}`],
     [y.hem, y.bottomFold, `袋高 ${mm(geo.H)}`],
-    // 底部拆成兩段：斜折線到得了的深度，跟前後兩片互相蓋住的量。
+    // 底部拆成兩段: 斜折線到得了的深度，跟前後兩片互相蓋住的量。
     [y.bottomFold, y.base, `斜折 ${mm(geo.D / 2)}`],
     [y.base, y.end, `重疊 ${mm(geo.overlap)}`],
   ], { axis: "y", offset: -fs * 1.1 });
@@ -300,7 +300,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   svg.appendChild(arrow(-fs * 9.5, 0, -fs * 9.5, paperH));
   svg.appendChild(label(-fs * 10.3, paperH / 2, `紙長 ${mm(paperH)}`, { size: fs * 0.95, weight: 700, rotate: -90 }));
 
-  /* 提把孔：橫向位置放下面，縱向位置放右邊，兩個一起就能定出八個孔。 */
+  /* 提把孔: 橫向位置放下面，縱向位置放右邊，兩個一起就能定出八個孔。 */
   if (showHoles) {
     const holeXs = [geo.frontCenter, geo.backCenter]
       .flatMap((center) => [center - geo.holeSpan / 2, center + geo.holeSpan / 2])

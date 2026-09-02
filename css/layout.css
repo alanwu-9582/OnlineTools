@@ -1,4 +1,4 @@
-/* css/layout.css — app shell：側邊欄、主內容區與 RWD。 */
+/* css/layout.css — app shell: 側邊欄、主內容區與 RWD。 */
 
 * { box-sizing: border-box; }
 
@@ -80,7 +80,7 @@ textarea:focus-visible,
   position: absolute;
   top: 26px;
   right: -13px;
-  /* 正圓是刻意的例外：26px 搭配 right:-13px 讓它剛好卡在側邊欄邊界上。 */
+  /* 正圓是刻意的例外: 26px 搭配 right:-13px 讓它剛好卡在側邊欄邊界上。 */
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -220,7 +220,7 @@ textarea:focus-visible,
 .section-more { font-size: var(--text-supporting); font-weight: 700; color: var(--text-muted); }
 .section-more:hover { color: var(--interactive); text-decoration: none; }
 
-/* ---------- 窄螢幕：頂欄 + 漢堡選單 ---------- */
+/* ---------- 窄螢幕: 頂欄 + 漢堡選單 ---------- */
 @media (max-width: 768px) {
   .app { flex-direction: column; }
   .side-nav {

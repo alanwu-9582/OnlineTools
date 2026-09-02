@@ -1,4 +1,4 @@
-// js/core/router.js — hash 路由：只換掉 #page-outlet，側邊欄一直活著。
+// js/core/router.js — hash 路由: 只換掉 #page-outlet，側邊欄一直活著。
 
 import { icon } from "../utils/utils.js";
 import { getSite } from "../services/data-service.js";
@@ -132,7 +132,7 @@ export async function renderRoute() {
     }) || null;
   } catch (error) {
     console.error(error);
-    outlet.innerHTML = `<div class="banner banner-danger" role="alert">頁面載入失敗：${error.message}。請重新整理頁面後再試一次。</div>`;
+    outlet.innerHTML = `<div class="banner banner-danger" role="alert">頁面載入失敗: ${error.message}。請重新整理頁面後再試一次。</div>`;
   }
 }
 

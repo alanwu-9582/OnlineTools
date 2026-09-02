@@ -62,7 +62,7 @@ export function computeBalances(members, expenses) {
  * 反覆把「欠最多的」配給「該收最多的」，這樣每做一筆至少有一個人歸零，
  * 所以筆數一定不超過 人數 − 1。
  *
- * 注意：真正的「最少轉帳次數」是 NP-hard，這個貪婪法不保證絕對最少，
+ * 注意: 真正的「最少轉帳次數」是 NP-hard，這個貪婪法不保證絕對最少，
  * 實務上幾乎都是最佳解。不要對外宣稱它是最少。
  *
  * @returns {Array<{from:string, to:string, amount:number}>}
@@ -97,12 +97,12 @@ export function asText({ members, balances, transfers, total }) {
   const lines = [`總支出 ${fmt(total)} 元，${members.length} 人`, ""];
   for (const name of members) {
     const v = balances[name] || 0;
-    if (v === 0) lines.push(`${name}　剛好`);
-    else if (v > 0) lines.push(`${name}　多付 ${fmt(v)}`);
-    else lines.push(`${name}　少付 ${fmt(-v)}`);
+    if (v === 0) lines.push(`${name} 剛好`);
+    else if (v > 0) lines.push(`${name} 多付 ${fmt(v)}`);
+    else lines.push(`${name} 少付 ${fmt(-v)}`);
   }
-  lines.push("", transfers.length ? "怎麼轉：" : "不用轉，剛好打平。");
-  for (const t of transfers) lines.push(`${t.from} → ${t.to}　${fmt(t.amount)}`);
+  lines.push("", transfers.length ? "怎麼轉: " : "不用轉，剛好打平。");
+  for (const t of transfers) lines.push(`${t.from} → ${t.to} ${fmt(t.amount)}`);
   return lines.join("\n");
 }
 

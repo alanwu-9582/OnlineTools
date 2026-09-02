@@ -97,7 +97,7 @@ export function buildPattern(geo, { print = false, glue = 0, lids = false } = {}
   const [iEndX, iEndY] = pt(inner, end);
   const large = angle > 180 ? 1 : 0;
 
-  /* ---- 黏合邊：先畫，才會被扇形壓在下面 ---- */
+  /* ---- 黏合邊: 先畫，才會被扇形壓在下面 ---- */
   if (glue > 0) {
     svg.appendChild(s("polygon", {
       points: [
@@ -124,7 +124,7 @@ export function buildPattern(geo, { print = false, glue = 0, lids = false } = {}
     "stroke-width": sw * 2, "stroke-linejoin": "round",
   }));
 
-  /* ---- 圓心：畫弧的時候圓規要頂在這裡 ---- */
+  /* ---- 圓心: 畫弧的時候圓規要頂在這裡 ---- */
   const cross = fs * 0.5;
   for (const [x1, y1, x2, y2] of [[-cross, 0, cross, 0], [0, -cross, 0, cross]]) {
     svg.appendChild(s("line", { x1, y1, x2, y2, stroke: c.guide, "stroke-width": sw * 1.2 }));
@@ -144,7 +144,7 @@ export function buildPattern(geo, { print = false, glue = 0, lids = false } = {}
     svg.appendChild(label(ix * 0.5, iy * 0.5 + fs * 0.7, `內 ${mm(inner)}`, { size: fs * 0.72, fill: c.dim }));
   }
 
-  /* ---- 弦長：沒有量角器時就靠這條 ---- */
+  /* ---- 弦長: 沒有量角器時就靠這條 ---- */
   svg.appendChild(s("line", {
     x1: oStartX, y1: oStartY, x2: oEndX, y2: oEndY,
     stroke: c.accent, "stroke-width": sw * 1.6,

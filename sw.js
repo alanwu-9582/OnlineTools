@@ -1,6 +1,6 @@
 // sw.js — 離線支援。
 //
-// 策略刻意偏向「拿到最新的」：
+// 策略刻意偏向「拿到最新的」: 
 //
 //   同源的所有東西  → 先走網路，失敗才用快取
 //   圖片            → 先用快取（圖片只會新增，不會就地改內容）
@@ -11,7 +11,7 @@
 //
 // 改動下面的 SHELL 清單時，記得把 CACHE_VERSION 往上加一版，舊快取才會被丟掉。
 
-const CACHE_VERSION = "onlinetools-v14";
+const CACHE_VERSION = "onlinetools-v19";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -81,14 +81,12 @@ const SHELL = [
   "js/tools/ig-template/editor.js",
   "js/tools/ig-template/bundle.js",
   "js/tools/ig-template/zip.js",
+  "js/tools/ig-template/color.js",
+  "js/tools/ig-template/import-pptx.js",
   "js/tools/ig-template/ig-template.css",
   "assets/templates/index.json",
   "assets/templates/basic/template.json",
   "assets/templates/basic/preview.jpg",
-  "assets/templates/frc8725/template.json",
-  "assets/templates/frc8725/preview.jpg",
-  "assets/templates/frc8725/assets/header.svg",
-  "assets/templates/frc8725/assets/chevrons.svg",
   "pages/home.html",
   "pages/catalog.html",
   "pages/entry.html",

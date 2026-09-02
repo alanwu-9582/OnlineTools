@@ -35,6 +35,8 @@
 }
 .igt-drop-title { font-size: var(--text-label); font-weight: 700; color: var(--text); }
 .igt-drop-hint { font-size: var(--text-caption); color: var(--text-dim); margin-top: 2px; }
+/* 從 Canva 匯出的那條路徑是自己做模板的入口，講得比其他提示明顯一點。 */
+.igt-drop-canva { color: var(--text-muted); }
 /* 真正的 file input 一律藏起來，用畫布上的框或按鈕代打。
    外殼（igt-）跟編輯層（ige-）各有一個，兩個都要。 */
 .igt-file, .ige-file { display: none; }
@@ -69,26 +71,46 @@
   color: var(--text-muted);
 }
 
+/* ---------- 匯入的多頁檔案 ---------- */
+.igt-slides { display: flex; }
+.igt-slides[hidden] { display: none; }
+
 /* ---------- 參考成品 ---------- */
 /* 窄卡片，不跟編輯區搶寬度。 */
 .igt-ref-card {
   display: flex;
   align-items: center;
+  width: 100%;
   gap: 12px;
   padding: 10px 12px;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius);
   background: var(--card-bg);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: zoom-in;
 }
 .igt-ref-card[hidden] { display: none; }
+.igt-ref-card:hover { border-color: var(--border); }
+.igt-ref-card:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
 .igt-ref-text { flex: 1; min-width: 0; }
 .igt-ref-hint {
   margin-top: 2px;
   font-size: var(--text-caption);
   color: var(--text-dim);
 }
-.igt-ref-card .igt-ref-btn { width: 92px; flex-shrink: 0; }
-.igt-ref-card .btn { flex-shrink: 0; }
+/* 縮圖固定高度、寬度由長寬比推出來。反過來固定寬度的話，
+   限時動態比例（9:16）的模板會把整張卡片撐得很高。 */
+.igt-ref-card .igt-ref-img {
+  height: 92px;
+  width: auto;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--cffy-theme-surface-a0);
+  aspect-ratio: 1 / 1;
+}
 
 .igt-pane { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .igt-pane[hidden] { display: none; }
@@ -106,18 +128,6 @@
 }
 .igt-pane-head .btn { margin-left: auto; flex-shrink: 0; }
 
-/* 參考成品的縮圖：整張就是一顆放大鈕。 */
-.igt-ref-btn {
-  display: block;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--cffy-theme-surface-a0);
-  cursor: zoom-in;
-  overflow: hidden;
-  aspect-ratio: 1 / 1;
-}
-.igt-ref-btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
 .igt-ref-img {
   display: block;
   width: 100%;
@@ -176,12 +186,18 @@
 
 .ige-stage {
   position: relative;
-  /* IG 貼文一律 1:1，所以舞台本身就是正方形，不用等 canvas 載完才知道高度。 */
+  /* 長寬比由 JS 依模板的 canvas 設定（inline style 會蓋掉這裡）。
+     先給一個值，版面才不會在 canvas 載完之前抖一下。 */
   aspect-ratio: 1 / 1;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--cffy-theme-surface-a0);
+  /* overflow: clip 而不是 hidden。
+     hidden 仍然是一個「可捲動容器」—— 點到刻意超出版面邊緣的元素時，
+     瀏覽器會把那顆命中框捲進視野，整個預覽就被推走了。
+     clip 不建立捲動容器，所以捲不動。hidden 留著給不認識 clip 的瀏覽器。 */
   overflow: hidden;
+  overflow: clip;
   touch-action: none;
 }
 .ige-canvas { display: block; width: 100%; height: 100%; }
@@ -220,7 +236,7 @@
 .ige-hit.is-editing { box-shadow: inset 0 0 0 6px var(--success); }
 /* 鎖住的圖層（背景色塊、裝飾）不擋住底下真正要編輯的東西，只能從圖層面板選。 */
 .ige-hit.is-locked { pointer-events: none; }
-/* 還沒放圖的框：canvas 已經畫了虛線提示，這裡只要讓它更明顯可點。 */
+/* 還沒放圖的框: canvas 已經畫了虛線提示，這裡只要讓它更明顯可點。 */
 .ige-hit.is-empty { cursor: copy; }
 .ige-hit.is-empty:hover { box-shadow: inset 0 0 0 6px rgba(var(--rgb-info), 0.8); }
 /* 放好圖的照片框是可以拖的。 */
@@ -322,6 +338,12 @@
 .ige-tb-btn:focus-visible { outline: var(--focus-ring); outline-offset: 1px; }
 .ige-tb-seg { display: inline-flex; gap: 2px; }
 
+/* 色票與透明度是一組，別被 flex 換行拆開。 */
+.ige-tb-colorset { display: inline-flex; align-items: center; gap: 3px; }
+/* 要放得下「100」加上數字微調鈕，比字級那欄再寬一點。 */
+.doc-content .ige-tb-alpha,
+.ige-tb-alpha { width: 56px; max-width: 56px; }
+
 .doc-content .ige-tb-color,
 .ige-tb-color {
   width: 30px;
@@ -364,12 +386,13 @@
   position: absolute;
   z-index: 4;
   top: 8px;
-  left: 8px;
+  right: 8px;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  width: 28px;
   height: 28px;
-  padding: 0 9px;
+  padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-xs);
   background: var(--app-chrome-bg);
@@ -390,7 +413,7 @@
   position: absolute;
   z-index: 4;
   top: 42px;
-  left: 8px;
+  right: 8px;
   width: min(230px, calc(100% - 16px));
   max-height: min(320px, calc(100% - 56px));
   display: flex;
@@ -454,7 +477,7 @@
 
 @media (max-width: 860px) {
   .igt-ref-card { gap: 10px; padding: 9px 10px; }
-  .igt-ref-card .igt-ref-btn { width: 72px; }
+  .igt-ref-card .igt-ref-img { height: 72px; }
   .ige-toolbar { gap: 4px; padding: 5px 6px; }
   .ige-tb-name { display: none; }
   .ige-tb-select { max-width: 96px; }

@@ -1,6 +1,6 @@
-// js/tools/ig-template/bundle.js — 模板包。
+// js/tools/ig-template/bundle.js — 標準模板。
 //
-// 一份模板 = 一個 ZIP，裡面長這樣：
+// 一份模板 = 一個 ZIP，裡面長這樣: 
 //
 //   template.json          版面資料（canvas、layers）
 //   preview.png            參考成品，讓使用者知道做完會是什麼樣子
@@ -12,11 +12,12 @@
 // data URI —— 素材維持原本的檔案，使用者解開 zip 就能替換掉再壓回去。
 //
 // 站上內建的範例模板則是直接以資料夾放在 assets/templates/ 底下，不打包。
-// 理由：純文字的 template.json 進得了 git diff，二進位的 zip 進不去。
+// 理由: 純文字的 template.json 進得了 git diff，二進位的 zip 進不去。
 // 兩條路徑最後都收斂成同一個 Bundle 物件，下游不用分。
 
 import { readZip, writeZip, looksLikeZip } from "./zip.js";
 import { parseTemplate, serializeTemplate } from "./schema.js";
+import { importPptx, looksLikePptx } from "./import-pptx.js";
 
 export const MANIFEST = "template.json";
 export const PHOTO_DIR = "photos/";
@@ -55,6 +56,8 @@ export class Bundle {
     /** @type {Array<{family:string, value:string, label:string, face:FontFace|null}>} */
     this.fonts = [];
     this.previewPath = "";
+    // 從 .pptx 匯入時記著來源，UI 才能在不重讀檔案的情況下換頁。
+    this.source = null;
   }
 
   /** 放一份素材進來，回傳可以直接餵給 <img> 的網址。 */
@@ -87,7 +90,7 @@ export class Bundle {
     ));
     if (!files.length) return;
     if (typeof FontFace === "undefined" || !document.fonts) {
-      this.warnings.push("瀏覽器不支援載入模板包內的字型，將使用系統備援字型。");
+      this.warnings.push("瀏覽器不支援載入標準模板內的字型，將使用系統備援字型。");
       return;
     }
 
@@ -146,7 +149,7 @@ export async function readBundle(file) {
     try {
       raw = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer)));
     } catch {
-      throw new Error("這個檔案既不是 ZIP 模板包，也不是有效的 JSON。");
+      throw new Error("這個檔案既不是 ZIP 標準模板，也不是有效的 JSON。");
     }
     const { template, warnings } = parseTemplate(raw);
     const bundle = new Bundle(template, warnings);
@@ -157,33 +160,193 @@ export async function readBundle(file) {
     return bundle;
   }
 
-  const files = await readZip(buffer);
-  const manifest = files.get(MANIFEST);
-  if (!manifest) throw new Error(`ZIP 裡少了 ${MANIFEST}。`);
+  return bundleFromFiles(await readZip(buffer), { source: "ZIP" });
+}
+
+/* ---------------- 解壓縮後的資料夾 ---------------- */
+
+/** 值得收進來的檔案。其餘（.DS_Store、Thumbs.db 之類）直接略過。 */
+function wantedInFolder(name) {
+  const base = name.split("/").pop();
+  if (!base || base.startsWith(".")) return false;
+  if (base === MANIFEST) return true;
+  const ext = extOf(name);
+  // 解開的 .pptx 資料夾也吃，所以 xml / rels / fntdata 一併收。
+  return IMAGE_EXT.includes(ext) || FONT_EXT.has(ext)
+    || ext === "xml" || ext === "rels" || ext === "fntdata";
+}
+
+/**
+ * 從 drop 事件取出 entry 清單。
+ *
+ * **一定要同步呼叫**：await 之後 DataTransfer 的 items 就失效了，
+ * webkitGetAsEntry() 會回 null。所以這裡只做「取 entry」，不做讀檔。
+ *
+ * @returns {Array<FileSystemEntry>}
+ */
+export function dropEntries(dataTransfer) {
+  const out = [];
+  for (const item of dataTransfer?.items || []) {
+    if (item.kind !== "file") continue;
+    const entry = item.webkitGetAsEntry?.();
+    if (entry) out.push(entry);
+  }
+  return out;
+}
+
+/** entry.file() / reader.readEntries() 的 promise 包裝。 */
+const entryFile = (entry) => new Promise((res, rej) => entry.file(res, rej));
+const readDir = (reader) => new Promise((res, rej) => reader.readEntries(res, rej));
+
+async function walkEntry(entry, prefix, out) {
+  if (entry.isFile) {
+    const path = prefix + entry.name;
+    if (!wantedInFolder(path)) return;
+    const file = await entryFile(entry);
+    out.set(path, new Uint8Array(await file.arrayBuffer()));
+    return;
+  }
+  if (!entry.isDirectory) return;
+  const reader = entry.createReader();
+  // readEntries 一次最多給 100 筆，要一直讀到回空陣列為止 ——
+  // 少了這個迴圈，超過 100 個檔案的資料夾會被默默截斷。
+  for (;;) {
+    const batch = await readDir(reader);
+    if (!batch.length) break;
+    for (const child of batch) await walkEntry(child, `${prefix}${entry.name}/`, out);
+  }
+}
+
+/**
+ * 把拖進來的 entry（可能是資料夾）讀成「路徑 → 內容」。
+ * @param {Array<FileSystemEntry>} entries
+ * @returns {Promise<Map<string, Uint8Array>>}
+ */
+export async function filesFromEntries(entries) {
+  const out = new Map();
+  for (const entry of entries) await walkEntry(entry, "", out);
+  return out;
+}
+
+/**
+ * 從 <input type="file" webkitdirectory> 的 FileList 讀。
+ * webkitRelativePath 會帶著資料夾的相對路徑，正是我們要的。
+ */
+export async function filesFromInput(fileList) {
+  const out = new Map();
+  for (const file of fileList) {
+    const path = file.webkitRelativePath || file.name;
+    if (!wantedInFolder(path)) continue;
+    out.set(path, new Uint8Array(await file.arrayBuffer()));
+  }
+  return out;
+}
+
+/**
+ * 把一組「路徑 → 內容」組成 Bundle。
+ *
+ * ZIP 解出來的東西、跟使用者把解壓縮後的資料夾整個拖進來，長相是一樣的，
+ * 所以兩條路徑共用這裡 —— 差別只在錯誤訊息要講得對得上使用者做的事。
+ *
+ * @param {Map<string, Uint8Array>} files
+ * @param {{source?:string}} opts  出錯時用來描述來源（"ZIP" / "資料夾"）
+ * @returns {Promise<Bundle>}
+ */
+export async function bundleFromFiles(files, { source = "ZIP" } = {}) {
+  // 先把根目錄找出來再判斷是什麼。順序反過來的話，多包一層資料夾的
+  // 解壓縮結果就全都認不出來。
+  const rebased = rebaseOnRoot(files);
+
+  // .pptx 也是 ZIP。用內容判斷而不是副檔名 —— 使用者從 Canva 下載回來的
+  // 檔名不一定可靠，而 ppt/presentation.xml 在不在是確定的。
+  if (looksLikePptx(rebased)) return bundleFromPptx(rebased, { slide: 0 });
+
+  const manifest = rebased.get(MANIFEST);
+  if (!manifest) {
+    throw new Error(`這個${source}裡找不到 ${MANIFEST}，也不是 .pptx。`
+      + "標準模板的根目錄要有 template.json；"
+      + "想從設計稿做模板的話，在 Canva 用「分享 → 下載 → PowerPoint (.pptx)」匯出就可以直接讀。");
+  }
 
   let raw;
   try {
     raw = JSON.parse(new TextDecoder().decode(manifest));
   } catch (err) {
-    throw new Error(`${MANIFEST} 不是有效的 JSON：${err.message}`);
+    throw new Error(`${MANIFEST} 不是有效的 JSON: ${err.message}`);
   }
   const { template, warnings } = parseTemplate(raw);
   const bundle = new Bundle(template, warnings);
 
-  const names = [...files.keys()];
-  for (const name of names) {
+  for (const [name, bytes] of rebased) {
     if (name === MANIFEST) continue;
     if (!IMAGE_EXT.includes(extOf(name)) && !FONT_EXT.has(extOf(name))) continue;
-    bundle.put(name, files.get(name));
+    bundle.put(name, bytes);
   }
   await bundle.loadFonts();
   bundle.previewPath = findPreview([...bundle.assets.keys()], template.preview);
 
   for (const path of referencedPaths(template)) {
     if (!bundle.assets.has(path)) {
-      bundle.warnings.push(`模板指到「${path}」，但包裡沒有這個檔案，那一層會是空的。`);
+      bundle.warnings.push(`模板指到「${path}」，但${source}裡沒有這個檔案，那一層會是空的。`);
     }
   }
+  return bundle;
+}
+
+/** 用來認出根目錄的標記檔：標準模板的 template.json，或解開的 .pptx。 */
+const ROOT_MARKERS = [MANIFEST, "ppt/presentation.xml"];
+
+/**
+ * 讓標記檔所在的那一層變成根目錄。
+ *
+ * 壓縮軟體常常會多包一層（MyTemplate/MyTemplate/template.json），
+ * 拖資料夾進來時最外層也一定會多一層。不處理的話 assets/ 的相對路徑就全對不上。
+ */
+function rebaseOnRoot(files) {
+  for (const marker of ROOT_MARKERS) {
+    if (files.has(marker)) return files;
+  }
+  // 挑最淺的那個標記 —— 巢狀資料夾裡可能有好幾份。
+  let best = null;
+  for (const name of files.keys()) {
+    for (const marker of ROOT_MARKERS) {
+      if (!name.endsWith(`/${marker}`)) continue;
+      const depth = name.split("/").length;
+      if (!best || depth < best.depth) best = { prefix: name.slice(0, -marker.length), depth };
+    }
+  }
+  if (!best) return files;
+
+  const out = new Map();
+  for (const [name, bytes] of files) {
+    if (name.startsWith(best.prefix)) out.set(name.slice(best.prefix.length), bytes);
+  }
+  return out;
+}
+
+/**
+ * 從一份 .pptx 建出 Bundle。
+ *
+ * 會把 files 留在 bundle.source 上，讓 UI 可以在不重讀檔案的情況下換頁。
+ *
+ * @param {Map<string, Uint8Array>} files  readZip 的結果
+ * @param {{slide?:number}} opts
+ * @returns {Promise<Bundle>}
+ */
+export async function bundleFromPptx(files, { slide = 0 } = {}) {
+  const imported = await importPptx(files, { slide });
+  const { template, warnings } = parseTemplate(imported.raw);
+  const bundle = new Bundle(template, [...imported.warnings, ...warnings]);
+
+  for (const [path, asset] of imported.assets) {
+    bundle.put(path, asset.bytes, asset.type);
+  }
+  // .pptx 內嵌的字型也一起註冊，排版才會跟原稿一樣。
+  await bundle.loadFonts();
+  // 匯入的模板沒有參考成品 —— 由 UI 拿第一次渲染的結果補上，
+  // 那張就是「原稿的樣子」，之後換掉照片文字還看得到原本長怎樣。
+  bundle.previewPath = "";
+  bundle.source = { kind: "pptx", files, slideCount: imported.slideCount, slide: imported.slide };
   return bundle;
 }
 
@@ -199,7 +362,7 @@ export async function loadBuiltin(baseUrl) {
   const { template, warnings } = parseTemplate(await res.json());
   const bundle = new Bundle(template, warnings);
 
-  // 素材照樣抓成 bytes 而不是直接用網址 —— 匯出模板包的時候需要原始檔案內容。
+  // 素材照樣抓成 bytes 而不是直接用網址 —— 匯出標準模板的時候需要原始檔案內容。
   const wanted = referencedPaths(template);
   if (template.preview && !template.preview.startsWith("data:")) wanted.add(template.preview);
 

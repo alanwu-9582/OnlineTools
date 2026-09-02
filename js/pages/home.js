@@ -1,4 +1,4 @@
-// js/pages/home.js — 首頁：站台簡介、最新工具、最新文檔、其他工具預覽。
+// js/pages/home.js — 首頁: 站台簡介、最新工具、最新文檔、其他工具預覽。
 
 import { $, el, icon, escapeHtml, formatDate, readingLabel } from "../utils/utils.js";
 import { getSite, getEntries, getLinks, getConfig } from "../services/data-service.js";
@@ -55,7 +55,7 @@ export async function mountPage({ routeTo }) {
   } catch (err) {
     console.error(err);
     host.innerHTML =
-      `<div class="banner banner-danger" role="alert">首頁資料載入失敗：${escapeHtml(err.message)}。請確認網路連線，並以 HTTP 伺服器開啟（不要用 file://）後重新整理。</div>`;
+      `<div class="banner banner-danger" role="alert">首頁資料載入失敗: ${escapeHtml(err.message)}。請確認網路連線，並以 HTTP 伺服器開啟（不要用 file://）後重新整理。</div>`;
   }
   return null;
 }

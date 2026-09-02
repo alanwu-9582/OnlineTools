@@ -61,7 +61,7 @@ export function buildFoldFrame(geo, t, showHoles) {
   }
 
   // 面的名稱只標在正對鏡頭的那幾片上，翻過去的不標 —— 免得看到反字。
-  // 字級跟著該面自己投影出來的短邊走：黏合邊只有 20 mm 寬，用整體的字級
+  // 字級跟著該面自己投影出來的短邊走: 黏合邊只有 20 mm 寬，用整體的字級
   // 會整個溢出去。太小就乾脆不標。
   const maxLabel = Math.max(Math.min(geo.W, geo.H) * 0.16, flat * 0.02);
   for (const face of drawn) {

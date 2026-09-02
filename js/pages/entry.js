@@ -1,6 +1,6 @@
 // js/pages/entry.js — 渲染單筆內容（工具或教學文檔），附大綱與捲動定位。
 //
-// 工具與文檔走的是同一條路：都是 Markdown。差別只在工具的 .md 內文裡
+// 工具與文檔走的是同一條路: 都是 Markdown。差別只在工具的 .md 內文裡
 // 放了 <div data-tool="…"></div>，渲染完之後由 tool-host 換成真的工具。
 
 import {
@@ -45,7 +45,7 @@ export async function mountPage({ params }) {
     if (!doc) {
       header.replaceChildren();
       content.innerHTML =
-        `<div class="banner banner-danger" role="alert">找不到這筆內容（id：${escapeHtml(id || "")}）。它可能已經移除，請<a href="#/tools">回到工具列表</a>看看其他的。</div>`;
+        `<div class="banner banner-danger" role="alert">找不到這筆內容（id: ${escapeHtml(id || "")}）。它可能已經移除，請<a href="#/tools">回到工具列表</a>看看其他的。</div>`;
       if (outlineAside) outlineAside.hidden = true;
       return null;
     }
@@ -89,7 +89,7 @@ export async function mountPage({ params }) {
     console.error(err);
     header?.replaceChildren();
     if (content) content.innerHTML =
-      `<div class="banner banner-danger" role="alert">內容載入失敗：${escapeHtml(err.message)}。請確認網路連線後重新整理頁面。</div>`;
+      `<div class="banner banner-danger" role="alert">內容載入失敗: ${escapeHtml(err.message)}。請確認網路連線後重新整理頁面。</div>`;
     if (outlineAside) outlineAside.hidden = true;
   }
 
@@ -123,7 +123,7 @@ function renderHeader(host, doc, config) {
       datetime: doc.publishedDate,
       title: `發佈於 ${formatDate(doc.publishedDate)}`
         + (doc.updatedDate && doc.updatedDate !== doc.publishedDate ? `，更新於 ${formatDate(doc.updatedDate)}` : ""),
-    }, `${formatDate(doc.publishedDate)}　·　${relativeDate(doc.updatedDate || doc.publishedDate)}更新`),
+    }, `${formatDate(doc.publishedDate)} · ${relativeDate(doc.updatedDate || doc.publishedDate)}更新`),
     readingLabel(doc.readingMinutes)
       ? el("span", { class: "doc-readtime" }, readingLabel(doc.readingMinutes))
       : null,
@@ -174,7 +174,7 @@ function scrollToHeading(headingId, content) {
 
   let cancelled = false;
   const align = () => { if (!cancelled) node.scrollIntoView({ behavior: "auto", block: "start" }); };
-  // 瀏覽器自己也會在 load 後還原捲動位置，所以每個可能移動目標的時機都重新對齊：
+  // 瀏覽器自己也會在 load 後還原捲動位置，所以每個可能移動目標的時機都重新對齊: 
   // 下一個影格、window load、以及每張圖片載完。
   const stop = () => { cancelled = true; };
   for (const evt of ["wheel", "touchstart", "keydown"]) {
@@ -202,7 +202,7 @@ function scrollToHeading(headingId, content) {
   };
 }
 
-/* ---------------- 頁尾：上／下一篇 + 原始檔 ---------------- */
+/* ---------------- 頁尾: 上／下一篇 + 原始檔 ---------------- */
 
 async function renderFoot(host, doc, site) {
   if (!host) return null;
@@ -226,7 +226,7 @@ async function renderFoot(host, doc, site) {
       el("span", {}, "／"),
       el("a", {
         href: `${site.repo}/issues/new?title=${encodeURIComponent(`[${doc.type === "tool" ? "工具" : "文檔"}] ${doc.title}`)}`
-          + `&body=${encodeURIComponent(`標題：${doc.title}\n路徑：${doc.path}\n\n問題描述：\n`)}`,
+          + `&body=${encodeURIComponent(`標題: ${doc.title}\n路徑: ${doc.path}\n\n問題描述: \n`)}`,
         target: "_blank",
         rel: "noopener noreferrer",
       }, "回報問題"),
@@ -271,7 +271,7 @@ function trackReadingProgress(content) {
   };
 }
 
-/* 大綱編號：六層，隨著層級加深在「純數字」與「括號」之間交替 ——
+/* 大綱編號: 六層，隨著層級加深在「純數字」與「括號」之間交替 ——
    1. → (1). → A. → (A). → a. → (a). */
 const TIER_FORMATTERS = [
   (n) => `${n}.`,
@@ -333,7 +333,7 @@ function renderOutline(host, aside, headings, content, doc) {
   for (const h of numbered) {
     const link = el("a", {
       class: "outline-link",
-      // 真正的路由網址：中鍵開新分頁與「複製連結」都能用。
+      // 真正的路由網址: 中鍵開新分頁與「複製連結」都能用。
       href: buildHash("entry", { id: doc.id, from: doc.type, h: h.id }),
       title: `${h.prefix} ${h.text}`,
       dataset: { target: h.id, level: String(h.level), tier: String(h.tier) },

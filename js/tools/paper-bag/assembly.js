@@ -1,4 +1,4 @@
-// js/tools/paper-bag/assembly.js — 組裝動畫的播放器：播放／暫停、
+// js/tools/paper-bag/assembly.js — 組裝動畫的播放器: 播放／暫停、
 // 進度條、章節，以及捲出畫面就停下來的那套邏輯。
 
 import { s, SVG_NS } from "../svg.js";
@@ -10,7 +10,7 @@ const DURATION = 13000;
 const HOLD = 1100;
 
 /**
- * 組裝動畫本體：一個會自己播的 SVG，加上播放／暫停、進度條與章節。
+ * 組裝動畫本體: 一個會自己播的 SVG，加上播放／暫停、進度條與章節。
  * @returns {{node: HTMLElement, destroy: Function}}
  */
 export function buildAssembly(geo, showHoles) {

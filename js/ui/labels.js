@@ -10,7 +10,7 @@ export function categoryTag(categoryId, config, { plain = false } = {}) {
   const meta = config?.categories?.[categoryId] || {};
   const label = meta.label || categoryId || "未分類";
   const color = meta.color || "var(--text-muted)";
-  const node = el("span", { class: "cat-tag", title: `類別：${label}` }, label);
+  const node = el("span", { class: "cat-tag", title: `類別: ${label}` }, label);
   // Tinted background + solid text, all driven by the configured colour.
   node.style.color = color;
   node.style.background = `color-mix(in srgb, ${color} 16%, transparent)`;
@@ -26,7 +26,7 @@ export function tagChip(tagId, config, { onClick = null, active = false } = {}) 
   const color = meta.color || "var(--text-muted)";
   const node = el("span", {
     class: "doc-tag" + (active ? " is-active" : ""),
-    title: `標籤：${label}`,
+    title: `標籤: ${label}`,
   }, label);
   node.style.setProperty("--chip-color", color);
   if (onClick) {

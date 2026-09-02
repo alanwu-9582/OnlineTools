@@ -1,4 +1,4 @@
-// js/pages/catalog.js — 工具與文檔共用的列表：清單、即時搜尋、篩選對話框。
+// js/pages/catalog.js — 工具與文檔共用的列表: 清單、即時搜尋、篩選對話框。
 //
 // 兩個路由（#/tools、#/docs）掛的是同一個模組，差別只在 route.kind。
 
@@ -105,7 +105,7 @@ export async function mountPage({ params, route, routeTo }) {
   } catch (err) {
     console.error(err);
     if (list) list.innerHTML =
-      `<div class="banner banner-danger" role="alert">資料載入失敗：${escapeHtml(err.message)}。請確認網路連線，並以 HTTP 伺服器開啟（不要用 file://）後重新整理。</div>`;
+      `<div class="banner banner-danger" role="alert">資料載入失敗: ${escapeHtml(err.message)}。請確認網路連線，並以 HTTP 伺服器開啟（不要用 file://）後重新整理。</div>`;
   }
 
   return () => {
@@ -163,7 +163,7 @@ function ensureIndex() {
       return index;
     })
     .catch((err) => {
-      console.warn("全文索引載入失敗，改用標題與標籤搜尋：", err);
+      console.warn("全文索引載入失敗，改用標題與標籤搜尋: ", err);
       return null;
     });
 }
@@ -333,7 +333,7 @@ function removableChip(label, color, onRemove) {
   const chip = el("span", { class: "active-chip" }, label);
   if (color) chip.style.setProperty("--chip-color", color);
   const x = el("button", {
-    type: "button", class: "active-chip-x", "aria-label": `移除篩選：${label}`, onclick: onRemove,
+    type: "button", class: "active-chip-x", "aria-label": `移除篩選: ${label}`, onclick: onRemove,
   }, "×");
   chip.appendChild(x);
   return chip;

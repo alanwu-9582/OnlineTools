@@ -55,7 +55,7 @@
       "id": "ig-template",
       "type": "tool",
       "title": "IG 貼文模板",
-      "description": "載入模板包，直接在畫布上換照片與改文字，輸出成品圖或改過的模板",
+      "description": "在 Canva 排好版面匯出成 pptx，就變成可以重複使用的貼文模板",
       "path": "content/tools/ig-template.md",
       "category": "design",
       "tags": [
@@ -65,8 +65,8 @@
         "ig-template"
       ],
       "publishedDate": "2026/08/29",
-      "updatedDate": "2026/08/29",
-      "readingMinutes": 3
+      "updatedDate": "2026/09/02",
+      "readingMinutes": 4
     },
     {
       "id": "paper-bag",
@@ -137,7 +137,7 @@
       "id": "markdown-guide",
       "type": "doc",
       "title": "內容能寫些什麼",
-      "description": "這個網站支援的 Markdown 語法：程式碼、表格、數學式、流程圖、圖片與工具佔位",
+      "description": "這個網站支援的 Markdown 語法: 程式碼、表格、數學式、流程圖、圖片與工具佔位",
       "path": "content/docs/markdown-guide.md",
       "category": "guide",
       "tags": [

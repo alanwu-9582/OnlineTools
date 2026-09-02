@@ -12,7 +12,7 @@ export function registerServiceWorker() {
   if (!supported()) return;
 
   navigator.serviceWorker.register("sw.js").catch((err) => {
-    console.warn("離線功能註冊失敗：", err);
+    console.warn("離線功能註冊失敗: ", err);
   });
 
   // 網站悄悄切到快取版本時要講一聲，不然讀者會以為是壞掉而不是離線。

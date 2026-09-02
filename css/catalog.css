@@ -1,4 +1,4 @@
-/* css/articles.css — 文章列表：搜尋列、篩選、結果列。 */
+/* css/articles.css — 文章列表: 搜尋列、篩選、結果列。 */
 
 /* ================= 工具列 ================= */
 .list-toolbar {
@@ -312,12 +312,12 @@ mark.hl {
   font-weight: inherit;
 }
 
-/* ---------- 平板：欄位保留，間距收緊 ---------- */
+/* ---------- 平板: 欄位保留，間距收緊 ---------- */
 @media (max-width: 1024px) {
   .doc-table { --doc-cols: minmax(0, 1fr) 84px minmax(0, 148px) 92px; --doc-gap: 12px; }
 }
 
-/* ---------- 手機：整列改成區塊，meta 自動換行 ---------- */
+/* ---------- 手機: 整列改成區塊，meta 自動換行 ---------- */
 @media (max-width: 760px) {
   .doc-list-head { display: none !important; }
   .doc-row {

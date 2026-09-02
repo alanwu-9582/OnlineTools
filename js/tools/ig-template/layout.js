@@ -4,11 +4,11 @@
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 /** 中日韓文字與全形標點。這些字之間可以隨意斷行。 */
-const CJK = /[⺀-鿿぀-ヿ㇀-㇯＀-￯　-〿]/;
+const CJK = /[⺀-鿿぀-ヿ㇀-㇯＀-￯ -〿]/;
 
-/** 不能出現在行首的字：標點被推到下一行的開頭很難看。 */
-const NO_LINE_START = "、。，．！？；：）］｝」』〕〉》”’·ー―…‥%,.!?;:)]}»";
-/** 不能出現在行尾的字：開括號黏在行尾同樣不對。 */
+/** 不能出現在行首的字: 標點被推到下一行的開頭很難看。 */
+const NO_LINE_START = "、。，．！？；: ）］｝」』〕〉》”’·ー―…‥%,.!?;:)]}»";
+/** 不能出現在行尾的字: 開括號黏在行尾同樣不對。 */
 const NO_LINE_END = "（［｛「『〔〈《“‘([{«";
 
 /**
@@ -73,7 +73,7 @@ export function wrapText(ctx, text, maxWidth) {
         continue;
       }
       if (line.length && widthOf([...line, token]) > maxWidth) {
-        // 禁則處理必須在折行的當下做。做法是「追い出し」：把不該落在
+        // 禁則處理必須在折行的當下做。做法是「追い出し」: 把不該落在
         // 行首的標點連同前一個字一起推到下一行 —— 而不是讓它掛在行尾。
         // 掛在行尾會讓那一行比行寬還長，文字被切掉就白做了。
         const carry = [token];
@@ -175,7 +175,7 @@ export function fitPhoto({ imgW, imgH, box, fit, scale = 1, dx = 0, dy = 0 }) {
 }
 
 /**
- * 反推：拖曳之後的位移要夾在什麼範圍內。
+ * 反推: 拖曳之後的位移要夾在什麼範圍內。
  * 給 UI 用，讓拖曳到底的時候滑桿也停在對應的位置。
  */
 export function clampOffset({ imgW, imgH, box, fit, scale, dx, dy }) {

@@ -216,7 +216,7 @@ export function mount(host) {
     const messages = [`總支出 ${fmt(total)} 元，${members.length} 人`];
     if (transfers.length) messages.push(`${transfers.length} 筆轉帳就結清`);
     if (skipped) messages.push(`有 ${skipped} 筆沒算進去（金額是 0、沒選付款人或沒人分攤）`);
-    info.set(messages.join("　·　"), skipped ? "warn" : "ok");
+    info.set(messages.join(" · "), skipped ? "warn" : "ok");
     copyResult.disabled = !members.length;
   }
 
@@ -237,7 +237,7 @@ export function mount(host) {
   host.appendChild(panel(
     subhead("有誰"),
     memberList,
-    row(field("加入成員", memberInput), field("　", addMember)),
+    row(field("加入成員", memberInput), field(" ", addMember)),
 
     subhead("花了什麼"),
     expenseList,

@@ -1,6 +1,6 @@
 // js/ui/tool-host.js — 把 Markdown 裡的工具佔位換成真正的工具。
 //
-// 在 .md 內文的任何位置放一個空的容器：
+// 在 .md 內文的任何位置放一個空的容器: 
 //
 //     ## 單位換算
 //     <div data-tool="unit-converter"></div>
@@ -10,13 +10,13 @@
 // 佔位元素原本的內容會留到掛載成功前，所以可以先寫一句「載入中／需要 JavaScript」
 // 當備援；掛載成功就被換掉。
 //
-// 工具模組的介面：
+// 工具模組的介面: 
 //
 //     export const meta = { title: "單位換算" };            // 選填
 //     export const styles = new URL("./x.css", import.meta.url).href;  // 選填
 //     export function mount(host, { options }) { … }        // 回傳 cleanup（選填）
 //
-// `options` 來自佔位元素的 data-options（JSON），例如：
+// `options` 來自佔位元素的 data-options（JSON），例如: 
 //
 //     <div data-tool="unit-converter" data-options='{"group":"length"}'></div>
 
@@ -58,7 +58,7 @@ function parseOptions(slot) {
     const parsed = JSON.parse(raw);
     return parsed && typeof parsed === "object" ? parsed : {};
   } catch (err) {
-    console.warn(`工具 ${slot.dataset.tool} 的 data-options 不是合法 JSON：`, err);
+    console.warn(`工具 ${slot.dataset.tool} 的 data-options 不是合法 JSON: `, err);
     return {};
   }
 }
@@ -66,7 +66,7 @@ function parseOptions(slot) {
 function failure(slot, id, message) {
   slot.classList.add("tool-slot", "is-failed");
   slot.innerHTML =
-    `<div class="banner banner-danger" role="alert">工具「${escapeHtml(id)}」載入失敗：${escapeHtml(message)}</div>`;
+    `<div class="banner banner-danger" role="alert">工具「${escapeHtml(id)}」載入失敗: ${escapeHtml(message)}</div>`;
 }
 
 /**

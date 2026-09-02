@@ -1,11 +1,11 @@
-// js/tools/paper-bag/fold-model.js — 組裝動畫的幾何：時間軸、鏡頭、
+// js/tools/paper-bag/fold-model.js — 組裝動畫的幾何: 時間軸、鏡頭、
 // 每一格每一個面在 3D 的位置。這一層也完全不碰 DOM，純算座標。
 
 import { mm } from "./geometry.js";
 
 /* ================= 組裝動畫 ================= */
 //
-// 為什麼不是 GIF：這張圖是照使用者輸入的尺寸算出來的，預錄好的 GIF 沒辦法
+// 為什麼不是 GIF: 這張圖是照使用者輸入的尺寸算出來的，預錄好的 GIF 沒辦法
 // 反映他自己那個袋子。要在瀏覽器裡即時產生 GIF，又得自己寫調色盤量化與 LZW
 // 編碼，換來的還是一張解析度固定、不跟著主題換色、也不能拖著看的圖。
 // 所以改成把「折到幾分」當成一個參數，每一格重新投影一次。
@@ -84,7 +84,7 @@ function rotateAbout(p, origin, axis, angle) {
 /* ---------- 鏡頭 ---------- */
 
 /**
- * 轉盤式鏡頭：先繞 z 軸轉 yaw，再仰俯 pitch，最後正投影。
+ * 轉盤式鏡頭: 先繞 z 軸轉 yaw，再仰俯 pitch，最後正投影。
  *
  * pitch 為正是從上往下看，為負就是繞到底下往上看 —— 收底部那一段全靠它，
  * 不然折進去的那幾片會整個被袋身擋住，只看得到袋子在抖。
@@ -146,7 +146,7 @@ export const PANEL_NAME = { front: "前", back: "後", side: "側", glue: "黏" 
 
 const LIGHT = unit3([-0.35, -0.8, 0.55]);
 
-/** 取絕對值：看到內側時也要有亮度，不然翻過去就是一片全黑。 */
+/** 取絕對值: 看到內側時也要有亮度，不然翻過去就是一片全黑。 */
 export function shadeOf(pts) {
   const n = unit3(cross3(sub3(pts[1], pts[0]), sub3(pts[2], pts[0])));
   return 0.6 + 0.4 * Math.abs(dot3(n, LIGHT));
@@ -155,7 +155,7 @@ export function shadeOf(pts) {
 /**
  * 五個面在俯視平面上的走向。
  *
- * 第 i 段的方向刻意取 (i − 1) × 轉角，而不是 i × 轉角：這樣「前」那一面
+ * 第 i 段的方向刻意取 (i − 1) × 轉角，而不是 i × 轉角: 這樣「前」那一面
  * 永遠朝著鏡頭（方向恆為 0），攤平時的左右排列也跟展開圖一模一樣
  * —— 黏合邊、前、側、後、側。
  */
@@ -212,7 +212,7 @@ export function buildFaces(geo, st) {
       creases.push([mid, [mid[0], mid[1], zTop]]);
     }
 
-    // 上緣折邊：繞著 z = 袋高 那條線轉。0 是直直往上、180° 是貼回袋身內側。
+    // 上緣折邊: 繞著 z = 袋高 那條線轉。0 是直直往上、180° 是貼回袋身內側。
     const hz = zTop + geo.hem * Math.cos(hemAngle);
     const ho = geo.hem * Math.sin(hemAngle);
     faces.push({ tone, kind: p.kind, part: "hem", pts: [
@@ -220,7 +220,7 @@ export function buildFaces(geo, st) {
       [p.bx + p.nx * ho, p.by + p.ny * ho, hz], [p.ax + p.nx * ho, p.ay + p.ny * ho, hz],
     ] });
 
-    // 底部：繞著 z = 0 那條線往內轉 90°。
+    // 底部: 繞著 z = 0 那條線往內轉 90°。
     const prog = p.kind === "front" ? st.front : p.kind === "back" ? st.back : st.side;
     const alpha = (Math.PI / 2) * prog;
     const eV = add3(mul3(n, Math.sin(alpha)), [0, 0, -Math.cos(alpha)]);
@@ -233,7 +233,7 @@ export function buildFaces(geo, st) {
       continue;
     }
 
-    // 側面的底部不是一整片折進去 —— 它沿著那兩條 45° 斜線裂成三塊：
+    // 側面的底部不是一整片折進去 —— 它沿著那兩條 45° 斜線裂成三塊: 
     // 中間的三角形轉進底面，兩邊的角再沿著斜線往回折 180°，疊到三角形上。
     // 紙是連續的，只是折起來，所以三塊在攤平時剛好拼回原本的長方形。
     const apex = local(half, half);

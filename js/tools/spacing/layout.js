@@ -1,6 +1,6 @@
 // js/tools/spacing/layout.js — 等分的算法。這一層完全不碰 DOM。
 //
-// 「平均放 N 個」其實有三種不同的意思，算出來的位置差很多：
+// 「平均放 N 個」其實有三種不同的意思，算出來的位置差很多: 
 //
 //   兩端留邊    ┌ ▓ ┬ ▓ ┬ ▓ ┐    間距 = (L − Nw)/(N+1)
 //   兩端不留邊  ▓ ┬─┬ ▓ ┬─┬ ▓    間距 = (L − Nw)/(N−1)
@@ -120,7 +120,7 @@ function snap({ positions, width, length, step, gap, cell }) {
 /**
  * 圓周等分。
  *
- * 弦長是重點：家裡通常沒有量角器，但用尺量「相鄰兩點的直線距離」很容易。
+ * 弦長是重點: 家裡通常沒有量角器，但用尺量「相鄰兩點的直線距離」很容易。
  *
  * @returns {{angle:number, chord:number, arc:number,
  *            points:Array<{x:number, y:number, deg:number}>}}

@@ -1,6 +1,6 @@
 // js/tools/ig-template/zip.js — 最小可用的 ZIP 讀寫。零依賴。
 //
-// 為什麼自己寫：模板要把「版面資料 + 素材圖 + 參考成品」放在同一個檔案裡，
+// 為什麼自己寫: 模板要把「版面資料 + 素材圖 + 參考成品」放在同一個檔案裡，
 // ZIP 是唯一使用者手上一定有工具能打開來看、能自己改完再壓回去的格式。
 // 引一個 zip 函式庫進來就違反了整站「不外掛 JS 套件」的規則。
 //
@@ -137,7 +137,7 @@ export async function readZip(buffer) {
     const name = decoder.decode(rawName);
     // 目錄項目沒有內容，直接略過。
     if (name.endsWith("/")) continue;
-    // 路徑穿越防護：模板只該有相對路徑。
+    // 路徑穿越防護: 模板只該有相對路徑。
     if (name.startsWith("/") || name.includes("..")) {
       throw new Error(`ZIP 裡有可疑的路徑「${name}」。`);
     }

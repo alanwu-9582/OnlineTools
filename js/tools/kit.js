@@ -1,6 +1,6 @@
 // js/tools/kit.js — 工具共用的小元件。
 //
-// 每個工具都會用到同一批東西：一排有標籤的輸入、一塊結果、一顆複製鈕。
+// 每個工具都會用到同一批東西: 一排有標籤的輸入、一塊結果、一顆複製鈕。
 // 集中在這裡，工具模組就只剩下自己的邏輯，長相也不會各做各的。
 
 import { el, icon } from "../utils/utils.js";
@@ -156,7 +156,7 @@ export function copyButton(getText, { label = "複製" } = {}) {
 }
 
 /**
- * 唯讀的結果列：標籤、值、複製鈕。
+ * 唯讀的結果列: 標籤、值、複製鈕。
  * 回傳的節點上掛了 `set(value)`，更新時直接呼叫。
  */
 export function outputRow(label, { value = "", mono = true } = {}) {
@@ -174,7 +174,7 @@ export function outputRow(label, { value = "", mono = true } = {}) {
   return node;
 }
 
-/** 一行狀態訊息：ok / warn / error。 */
+/** 一行狀態訊息: ok / warn / error。 */
 export function status() {
   const node = el("p", { class: "tool-status", role: "status" });
   node.set = (message, kind = "ok") => {

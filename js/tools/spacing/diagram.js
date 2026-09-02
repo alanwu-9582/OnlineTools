@@ -7,7 +7,7 @@ const round = (n, d = 1) => String(Math.round(n * 10 ** d) / 10 ** d);
 /** 中日韓字元約一個字寬，數字英文約六成 —— 用來判斷標籤擠不擠得下。 */
 function textWidth(text, size) {
   let units = 0;
-  for (const ch of String(text)) units += /[⺀-鿿＀-￯　-〿]/.test(ch) ? 1 : 0.6;
+  for (const ch of String(text)) units += /[⺀-鿿＀-￯ -〿]/.test(ch) ? 1 : 0.6;
   return units * size;
 }
 
@@ -16,7 +16,7 @@ function textWidth(text, size) {
  * 位置標在下面、間距標在上面，兩排數字擠在一起時自動錯開。
  */
 export function linearDiagram({ length, width, positions, spans }) {
-  // 字級相對總長不能太大：1830 放 5 個的間距只有 55，也就是全寬的 3%，
+  // 字級相對總長不能太大: 1830 放 5 個的間距只有 55，也就是全寬的 3%，
   // 字太大就永遠塞不下，那排間距數字會整個消失。
   const fs = length / 44;
   const pad = { l: fs * 2.4, r: fs * 2.4, t: fs * 4.4, b: fs * 5.2 };
@@ -46,7 +46,7 @@ export function linearDiagram({ length, width, positions, spans }) {
     "dominant-baseline": "middle",
   }, text);
 
-  // 底料：整段長度
+  // 底料: 整段長度
   svg.appendChild(s("rect", {
     x: 0, y: barTop, width: length, height: barH,
     fill: "var(--cffy-theme-surface-a10)",
@@ -67,7 +67,7 @@ export function linearDiagram({ length, width, positions, spans }) {
     }
   }
 
-  // 上方：每一段間距
+  // 上方: 每一段間距
   let cursor = 0;
   const gapY = -fs * 1.5;
   spans.forEach((span, i) => {
@@ -89,7 +89,7 @@ export function linearDiagram({ length, width, positions, spans }) {
   svg.appendChild(label(length / 2, -fs * 3.5, `總長 ${round(length)}`,
     { size: fs * 0.95, weight: 700, fill: "var(--text)" }));
 
-  // 下方：累計刻度。實際劃線是拿尺壓著同一個邊量到底，這排才是真正會用到的數字。
+  // 下方: 累計刻度。實際劃線是拿尺壓著同一個邊量到底，這排才是真正會用到的數字。
   const scaleY = barH + fs * 1.5;
   svg.appendChild(line(0, scaleY, length, scaleY, "var(--text-muted)"));
   const ends = [-Infinity, -Infinity];
@@ -113,7 +113,7 @@ export function linearDiagram({ length, width, positions, spans }) {
   return svg;
 }
 
-/** 圓周等分：畫圓、標點、把一段弦畫出來。 */
+/** 圓周等分: 畫圓、標點、把一段弦畫出來。 */
 export function circleDiagram({ diameter, points, chord }) {
   const r = diameter / 2;
   const fs = diameter / 16;
@@ -161,7 +161,7 @@ export function circleDiagram({ diameter, points, chord }) {
     }, String(i + 1)));
   });
 
-  // 第一段弦：用尺量這個距離就能定位，不必量角器。
+  // 第一段弦: 用尺量這個距離就能定位，不必量角器。
   if (points.length >= 2) {
     const [x1, y1] = at(points[0]);
     const [x2, y2] = at(points[1]);

@@ -18,7 +18,13 @@ function roundRectPath(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-/** 依角度做線性漸層。0° 由上往下、90° 由左往右。 */
+/**
+ * 依角度做線性漸層。
+ *
+ * angle 是「漸層流向」的方位角，0 朝上、順時針: 
+ *   0 = 由下往上、90 = 由左往右、180 = 由上往下、270 = 由右往左。
+ * 換句話說 from 那一端落在 angle 的反方向。實測過每一個象限。
+ */
 function makeGradient(ctx, layer) {
   const { x, y, w, h } = layer.rect;
   const rad = ((layer.gradient.angle - 90) * Math.PI) / 180;
@@ -116,6 +122,17 @@ export function renderTemplate(ctx, template, {
       ctx.textBaseline = "middle";
       ctx.textAlign = layer.align;
 
+      // 文字外框。canvas 的描邊是「跨在字的輪廓上」，跟 PowerPoint 一樣，
+      // 所以先描邊再填色 —— 填色會蓋掉內側那一半，留在外面的剛好是半個線寬。
+      const stroke = layer.stroke && layer.stroke.width > 0 ? layer.stroke : null;
+      if (stroke) {
+        ctx.strokeStyle = stroke.color;
+        ctx.lineWidth = stroke.width;
+        // 尖角在細筆畫的轉折處會爆出長刺，圓角接合比較安全。
+        ctx.lineJoin = "round";
+        ctx.miterLimit = 2;
+      }
+
       const lineH = laid.size * layer.font.lineHeight;
       const anchorX = layer.align === "center" ? x + w / 2 : layer.align === "right" ? x + w : x;
       const top = layer.valign === "middle" ? y + (h - laid.total) / 2
@@ -124,7 +141,9 @@ export function renderTemplate(ctx, template, {
 
       laid.lines.forEach((line, i) => {
         // 每一行都垂直置中在自己的行高裡，行距才會平均。
-        ctx.fillText(line, anchorX, top + lineH * (i + 0.5));
+        const baseline = top + lineH * (i + 0.5);
+        if (stroke) ctx.strokeText(line, anchorX, baseline);
+        ctx.fillText(line, anchorX, baseline);
       });
     }
 
@@ -135,7 +154,7 @@ export function renderTemplate(ctx, template, {
   return { overflow, missing };
 }
 
-/** 還沒放照片的框：畫一個虛線框跟提示字，不然預覽會是一片空白。 */
+/** 還沒放照片的框: 畫一個虛線框跟提示字，不然預覽會是一片空白。 */
 function drawPlaceholder(ctx, layer) {
   const { x, y, w, h } = layer.rect;
   ctx.save();
@@ -171,7 +190,7 @@ export function loadImage(src) {
 /**
  * 匯出成檔案。
  *
- * 注意：如果有任何遠端圖片被畫進去，canvas 會被 taint，這裡會丟
+ * 注意: 如果有任何遠端圖片被畫進去，canvas 會被 taint，這裡會丟
  * SecurityError。這也是為什麼 schema 只放行 data URI —— 讓問題在讀模板時
  * 就被擋掉，而不是等到使用者按下匯出。
  */

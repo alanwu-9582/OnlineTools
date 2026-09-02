@@ -1,20 +1,29 @@
 // js/tools/ig-template/schema.js — 模板資料的讀取、檢查與輸出。這一層不碰 DOM。
 //
-// 畫布一律 1:1 正方形。IG 的資訊型貼文就是正方形，讓尺寸可調只會多出一堆
-// 「為什麼我的字跑掉了」——所以只留一個邊長。
+// 畫布尺寸有兩種寫法: 正方形只寫一個邊長 `{ "size": 1080 }`，長方形寫
+// `{ "width": 1080, "height": 1350 }`。只寫 width 或只寫 height 也當成正方形 ——
+// 手寫 JSON 時漏一個欄位比想像中常見，直接補成正方形比丟錯誤有用。
 //
-// 圖層的 src 是「模板包裡的相對路徑」（例如 "assets/header.svg"），
+// 圖層的 src 是「標準模板裡的相對路徑」（例如 "assets/header.svg"），
 // 素材本體放在 zip 裡。data URI 也還吃，這樣單獨一份 .json 也能用。
-// 唯一不放行的是遠端網址：遠端圖片畫進 canvas 會讓 toBlob() 丟
+// 唯一不放行的是遠端網址: 遠端圖片畫進 canvas 會讓 toBlob() 丟
 // SecurityError，與其等到使用者按匯出才爆，不如在格式上就擋掉。
 
 export const FORMAT = "ig-template";
 export const VERSION = 2;
 
-/** IG 貼文的輸出邊長。1080 是 IG 的原生解析度。 */
+/**
+ * 預設邊長。1080 是 IG 的原生解析度: 方形 1080×1080、直式 1080×1350、
+ * 限時動態 1080×1920。
+ */
 export const DEFAULT_SIZE = 1080;
-const MIN_SIZE = 512;
-const MAX_SIZE = 2048;
+/** 邊長上下限。上限要容得下 1920（限時動態的高）。 */
+/** 字級上限（px）。 */
+export const MAX_FONT_SIZE = 2000;
+/** 文字外框粗細上限（畫布 px）。 */
+export const MAX_STROKE_WIDTH = 200;
+const MIN_SIDE = 256;
+const MAX_SIDE = 4096;
 
 const LAYER_TYPES = new Set(["photo", "text", "rect", "image"]);
 
@@ -40,25 +49,78 @@ export const WEIGHTS = [
   { value: "900", label: "特粗" },
 ];
 
+import { normalizeColor } from "./color.js";
+
 const num = (v, fallback) => (Number.isFinite(Number(v)) ? Number(v) : fallback);
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 /**
  * 檢查一個圖片來源能不能用。
- * 允許 data URI 與模板包內的相對路徑，其他一律擋。
+ * 允許 data URI 與標準模板內的相對路徑，其他一律擋。
  */
 function safeSrc(src, warnings, where) {
   if (typeof src !== "string" || !src) return "";
   if (src.startsWith("data:image/")) return src;
   if (/^[a-z][a-z0-9+.-]*:/i.test(src) || src.startsWith("//")) {
-    warnings.push(`${where}：src 是遠端網址，已忽略。素材要放進模板包裡，不然匯出時瀏覽器會擋下來。`);
+    warnings.push(`${where}: src 是遠端網址，已忽略。素材要放進標準模板裡，不然匯出時瀏覽器會擋下來。`);
     return "";
   }
   if (src.startsWith("/") || src.split("/").includes("..")) {
-    warnings.push(`${where}：src「${src}」不是合法的包內路徑，已忽略。`);
+    warnings.push(`${where}: src「${src}」不是合法的包內路徑，已忽略。`);
     return "";
   }
   return src;
+}
+
+/**
+ * 解出畫布尺寸。
+ *
+ * 接受三種寫法: 
+ *   { "size": 1080 }                  正方形
+ *   { "width": 1080, "height": 1350 } 長方形
+ *   { "width": 1080 }                 只寫一邊 → 正方形
+ *
+ * 解析結果只留 width / height 一組欄位。留著 size 當第三個欄位的話，
+ * 下游每個地方都得決定要相信哪一個，遲早會不一致。
+ *
+ * @returns {{width:number, height:number, background:string}}
+ */
+function parseCanvas(declared = {}, warnings = []) {
+  const input = declared && typeof declared === "object" ? declared : {};
+  const size = Number.isFinite(Number(input.size)) ? Number(input.size) : null;
+  const w = Number.isFinite(Number(input.width)) ? Number(input.width) : null;
+  const h = Number.isFinite(Number(input.height)) ? Number(input.height) : null;
+
+  let width;
+  let height;
+  if (w !== null || h !== null) {
+    // 只寫一邊就補成正方形。
+    width = w ?? h;
+    height = h ?? w;
+    if (size !== null && (w !== h || size !== w)) {
+      warnings.push(`canvas 同時寫了 size (${size}) 與 width / height，以 width / height 為準。`);
+    }
+  } else if (size !== null) {
+    width = size;
+    height = size;
+  } else {
+    width = DEFAULT_SIZE;
+    height = DEFAULT_SIZE;
+  }
+
+  const clampSide = (v, label) => {
+    const rounded = clamp(Math.round(v), MIN_SIDE, MAX_SIDE);
+    if (rounded !== Math.round(v)) {
+      warnings.push(`canvas 的${label} ${Math.round(v)} 超出 ${MIN_SIDE}–${MAX_SIDE} 的範圍，已改成 ${rounded}。`);
+    }
+    return rounded;
+  };
+
+  return {
+    width: clampSide(width, "寬"),
+    height: clampSide(height, "高"),
+    background: normalizeColor(input.background, "#ffffff"),
+  };
 }
 
 /**
@@ -80,37 +142,21 @@ export function parseTemplate(raw) {
   }
   if (!Array.isArray(raw.layers)) throw new Error("少了 layers 陣列。");
 
-  // 舊格式寫的是 width / height。取長邊當邊長，非正方形就講清楚它被改了。
-  const declared = raw.canvas || {};
-  const legacyW = num(declared.width, 0);
-  const legacyH = num(declared.height, 0);
-  let size = num(declared.size, 0) || Math.max(legacyW, legacyH) || DEFAULT_SIZE;
-  size = clamp(Math.round(size), MIN_SIZE, MAX_SIZE);
-  if (legacyW && legacyH && legacyW !== legacyH) {
-    warnings.push(`這份模板原本是 ${legacyW} × ${legacyH}，已改成正方形 ${size} × ${size}，靠下的圖層可能要重新調位置。`);
-  }
-
-  const canvas = {
-    size,
-    // 讓 render 那邊還能沿用 width / height，不用到處改。
-    width: size,
-    height: size,
-    background: typeof declared.background === "string" ? declared.background : "#ffffff",
-  };
+  const canvas = parseCanvas(raw.canvas, warnings);
 
   const seen = new Set();
   const layers = [];
   raw.layers.forEach((input, i) => {
     const at = `第 ${i + 1} 層`;
-    if (!input || typeof input !== "object") { warnings.push(`${at}：不是物件，已跳過。`); return; }
+    if (!input || typeof input !== "object") { warnings.push(`${at}: 不是物件，已跳過。`); return; }
     const type = String(input.type || "").toLowerCase();
     if (!LAYER_TYPES.has(type)) {
-      warnings.push(`${at}：不認得的 type「${input.type}」，已跳過。可用的是 photo / text / rect / image。`);
+      warnings.push(`${at}: 不認得的 type「${input.type}」，已跳過。可用的是 photo / text / rect / image。`);
       return;
     }
     const rect = input.rect || {};
     if (![rect.x, rect.y, rect.w, rect.h].every((v) => Number.isFinite(Number(v)))) {
-      warnings.push(`${at}：rect 要有 x / y / w / h 四個數字，已跳過。`);
+      warnings.push(`${at}: rect 要有 x / y / w / h 四個數字，已跳過。`);
       return;
     }
 
@@ -118,7 +164,7 @@ export function parseTemplate(raw) {
     let id = String(input.id || `${type}${i + 1}`);
     if (seen.has(id)) {
       const fixed = `${id}-${i + 1}`;
-      warnings.push(`${at}：id「${id}」重複，改成「${fixed}」。`);
+      warnings.push(`${at}: id「${id}」重複，改成「${fixed}」。`);
       id = fixed;
     }
     seen.add(id);
@@ -155,29 +201,40 @@ export function parseTemplate(raw) {
       layer.text = typeof input.text === "string" ? input.text : "";
       layer.font = {
         family: typeof input.font?.family === "string" ? input.font.family : FONT_FAMILIES[0].value,
-        size: clamp(num(input.font?.size, 48), 6, 400),
+        // 上限要放得夠大: 滿版的浮水印數字動輒五六百 px（Canva 的 sz 可以到 429pt）。
+        size: clamp(num(input.font?.size, 48), 6, MAX_FONT_SIZE),
         weight: clamp(Math.round(num(input.font?.weight, 400) / 100) * 100, 100, 900),
         lineHeight: clamp(num(input.font?.lineHeight, 1.35), 0.8, 3),
         letterSpacing: clamp(num(input.font?.letterSpacing, 0), -20, 40),
       };
-      layer.color = typeof input.color === "string" ? input.color : "#222222";
+      layer.color = normalizeColor(input.color, "#222222");
       layer.align = ["left", "center", "right"].includes(input.align) ? input.align : "left";
       layer.valign = ["top", "middle", "bottom"].includes(input.valign) ? input.valign : "top";
       // 字太多就自動縮小塞進框裡。IG 標題最常出事的就是這個。
       layer.autoShrink = input.autoShrink !== false;
+      // 文字外框（描邊）。粗細是畫布 px，0 或沒寫就是不描邊。
+      const st = input.stroke;
+      if (st && typeof st.color === "string") {
+        const width = clamp(num(st.width, 0), 0, MAX_STROKE_WIDTH);
+        if (width > 0) layer.stroke = { color: normalizeColor(st.color, "#ffffff"), width };
+      }
     } else if (type === "rect") {
-      layer.color = typeof input.color === "string" ? input.color : "#000000";
+      layer.color = normalizeColor(input.color, "#000000");
       // 漸層。海報式的色塊幾乎都是漸層，只有純色會做不出來。
       const g = input.gradient;
       if (g && typeof g.from === "string" && typeof g.to === "string") {
-        layer.gradient = { from: g.from, to: g.to, angle: num(g.angle, 90) % 360 };
+        layer.gradient = {
+          from: normalizeColor(g.from, "#000000"),
+          to: normalizeColor(g.to, "#00000000"),
+          angle: num(g.angle, 90) % 360,
+        };
       }
     }
 
     // 完全跑到畫布外面的圖層照樣留著 —— 有時候是刻意的出血設計。
     const r = layer.rect;
-    if (r.x > size || r.y > size || r.x + r.w < 0 || r.y + r.h < 0) {
-      warnings.push(`${at}（${layer.label}）：整個在畫布外面，畫出來會看不到。`);
+    if (r.x > canvas.width || r.y > canvas.height || r.x + r.w < 0 || r.y + r.h < 0) {
+      warnings.push(`${at}（${layer.label}）: 整個在畫布外面，畫出來會看不到。`);
     }
     layers.push(layer);
   });
@@ -215,7 +272,13 @@ export function serializeTemplate(template, slots = new Map(), { includePhotos =
     name: template.name,
     ...(template.preview ? { preview: template.preview } : {}),
     ...(template.note ? { note: template.note } : {}),
-    canvas: { size: template.canvas.size, background: template.canvas.background },
+    canvas: {
+      // 正方形存回一個邊長就好 —— 那是最常見的情況，也保留作者原本的寫法。
+      ...(template.canvas.width === template.canvas.height
+        ? { size: template.canvas.width }
+        : { width: template.canvas.width, height: template.canvas.height }),
+      background: template.canvas.background,
+    },
     layers: template.layers.map((layer) => {
       const out = {
         id: layer.id,
@@ -250,6 +313,7 @@ export function serializeTemplate(template, slots = new Map(), { includePhotos =
         out.align = layer.align;
         out.valign = layer.valign;
         if (!layer.autoShrink) out.autoShrink = false;
+        if (layer.stroke) out.stroke = { ...layer.stroke };
       } else if (layer.type === "rect") {
         out.color = layer.color;
         if (layer.gradient) out.gradient = { ...layer.gradient };
