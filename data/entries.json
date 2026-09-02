@@ -4,7 +4,7 @@
       "id": "split-bill",
       "type": "tool",
       "title": "分帳結算",
-      "description": "誰付了什麼、誰分攤，算出誰轉給誰多少，轉帳次數壓到最少",
+      "description": "誰付了什麼、誰分攤，算出誰轉給誰多少，用最少的轉帳次數",
       "path": "content/tools/split-bill.md",
       "category": "life",
       "tags": [
@@ -52,6 +52,23 @@
       "readingMinutes": 1
     },
     {
+      "id": "ig-template",
+      "type": "tool",
+      "title": "IG 貼文模板",
+      "description": "載入模板包，直接在畫布上換照片與改文字，輸出成品圖或改過的模板",
+      "path": "content/tools/ig-template.md",
+      "category": "design",
+      "tags": [
+        "image"
+      ],
+      "tools": [
+        "ig-template"
+      ],
+      "publishedDate": "2026/08/29",
+      "updatedDate": "2026/08/29",
+      "readingMinutes": 3
+    },
+    {
       "id": "paper-bag",
       "type": "tool",
       "title": "手工紙袋計算機",
@@ -65,7 +82,7 @@
         "paper-bag"
       ],
       "publishedDate": "2026/08/28",
-      "updatedDate": "2026/08/28",
+      "updatedDate": "2026/08/29",
       "readingMinutes": 3
     },
     {

@@ -174,26 +174,6 @@ export function outputRow(label, { value = "", mono = true } = {}) {
   return node;
 }
 
-/** 大面積的結果區（給 JSON、雜湊這種多行輸出）。 */
-export function outputBlock({ label = "結果", value = "", rows = 8 } = {}) {
-  const area = el("textarea", {
-    class: "tool-textarea is-mono is-readonly",
-    rows: String(rows),
-    readonly: "readonly",
-    spellcheck: "false",
-  }, value);
-  const node = el("div", { class: "tool-block" },
-    el("div", { class: "tool-block-head" },
-      el("span", { class: "tool-block-label" }, label),
-      copyButton(() => area.value),
-    ),
-    area,
-  );
-  node.set = (next) => { area.value = next == null ? "" : String(next); };
-  node.get = () => area.value;
-  return node;
-}
-
 /** 一行狀態訊息：ok / warn / error。 */
 export function status() {
   const node = el("p", { class: "tool-status", role: "status" });

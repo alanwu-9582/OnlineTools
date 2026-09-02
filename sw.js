@@ -11,7 +11,7 @@
 //
 // 改動下面的 SHELL 清單時，記得把 CACHE_VERSION 往上加一版，舊快取才會被丟掉。
 
-const CACHE_VERSION = "onlinetools-v5";
+const CACHE_VERSION = "onlinetools-v14";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -74,6 +74,21 @@ const SHELL = [
   "js/tools/split-bill/settle.js",
   "js/tools/split-bill/storage.js",
   "js/tools/split-bill/split-bill.css",
+  "js/tools/ig-template/index.js",
+  "js/tools/ig-template/schema.js",
+  "js/tools/ig-template/layout.js",
+  "js/tools/ig-template/render.js",
+  "js/tools/ig-template/editor.js",
+  "js/tools/ig-template/bundle.js",
+  "js/tools/ig-template/zip.js",
+  "js/tools/ig-template/ig-template.css",
+  "assets/templates/index.json",
+  "assets/templates/basic/template.json",
+  "assets/templates/basic/preview.jpg",
+  "assets/templates/frc8725/template.json",
+  "assets/templates/frc8725/preview.jpg",
+  "assets/templates/frc8725/assets/header.svg",
+  "assets/templates/frc8725/assets/chevrons.svg",
   "pages/home.html",
   "pages/catalog.html",
   "pages/entry.html",

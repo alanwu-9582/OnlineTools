@@ -5,8 +5,6 @@
 const ICON_PATHS = {
   home: '<path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V20h13V9.5"></path><path d="M9.5 20v-6h5v6"></path>',
   book: '<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H19v18H5.5A1.5 1.5 0 0 1 4 19.5z"></path><path d="M4 17h15"></path><path d="M8 7.5h7"></path>',
-  briefcase: '<rect x="3" y="7.5" width="18" height="12.5" rx="2"></rect><path d="M9 7.5V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5v2"></path><path d="M3 12.5h18"></path>',
-  user: '<circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path>',
   search: '<circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4.5 4.5"></path>',
   filter: '<line x1="4" y1="7" x2="20" y2="7"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="10" y1="17" x2="14" y2="17"></line>',
   x: '<path d="M7 7l10 10M17 7 7 17"></path>',
@@ -21,8 +19,6 @@ const ICON_PATHS = {
   grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"></rect>',
   play: '<path d="M8.5 5.6v12.8L19 12z"></path>',
   pause: '<line x1="9.5" y1="5.5" x2="9.5" y2="18.5"></line><line x1="14.5" y1="5.5" x2="14.5" y2="18.5"></line>',
-  clock: '<circle cx="12" cy="12" r="8.5"></circle><polyline points="12 7 12 12 15.5 14"></polyline>',
-  rss: '<path d="M5 19.5v.01"></path><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path>',
 };
 
 /** 回傳一段內嵌 SVG 字串。未知名稱回傳空字串。 */
@@ -101,12 +97,6 @@ export function relativeDate(value) {
   const months = Math.floor(days / 30);
   if (months < 12) return `${months} 個月前`;
   return `${Math.floor(days / 365)} 年前`;
-}
-
-/** 取年份，供「依年份」統計。 */
-export function yearOf(value) {
-  const m = String(value ?? "").match(/^(\d{4})/);
-  return m ? m[1] : "";
 }
 
 /** "約 5 分鐘" 的閱讀時間標籤。 */

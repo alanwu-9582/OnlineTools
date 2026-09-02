@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "id": "basic",
+      "label": "簡潔圖文",
+      "directory": "basic",
+      "description": "適合一般照片與短文的留白卡片模板。"
+    }
+  ]
+}

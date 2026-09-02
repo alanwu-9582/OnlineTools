@@ -1,0 +1,461 @@
+/* js/tools/ig-template/ig-template.css — IG 貼文模板。
+   igt-* 是外殼（模板來源、兩個預覽、輸出）；ige-* 是畫布上的編輯層。 */
+
+/* ---------- 模板來源 ---------- */
+.igt-drop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--easing-standard),
+              background var(--duration-fast) var(--easing-standard);
+}
+.igt-drop:hover { border-color: var(--interactive); }
+.igt-drop.is-over {
+  border-color: var(--primary);
+  background: var(--surface-selected);
+}
+.igt-drop:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+.igt-drop-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--card-bg-alt);
+  color: var(--text-muted);
+  /* 箭頭朝下比較像「拖進來」。 */
+  transform: rotate(90deg);
+}
+.igt-drop-title { font-size: var(--text-label); font-weight: 700; color: var(--text); }
+.igt-drop-hint { font-size: var(--text-caption); color: var(--text-dim); margin-top: 2px; }
+/* 真正的 file input 一律藏起來，用畫布上的框或按鈕代打。
+   外殼（igt-）跟編輯層（ige-）各有一個，兩個都要。 */
+.igt-file, .ige-file { display: none; }
+
+/* ---------- 模板的警告清單 ---------- */
+.igt-warnings {
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--warning);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+}
+.igt-warnings[hidden] { display: none; }
+.igt-warn-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-supporting);
+  font-weight: 700;
+  color: var(--warning);
+}
+.igt-warn-ico { display: inline-flex; }
+.doc-content .igt-warn-list,
+.igt-warn-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.doc-content .igt-warn-list li,
+.igt-warn-list li {
+  margin: 2px 0;
+  font-size: var(--text-supporting);
+  color: var(--text-muted);
+}
+
+/* ---------- 參考成品 ---------- */
+/* 窄卡片，不跟編輯區搶寬度。 */
+.igt-ref-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+}
+.igt-ref-card[hidden] { display: none; }
+.igt-ref-text { flex: 1; min-width: 0; }
+.igt-ref-hint {
+  margin-top: 2px;
+  font-size: var(--text-caption);
+  color: var(--text-dim);
+}
+.igt-ref-card .igt-ref-btn { width: 92px; flex-shrink: 0; }
+.igt-ref-card .btn { flex-shrink: 0; }
+
+.igt-pane { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.igt-pane[hidden] { display: none; }
+.igt-pane-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+}
+.igt-pane-label {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+.igt-pane-head .btn { margin-left: auto; flex-shrink: 0; }
+
+/* 參考成品的縮圖：整張就是一顆放大鈕。 */
+.igt-ref-btn {
+  display: block;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--cffy-theme-surface-a0);
+  cursor: zoom-in;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+}
+.igt-ref-btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+.igt-ref-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ---------- 放大檢視 ---------- */
+/* 對話框固定收在可視高度內，圖片同時受寬、高限制並維持比例；
+   不論橫式、直式或方形圖片，都能一次看到完整內容而不需要捲動。 */
+.modal.igt-zoom-modal {
+  display: flex;
+  flex-direction: column;
+  height: min(90dvh, calc(100dvh - 40px));
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+
+.igt-zoom-modal .modal-head { flex: 0 0 auto; }
+
+.igt-zoom-modal .modal-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.igt-zoom {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.igt-zoom-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 1080px);
+  max-height: min(100%, 1080px);
+  object-fit: contain;
+  flex-shrink: 1;
+  border-radius: var(--radius-sm);
+  background: var(--cffy-theme-surface-a0);
+}
+
+@media (max-width: 480px) {
+  .modal.igt-zoom-modal { height: 100dvh; }
+}
+
+/* ---------- 編輯區 ---------- */
+.ige-editor { display: flex; flex-direction: column; gap: 6px; }
+
+.ige-stage {
+  position: relative;
+  /* IG 貼文一律 1:1，所以舞台本身就是正方形，不用等 canvas 載完才知道高度。 */
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--cffy-theme-surface-a0);
+  overflow: hidden;
+  touch-action: none;
+}
+.ige-canvas { display: block; width: 100%; height: 100%; }
+
+/* 覆蓋層用畫布座標排版，再整層 scale 到顯示尺寸 ——
+   裡面的 left/top/font-size 都可以直接寫 1080 那一套的數字。 */
+.ige-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  /* 本身不吃事件，沒有命中框的地方會落到底下的 canvas 上（＝取消選取）。 */
+  pointer-events: none;
+}
+
+/* ---------- 命中框 ---------- */
+.ige-hit {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+  /* 外框畫在框內側，才不會因為 scale 而被裁掉。粗細用畫布單位，
+     縮到顯示尺寸之後大概是 2px。 */
+  box-shadow: none;
+  transition: box-shadow var(--duration-fast) var(--easing-standard);
+}
+.ige-hit:hover { box-shadow: inset 0 0 0 5px rgba(var(--rgb-info), 0.55); }
+.ige-hit:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 6px var(--color-focus);
+}
+.ige-hit.is-selected { box-shadow: inset 0 0 0 6px var(--info); }
+.ige-hit.is-editing { box-shadow: inset 0 0 0 6px var(--success); }
+/* 鎖住的圖層（背景色塊、裝飾）不擋住底下真正要編輯的東西，只能從圖層面板選。 */
+.ige-hit.is-locked { pointer-events: none; }
+/* 還沒放圖的框：canvas 已經畫了虛線提示，這裡只要讓它更明顯可點。 */
+.ige-hit.is-empty { cursor: copy; }
+.ige-hit.is-empty:hover { box-shadow: inset 0 0 0 6px rgba(var(--rgb-info), 0.8); }
+/* 放好圖的照片框是可以拖的。 */
+.ige-hit-photo:not(.is-empty), .ige-hit-image:not(.is-empty) { cursor: grab; }
+.ige-stage.is-dragging .ige-hit { cursor: grabbing; }
+
+/* ---------- 文字的行內輸入框 ---------- */
+.ige-inline {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: rgba(var(--rgb-info), 0.1);
+  box-shadow: inset 0 0 0 4px rgba(var(--rgb-info), 0.65);
+  pointer-events: auto;
+  resize: none;
+  overflow: hidden;
+  /* 字型／字級／顏色／對齊由 JS 依照 canvas 算出來的排版結果同步過來，
+     所以打字時看到的位置跟放開之後的成品幾乎一樣。 */
+  transform-origin: 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.doc-content .ige-inline,
+.ige-inline { font-family: inherit; }
+.ige-inline:focus { outline: none; }
+
+/* ---------- 浮動工具列 ---------- */
+.ige-toolbar {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100% - 8px);
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--app-chrome-bg);
+  box-shadow: var(--shadow);
+}
+.ige-toolbar[hidden] { display: none; }
+.ige-tb-name {
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--text-muted);
+  padding-right: 4px;
+  border-right: 1px solid var(--border-soft);
+}
+.ige-tb-group { display: inline-flex; align-items: center; gap: 4px; }
+.ige-tb-label { font-size: var(--text-caption); color: var(--text-dim); }
+
+.doc-content .ige-tb-select,
+.ige-tb-select,
+.doc-content .ige-tb-num,
+.ige-tb-num {
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xs);
+  background: var(--card-bg-alt);
+  color: var(--text);
+  font-family: var(--font-family);
+  font-size: var(--text-supporting);
+  max-width: 132px;
+}
+.doc-content .ige-tb-num,
+.ige-tb-num { width: 52px; max-width: 52px; text-align: center; }
+.ige-tb-select:focus-visible, .ige-tb-num:focus-visible {
+  outline: var(--focus-ring); outline-offset: 1px;
+}
+
+.ige-tb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xs);
+  background: var(--card-bg-alt);
+  color: var(--text);
+  font-family: var(--font-family);
+  font-size: var(--text-supporting);
+  cursor: pointer;
+}
+.ige-tb-btn:hover { border-color: var(--interactive); }
+.ige-tb-btn.is-active {
+  background: var(--surface-selected);
+  border-color: var(--interactive);
+  color: var(--text);
+}
+.ige-tb-btn:focus-visible { outline: var(--focus-ring); outline-offset: 1px; }
+.ige-tb-seg { display: inline-flex; gap: 2px; }
+
+.doc-content .ige-tb-color,
+.ige-tb-color {
+  width: 30px;
+  height: 26px;
+  padding: 2px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xs);
+  background: var(--card-bg-alt);
+  cursor: pointer;
+}
+.doc-content .ige-tb-range,
+.ige-tb-range {
+  width: 84px;
+  height: 22px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  appearance: none;
+  cursor: pointer;
+}
+.ige-tb-range:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
+.ige-tb-range::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px; background: var(--border);
+}
+.ige-tb-range::-moz-range-track {
+  height: 4px; border-radius: 2px; background: var(--border);
+}
+/* 滑桿的拇指是刻意的正圓例外 —— 圓的才看得出來可以拖。 */
+.ige-tb-range::-webkit-slider-thumb {
+  appearance: none; width: 13px; height: 13px; margin-top: -4.5px;
+  border: none; border-radius: 50%; background: var(--primary);
+}
+.ige-tb-range::-moz-range-thumb {
+  width: 13px; height: 13px; border: none; border-radius: 50%; background: var(--primary);
+}
+
+/* ---------- 圖層面板 ---------- */
+.ige-layers-toggle {
+  position: absolute;
+  z-index: 4;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--app-chrome-bg);
+  color: var(--text);
+  font-family: var(--font-family);
+  font-size: var(--text-supporting);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  opacity: 0.82;
+  transition: opacity var(--duration-fast) var(--easing-standard);
+}
+.ige-layers-toggle:hover, .ige-layers-toggle.is-open { opacity: 1; }
+.ige-layers-toggle:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+.ige-ico { display: inline-flex; align-items: center; }
+
+.ige-layers {
+  position: absolute;
+  z-index: 4;
+  top: 42px;
+  left: 8px;
+  width: min(230px, calc(100% - 16px));
+  max-height: min(320px, calc(100% - 56px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--app-chrome-bg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.ige-layers[hidden] { display: none; }
+.ige-layers-head {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+.ige-layer-list { overflow-y: auto; padding: 4px; }
+.ige-layer-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 6px 7px;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-family);
+  font-size: var(--text-supporting);
+  text-align: left;
+  cursor: pointer;
+}
+.ige-layer-row:hover { background: var(--card-bg-alt); }
+.ige-layer-row.is-active { background: var(--surface-selected); }
+.ige-layer-row:focus-visible { outline: var(--focus-ring); outline-offset: -2px; }
+.ige-layer-row .ige-ico { color: var(--text-dim); flex-shrink: 0; }
+.ige-layer-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ige-layer-kind {
+  flex-shrink: 0;
+  font-size: var(--text-caption);
+  color: var(--text-dim);
+}
+.ige-layer-row.is-empty .ige-layer-kind { color: var(--warning); }
+
+/* ---------- 提示 ---------- */
+.doc-content .ige-hint,
+.ige-hint {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--text-dim);
+}
+
+@media (max-width: 860px) {
+  .igt-ref-card { gap: 10px; padding: 9px 10px; }
+  .igt-ref-card .igt-ref-btn { width: 72px; }
+  .ige-toolbar { gap: 4px; padding: 5px 6px; }
+  .ige-tb-name { display: none; }
+  .ige-tb-select { max-width: 96px; }
+}

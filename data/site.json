@@ -79,6 +79,10 @@
       "label": "寫作",
       "color": "#ffbc5e"
     },
+    "image": {
+      "label": "圖片",
+      "color": "#b9a1ff"
+    },
     "money": {
       "label": "金錢",
       "color": "#7dff95"

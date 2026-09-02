@@ -1,0 +1,120 @@
+{
+  "format": "ig-template",
+  "version": 2,
+  "name": "簡潔圖文",
+  "preview": "preview.jpg",
+  "note": "一張照片加一段文字，最通用的版型。沒有外部素材，所以這份模板只有 template.json 跟 preview.png。想改版面就直接改各層的 rect。",
+  "canvas": {
+    "size": 1080,
+    "background": "#f4efe6"
+  },
+  "layers": [
+    {
+      "id": "card",
+      "type": "rect",
+      "label": "白底卡片",
+      "rect": {
+        "x": 48,
+        "y": 48,
+        "w": 984,
+        "h": 984
+      },
+      "color": "#ffffff",
+      "radius": 28,
+      "locked": true
+    },
+    {
+      "id": "photo",
+      "type": "photo",
+      "label": "主照片",
+      "placeholder": "點這裡放一張橫幅照片",
+      "rect": {
+        "x": 96,
+        "y": 96,
+        "w": 888,
+        "h": 520
+      },
+      "fit": "cover",
+      "radius": 18
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": "標題",
+      "rect": {
+        "x": 96,
+        "y": 660,
+        "w": 888,
+        "h": 180
+      },
+      "text": "姑姑嘎嘎",
+      "font": {
+        "family": "\"IBM Plex Sans JP\", sans-serif",
+        "size": 76,
+        "weight": 700,
+        "lineHeight": 1.14,
+        "letterSpacing": 1
+      },
+      "color": "#1f1b16",
+      "align": "left",
+      "valign": "top"
+    },
+    {
+      "id": "rule",
+      "type": "rect",
+      "label": "分隔線",
+      "rect": {
+        "x": 96,
+        "y": 858,
+        "w": 160,
+        "h": 8
+      },
+      "color": "#c8a06a",
+      "locked": true
+    },
+    {
+      "id": "body",
+      "type": "text",
+      "label": "說明文字",
+      "rect": {
+        "x": 96,
+        "y": 886,
+        "w": 888,
+        "h": 100
+      },
+      "text": "姑姑姑姑嘎嘎嘎嘎嘎",
+      "font": {
+        "family": "\"IBM Plex Sans JP\", sans-serif",
+        "size": 32,
+        "weight": 400,
+        "lineHeight": 1.5,
+        "letterSpacing": 0
+      },
+      "color": "#5b5348",
+      "align": "left",
+      "valign": "top"
+    },
+    {
+      "id": "tag",
+      "type": "text",
+      "label": "角落標記",
+      "rect": {
+        "x": 96,
+        "y": 990,
+        "w": 888,
+        "h": 38
+      },
+      "text": "@your_id　·　2026",
+      "font": {
+        "family": "\"JetBrains Mono\", monospace",
+        "size": 24,
+        "weight": 400,
+        "lineHeight": 1.2,
+        "letterSpacing": 1
+      },
+      "color": "#a89880",
+      "align": "right",
+      "valign": "middle"
+    }
+  ]
+}

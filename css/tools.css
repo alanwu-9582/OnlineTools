@@ -110,7 +110,6 @@
 .tool-input { height: var(--control-height); }
 select.tool-input { cursor: pointer; }
 .tool-textarea { resize: vertical; min-height: 90px; }
-.tool-textarea.is-readonly { background: var(--cffy-theme-surface-a10); color: var(--text-muted); }
 .is-mono, .doc-content .is-mono {
   font-family: var(--font-mono);
   font-size: 13.5px;
@@ -186,20 +185,6 @@ select.tool-input { cursor: pointer; }
 }
 /* 一整組結果列疊在一起時的間距。 */
 .tool-outs { display: flex; flex-direction: column; gap: 6px; }
-
-.tool-block { display: flex; flex-direction: column; gap: 6px; }
-.tool-block-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.tool-block-label {
-  font-size: var(--text-caption);
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  color: var(--text-muted);
-}
-.tool-block-head .tool-copy { margin-left: auto; }
 
 .tool-copy {
   display: inline-flex;
