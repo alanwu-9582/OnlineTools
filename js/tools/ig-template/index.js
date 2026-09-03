@@ -50,6 +50,8 @@ export function mount(host) {
   let bundle = null;
   let editor = null;
   let builtinCatalog = [];
+  let packCatalog = [];
+  let packSequence = 0;
 
   const info = status();
   const warnBox = el("div", { class: "igt-warnings", hidden: true });
@@ -113,7 +115,7 @@ export function mount(host) {
     el("div", {},
       el("div", { class: "igt-drop-title" }, "拖曳或選擇檔案"),
       el("div", { class: "igt-drop-hint" },
-        "標準模板 .zip、解壓縮後的資料夾，或只有版面的 .json"),
+        "標準模板／模板整合包 .zip、解壓縮後的資料夾，或只有版面的 .json"),
       // 「不知道怎麼從 Canva 匯出」是自己做模板時最大的卡點，
       // 所以把那條選單路徑直接寫在這裡，不要只留在說明文件裡。
       el("div", { class: "igt-drop-hint igt-drop-canva" },
@@ -128,10 +130,52 @@ export function mount(host) {
     class: "tool-input",
     disabled: true,
     onchange: () => {
-      const item = builtinCatalog.find((entry) => entry.id === builtinSelect.value);
-      if (item) void openBundle(() => loadBuiltin(builtinUrl(item.directory)), item.label);
+      const item = [...builtinCatalog, ...packCatalog].find((entry) => entry.value === builtinSelect.value);
+      if (item) void openBundle(item.load, item.label);
     },
   }, el("option", { value: "" }, "正在讀取範例模板…"));
+
+  function renderTemplateCatalog() {
+    const groups = [];
+    if (builtinCatalog.length) {
+      groups.push(el("optgroup", { label: "內建範例" },
+        ...builtinCatalog.map((item) => el("option", { value: item.value }, item.label))));
+    }
+    const packNames = [...new Set(packCatalog.map((item) => item.group))];
+    for (const name of packNames) {
+      groups.push(el("optgroup", { label: name },
+        ...packCatalog.filter((item) => item.group === name)
+          .map((item) => el("option", { value: item.value }, item.label))));
+    }
+    builtinSelect.replaceChildren(el("option", { value: "" }, "請選擇範例模板"), ...groups);
+    builtinSelect.disabled = !groups.length;
+    builtinSelect.value = "";
+  }
+
+  function installTemplatePack(pack, sourceName) {
+    const sequence = ++packSequence;
+    const group = `${pack.name}${sourceName ? `（${sourceName}）` : ""}`;
+    const oldCount = packCatalog.filter((entry) => entry.packId === pack.id).length;
+    // pack.json 頂層 id 相同代表同一個整合包的新版本：整包替換，避免舊版中
+    // 已刪除的模板仍殘留在選單裡。templates[].id 只需在包內唯一。
+    packCatalog = packCatalog.filter((entry) => entry.packId !== pack.id);
+    for (const [index, item] of pack.templates.entries()) {
+      packCatalog.push({
+        id: item.id,
+        packId: pack.id,
+        value: `pack:${sequence}:${index}`,
+        label: item.label,
+        group,
+        load: () => bundleFromFiles(item.files, { source: `模板包「${pack.name}」` }),
+      });
+    }
+    renderTemplateCatalog();
+    info.set(
+      `已加入模板包「${pack.name}」的 ${pack.templates.length} 個範例`
+      + `${oldCount ? `，已取代相同整合包 ID 的舊版本（原有 ${oldCount} 個範例）` : ""}。`,
+      "ok",
+    );
+  }
 
   async function loadBuiltinCatalog() {
     try {
@@ -143,17 +187,19 @@ export function mount(host) {
       builtinCatalog = data.templates.filter((item) => (
         item && typeof item.id === "string" && typeof item.label === "string"
         && typeof item.directory === "string" && /^[a-z0-9][a-z0-9_-]*$/i.test(item.directory)
-      ));
+      )).map((item) => ({
+        ...item,
+        value: `builtin:${item.id}`,
+        load: () => loadBuiltin(builtinUrl(item.directory)),
+      }));
       if (!builtinCatalog.length) throw new Error("範例模板清單是空的");
-
-      builtinSelect.replaceChildren(
-        el("option", { value: "" }, "請選擇範例模板"),
-        ...builtinCatalog.map((item) => el("option", { value: item.id }, item.label)),
-      );
-      builtinSelect.disabled = false;
+      renderTemplateCatalog();
     } catch (err) {
-      builtinSelect.replaceChildren(el("option", { value: "" }, "範例模板清單無法使用"));
-      builtinSelect.disabled = true;
+      if (packCatalog.length) renderTemplateCatalog();
+      else {
+        builtinSelect.replaceChildren(el("option", { value: "" }, "範例模板清單無法使用"));
+        builtinSelect.disabled = true;
+      }
       info.set(err.message, "error");
     }
   }
@@ -308,6 +354,11 @@ export function mount(host) {
       next = await loader();
     } catch (err) {
       info.set(`無法讀取模板: ${err.message}`, "error");
+      return;
+    }
+
+    if (next?.kind === "template-pack") {
+      installTemplatePack(next, sourceName);
       return;
     }
 

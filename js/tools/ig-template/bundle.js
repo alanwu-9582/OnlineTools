@@ -20,6 +20,7 @@ import { parseTemplate, serializeTemplate } from "./schema.js";
 import { importPptx, looksLikePptx } from "./import-pptx.js";
 
 export const MANIFEST = "template.json";
+export const PACK_MANIFEST = "pack.json";
 export const PHOTO_DIR = "photos/";
 export const FONT_DIR = "fonts/";
 export const PREVIEW = "preview.jpg";
@@ -169,7 +170,7 @@ export async function readBundle(file) {
 function wantedInFolder(name) {
   const base = name.split("/").pop();
   if (!base || base.startsWith(".")) return false;
-  if (base === MANIFEST) return true;
+  if (base === MANIFEST || base === PACK_MANIFEST) return true;
   const ext = extOf(name);
   // 解開的 .pptx 資料夾也吃，所以 xml / rels / fntdata 一併收。
   return IMAGE_EXT.includes(ext) || FONT_EXT.has(ext)
@@ -257,6 +258,8 @@ export async function bundleFromFiles(files, { source = "ZIP" } = {}) {
   // 解壓縮結果就全都認不出來。
   const rebased = rebaseOnRoot(files);
 
+  if (rebased.has(PACK_MANIFEST)) return templatePackFromFiles(rebased, { source });
+
   // .pptx 也是 ZIP。用內容判斷而不是副檔名 —— 使用者從 Canva 下載回來的
   // 檔名不一定可靠，而 ppt/presentation.xml 在不在是確定的。
   if (looksLikePptx(rebased)) return bundleFromPptx(rebased, { slide: 0 });
@@ -293,8 +296,73 @@ export async function bundleFromFiles(files, { source = "ZIP" } = {}) {
   return bundle;
 }
 
-/** 用來認出根目錄的標記檔：標準模板的 template.json，或解開的 .pptx。 */
-const ROOT_MARKERS = [MANIFEST, "ppt/presentation.xml"];
+/**
+ * 解析標準模板整合包。pack.json 可明列 templates，也可以省略清單，讓工具
+ * 自動尋找所有子資料夾裡的 template.json。
+ */
+function templatePackFromFiles(files, { source }) {
+  let raw;
+  try {
+    raw = JSON.parse(new TextDecoder().decode(files.get(PACK_MANIFEST)));
+  } catch (err) {
+    throw new Error(`${PACK_MANIFEST} 不是有效的 JSON: ${err.message}`);
+  }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error(`${PACK_MANIFEST} 必須是一個 JSON 物件。`);
+  }
+  if (raw.format && raw.format !== "ig-template-pack") {
+    throw new Error(`${PACK_MANIFEST} 的 format 應該是 "ig-template-pack"。`);
+  }
+
+  const available = [...files.keys()]
+    .filter((path) => path.endsWith(`/${MANIFEST}`))
+    .map((path) => path.slice(0, -MANIFEST.length).replace(/\/$/, ""));
+  const declared = Array.isArray(raw.templates) ? raw.templates : available;
+  const seenDirectories = new Set();
+  const templates = [];
+
+  for (const input of declared) {
+    const item = typeof input === "string" ? { directory: input } : input;
+    if (!item || typeof item !== "object") continue;
+    const directory = String(item.directory || item.path || "").replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/$/, "");
+    if (!directory || directory.split("/").includes("..") || seenDirectories.has(directory)) continue;
+    const manifestPath = `${directory}/${MANIFEST}`;
+    if (!files.has(manifestPath)) continue;
+    seenDirectories.add(directory);
+
+    let templateName = directory.split("/").pop();
+    try {
+      const templateRaw = JSON.parse(new TextDecoder().decode(files.get(manifestPath)));
+      if (typeof templateRaw?.name === "string" && templateRaw.name.trim()) templateName = templateRaw.name.trim();
+    } catch { /* 真正選取模板時會顯示完整的 JSON 錯誤。 */ }
+
+    const prefix = `${directory}/`;
+    const templateFiles = new Map();
+    for (const [path, bytes] of files) {
+      if (path.startsWith(prefix)) templateFiles.set(path.slice(prefix.length), bytes);
+    }
+    templates.push({
+      // 模板 id 只在這一個整合包內使用；整合包本身由 pack.json 頂層 id 識別。
+      id: String(item.id || directory),
+      label: String(item.label || templateName),
+      directory,
+      files: templateFiles,
+    });
+  }
+
+  if (!templates.length) {
+    throw new Error(`這個${source}有 ${PACK_MANIFEST}，但找不到任何子資料夾內的 ${MANIFEST}。`);
+  }
+  return {
+    kind: "template-pack",
+    id: String(raw.id || raw.name || raw.label || "imported-template-pack"),
+    name: String(raw.name || raw.label || "匯入的模板包"),
+    templates,
+  };
+}
+
+/** 用來認出根目錄的標記檔：整合包、標準模板，或解開的 .pptx。 */
+const ROOT_MARKERS = [PACK_MANIFEST, MANIFEST, "ppt/presentation.xml"];
 
 /**
  * 讓標記檔所在的那一層變成根目錄。

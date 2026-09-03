@@ -69,6 +69,36 @@ photos/main.jpg        放上去的照片
 
 同樣地，**解開的 `.pptx` 資料夾**也讀得進來。
 
+### 標準模板整合包
+
+ZIP 或資料夾的根目錄若有 `pack.json`，就會被視為標準模板整合包。載入後，包內模板會追加到「範例模板」選單，不會取代網站內建範例。
+
+```text
+pack.json
+square/template.json
+square/assets/logo.svg
+portrait/template.json
+portrait/preview.jpg
+```
+
+`pack.json` 可以指定名稱、選單標籤與順序：
+
+```json
+{
+  "format": "ig-template-pack",
+  "id": "brand-post-pack",
+  "name": "品牌貼文模板",
+  "templates": [
+    { "id": "square", "label": "品牌方形貼文", "directory": "square" },
+    { "id": "portrait", "label": "品牌直式貼文", "directory": "portrait" }
+  ]
+}
+```
+
+`templates` 也可以省略；工具會自動尋找各子資料夾內的 `template.json`，並以模板本身的 `name` 作為選單名稱。
+
+`pack.json` 頂層的 `id` 是整個整合包的唯一鍵。之後載入另一個整合包時，若頂層 `id` 相同，新整合包會完整取代先前上傳的舊版本，包括移除新版已不存在的模板；網站內建範例不受影響。`templates` 裡的 `id` 只用來識別該整合包內的模板。
+
 按「下載標準模板」會把改過的文字、字級、顏色與照片位置存成標準模板。
 
 ### template.json
@@ -113,5 +143,3 @@ IG 常用的三種: 方形 `1080 × 1080`、直式 `1080 × 1350`（4:5，貼文
 | `stroke` | 文字外框，`{ "color": "#ffffff", "width": 6 }`。`width` 是畫布 px，省略或 0 就是不描邊 | 只有 `text` |
 
 `src` 只收標準模板內的路徑或 data URI.
-
-
