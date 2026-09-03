@@ -184,6 +184,49 @@
 /* ---------- 編輯區 ---------- */
 .ige-editor { display: flex; flex-direction: column; gap: 6px; }
 
+.ige-inspector {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  width: min(680px, calc(100% - 8px));
+  max-width: calc(100% - 8px);
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--app-chrome-bg);
+  box-shadow: var(--shadow);
+}
+.ige-inspector[hidden] { display: none; }
+.ige-inspector-title {
+  width: 100%;
+  align-self: center;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.ige-meta-field { display: grid; gap: 3px; width: 150px; }
+.ige-meta-field > span { font-size: var(--text-caption); color: var(--text-dim); }
+.doc-content .ige-meta-input,
+.ige-meta-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xs);
+  background: var(--app-chrome-bg);
+  color: var(--text);
+  font-family: var(--font-family);
+  font-size: var(--text-supporting);
+}
+.ige-meta-input:focus-visible { outline: var(--focus-ring); outline-offset: 1px; }
+.ige-meta-input:invalid { border-color: var(--critical); }
+.ige-meta-toggle { min-height: 30px; white-space: nowrap; }
+
 .ige-stage {
   position: relative;
   /* 長寬比由 JS 依模板的 canvas 設定（inline style 會蓋掉這裡）。

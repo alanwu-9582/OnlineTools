@@ -28,6 +28,8 @@
 2. 右上角 **分享 → 下載 → 檔案類型選「PowerPoint (.pptx)」→ 下載**
 3. 上傳 `.pptx` 到這裡
 
+上傳 `.pptx` 後，點選畫布或圖層面板中的元素，預覽下方會出現「PPTX 元素設定」，可以即時修改元素名稱、ID，以及切換 `locked` 與 `lock-design`。修改會一併存進下載的標準模板。
+
 PowerPoint、Keynote、Google Slides 也都能匯出 pptx。
 
 ### 注意
@@ -111,6 +113,5 @@ IG 常用的三種: 方形 `1080 × 1080`、直式 `1080 × 1350`（4:5，貼文
 | `stroke` | 文字外框，`{ "color": "#ffffff", "width": 6 }`。`width` 是畫布 px，省略或 0 就是不描邊 | 只有 `text` |
 
 `src` 只收標準模板內的路徑或 data URI.
-
 
 

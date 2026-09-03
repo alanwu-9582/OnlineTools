@@ -29,6 +29,7 @@ const TYPE_NAME = { photo: "照片", image: "素材", text: "文字", rect: "色
  */
 export function createEditor({ bundle, onRender, onNotify }) {
   const template = bundle.template;
+  const canEditLayerMeta = bundle.source?.kind === "pptx";
   // 畫布可以是正方形也可以是長方形，所以兩個邊都要各自帶著走。
   const canvasW = template.canvas.width;
   const canvasH = template.canvas.height;
@@ -69,6 +70,30 @@ export function createEditor({ bundle, onRender, onNotify }) {
   // 舞台的長寬比由模板決定，不能寫死在 CSS 裡 —— 寫死的話直式模板會被
   // 壓成正方形，命中框的位置就跟畫出來的東西對不上了。
   stage.style.aspectRatio = `${canvasW} / ${canvasH}`;
+  const inspectorName = el("input", {
+    class: "ige-meta-input", type: "text", "aria-label": "元素名稱",
+  });
+  const inspectorId = el("input", {
+    class: "ige-meta-input ige-meta-id", type: "text", "aria-label": "元素 ID",
+    spellcheck: "false",
+  });
+  const inspectorLocked = el("button", {
+    class: "btn btn-sm btn-ghost ige-meta-toggle", type: "button", "aria-pressed": "false",
+  }, "locked");
+  const inspectorLockDesign = el("button", {
+    class: "btn btn-sm btn-ghost ige-meta-toggle", type: "button", "aria-pressed": "false",
+  }, "lock-design");
+  let inspectorForId = null;
+  const inspector = el("div", { class: "ige-inspector", hidden: true },
+    el("div", { class: "ige-inspector-title" }, "PPTX 元素設定"),
+    el("label", { class: "ige-meta-field" },
+      el("span", {}, "名稱"), inspectorName),
+    el("label", { class: "ige-meta-field" },
+      el("span", {}, "ID"), inspectorId),
+    inspectorLocked,
+    inspectorLockDesign,
+  );
+  stage.appendChild(inspector);
   const root = el("div", { class: "ige-editor" }, stage);
 
   // 檔案選擇器共用一個，用完把 value 清掉，同一個檔案才選得了第二次。
@@ -82,6 +107,85 @@ export function createEditor({ bundle, onRender, onNotify }) {
     if (file && layer) void putImage(layer, file);
   });
   root.appendChild(filePicker);
+
+  function syncInspector() {
+    const layer = selectedId ? byId.get(selectedId) : null;
+    inspector.hidden = !canEditLayerMeta || !layer;
+    if (!layer) { inspectorForId = null; return; }
+    const changedLayer = inspectorForId !== layer.id;
+    if (changedLayer || document.activeElement !== inspectorName) inspectorName.value = layer.label;
+    if (changedLayer || document.activeElement !== inspectorId) inspectorId.value = layer.id;
+    if (changedLayer) inspectorId.setCustomValidity("");
+    inspectorForId = layer.id;
+    for (const [control, pressed] of [
+      [inspectorLocked, layer.locked],
+      [inspectorLockDesign, layer.lockDesign],
+    ]) {
+      control.setAttribute("aria-pressed", String(pressed));
+      control.classList.toggle("btn-primary", pressed);
+      control.classList.toggle("btn-ghost", !pressed);
+    }
+    if (!toolbar.hidden) placeToolbar();
+  }
+
+  function syncLayerMeta(layer) {
+    const hit = hits.get(layer.id);
+    if (hit) {
+      hit.classList.toggle("is-locked", layer.locked);
+      hit.setAttribute("aria-label", `${TYPE_NAME[layer.type]}: ${layer.label}`);
+    }
+    const row = layerList.querySelector(`[data-id="${CSS.escape(layer.id)}"]`);
+    if (row) row.querySelector(".ige-layer-name").textContent = layer.label;
+    buildToolbar();
+    syncInspector();
+  }
+
+  inspectorName.addEventListener("input", () => {
+    const layer = selectedId ? byId.get(selectedId) : null;
+    if (!layer) return;
+    layer.label = inspectorName.value;
+    syncLayerMeta(layer);
+  });
+  inspectorId.addEventListener("input", () => {
+    const layer = selectedId ? byId.get(selectedId) : null;
+    if (!layer) return;
+    const next = inspectorId.value.trim();
+    const valid = Boolean(next) && (!byId.has(next) || next === layer.id);
+    inspectorId.setCustomValidity(valid ? "" : next ? "ID 不可與其他元素重複" : "ID 不可空白");
+    if (!valid || next === layer.id) return;
+
+    const old = layer.id;
+    const hit = hits.get(old);
+    const slot = slots.get(old);
+    byId.delete(old);
+    hits.delete(old);
+    slots.delete(old);
+    layer.id = next;
+    inspectorForId = next;
+    byId.set(next, layer);
+    if (hit) {
+      hit.dataset.id = next;
+      hits.set(next, hit);
+    }
+    if (slot) slots.set(next, slot);
+    if (selectedId === old) selectedId = next;
+    if (editingId === old) editingId = next;
+    buildLayerList();
+    syncLayerMeta(layer);
+  });
+  inspectorLocked.addEventListener("click", () => {
+    const layer = selectedId ? byId.get(selectedId) : null;
+    if (!layer) return;
+    layer.locked = !layer.locked;
+    syncLayerMeta(layer);
+  });
+  inspectorLockDesign.addEventListener("click", () => {
+    const layer = selectedId ? byId.get(selectedId) : null;
+    if (!layer) return;
+    layer.lockDesign = !layer.lockDesign;
+    buildLayerList();
+    syncLayerMeta(layer);
+  });
 
   /* ---- 命中框 ---- */
 
@@ -119,6 +223,10 @@ export function createEditor({ bundle, onRender, onNotify }) {
   }
   const resizeObserver = new ResizeObserver(syncScale);
   resizeObserver.observe(stage);
+  const onViewportChange = () => { if (selectedId) placeToolbar(); };
+  window.addEventListener("resize", onViewportChange);
+  // capture 才能在頁面內任一捲動容器移動時同步，而不只監聽 window 本身。
+  window.addEventListener("scroll", onViewportChange, true);
 
   // 保險：萬一瀏覽器不吃 overflow: clip，退回 hidden 之後還是捲得動。
   // 一被捲走就拉回原位，成品預覽永遠對齊舞台。
@@ -197,6 +305,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
     for (const [key, hit] of hits) hit.classList.toggle("is-selected", key === id);
     for (const row of layerList.children) row.classList.toggle("is-active", row.dataset.id === id);
     buildToolbar();
+    syncInspector();
   }
 
   function deselect() {
@@ -205,6 +314,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
     for (const hit of hits.values()) hit.classList.remove("is-selected");
     for (const row of layerList.children) row.classList.remove("is-active");
     toolbar.hidden = true;
+    syncInspector();
   }
 
   /* ---- 工具列 ---- */
@@ -213,27 +323,81 @@ export function createEditor({ bundle, onRender, onNotify }) {
     if (toolbar.hidden || !selectedId) return;
     const hit = hits.get(selectedId);
     const stageBox = stage.getBoundingClientRect();
+    const margin = 4;
+    // 定位邊界不是整個畫布，而是「畫布目前看得到的部分」。頁面捲動或手機
+    // 視窗較小時，控制項才不會雖然留在畫布內，卻落在瀏覽器畫面外。
+    const visible = {
+      left: Math.max(margin, -stageBox.left + margin),
+      top: Math.max(margin, -stageBox.top + margin),
+      right: Math.min(stageBox.width - margin, window.innerWidth - stageBox.left - margin),
+      bottom: Math.min(stageBox.height - margin, window.innerHeight - stageBox.top - margin),
+    };
+    const visibleWidth = Math.max(80, visible.right - visible.left);
+    toolbar.style.maxWidth = `${visibleWidth}px`;
+    inspector.style.width = `${Math.min(680, visibleWidth)}px`;
     // 用命中框自己的 bounding rect —— 它已經套過 rotate，旋轉後的外框
     // 直接就是對的，不用自己算四個角。
     const box = hit.getBoundingClientRect();
-    const top = box.top - stageBox.top;
-    const left = box.left - stageBox.left + box.width / 2;
+    const target = {
+      left: box.left - stageBox.left,
+      top: box.top - stageBox.top,
+      right: box.right - stageBox.left,
+      bottom: box.bottom - stageBox.top,
+    };
 
     toolbar.style.visibility = "hidden";
     toolbar.style.left = "0px";
     toolbar.style.top = "0px";
+    if (!inspector.hidden) {
+      inspector.style.visibility = "hidden";
+      inspector.style.left = "0px";
+      inspector.style.top = "0px";
+    }
     const tw = toolbar.offsetWidth;
     const th = toolbar.offsetHeight;
+    const iw = inspector.hidden ? 0 : inspector.offsetWidth;
+    const ih = inspector.hidden ? 0 : inspector.offsetHeight;
+    const panelGap = inspector.hidden ? 0 : 6;
+    const targetGap = 8;
+    const gw = Math.max(tw, iw);
+    const gh = th + panelGap + ih;
+    const cx = (target.left + target.right) / 2;
+    const cy = (target.top + target.bottom) / 2;
 
-    // 預設放在元素上方；上面塞不下就翻到下方，兩邊都不行就貼在畫布頂端。
-    let ty = top - th - 8;
-    if (ty < 4) ty = box.bottom - stageBox.top + 8;
-    if (ty + th > stageBox.height - 4) ty = 4;
-    const tx = Math.min(Math.max(left - tw / 2, 4), stageBox.width - tw - 4);
+    const candidates = [
+      { side: "above", x: cx - gw / 2, y: target.top - targetGap - gh, inspectorFirst: true },
+      { side: "below", x: cx - gw / 2, y: target.bottom + targetGap },
+      { side: "right", x: target.right + targetGap, y: cy - gh / 2 },
+      { side: "left", x: target.left - targetGap - gw, y: cy - gh / 2 },
+    ];
+    const overlapArea = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left))
+      * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+
+    // 同時計算超出版面的程度與移回畫布後會遮住元素的面積，挑總分最低的位置。
+    for (const [preference, candidate] of candidates.entries()) {
+      const rawRight = candidate.x + gw;
+      const rawBottom = candidate.y + gh;
+      const overflow = Math.max(0, visible.left - candidate.x) + Math.max(0, rawRight - visible.right)
+        + Math.max(0, visible.top - candidate.y) + Math.max(0, rawBottom - visible.bottom);
+      candidate.x = Math.min(Math.max(candidate.x, visible.left), Math.max(visible.left, visible.right - gw));
+      candidate.y = Math.min(Math.max(candidate.y, visible.top), Math.max(visible.top, visible.bottom - gh));
+      const group = { left: candidate.x, top: candidate.y, right: candidate.x + gw, bottom: candidate.y + gh };
+      candidate.score = overflow * 10000 + overlapArea(group, target) * 100 + preference;
+    }
+    const best = candidates.reduce((winner, item) => item.score < winner.score ? item : winner);
+    const tx = best.x + (gw - tw) / 2;
+    const ix = best.x + (gw - iw) / 2;
+    const ty = best.y + (best.inspectorFirst ? ih + panelGap : 0);
+    const iy = best.y + (best.inspectorFirst ? 0 : th + panelGap);
 
     toolbar.style.left = `${Math.round(tx)}px`;
     toolbar.style.top = `${Math.round(ty)}px`;
     toolbar.style.visibility = "";
+    if (!inspector.hidden) {
+      inspector.style.left = `${Math.round(ix)}px`;
+      inspector.style.top = `${Math.round(iy)}px`;
+      inspector.style.visibility = "";
+    }
   }
 
   function tbGroup(label, ...children) {
@@ -699,6 +863,8 @@ export function createEditor({ bundle, onRender, onNotify }) {
   function destroy() {
     destroyed = true;
     resizeObserver.disconnect();
+    window.removeEventListener("resize", onViewportChange);
+    window.removeEventListener("scroll", onViewportChange, true);
     document.removeEventListener("pointerdown", onDocPointerDown);
     document.removeEventListener("keydown", onKeydown);
     inlineBox?.remove();
