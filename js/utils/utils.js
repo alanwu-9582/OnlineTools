@@ -19,6 +19,7 @@ const ICON_PATHS = {
   grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"></rect>',
   play: '<path d="M8.5 5.6v12.8L19 12z"></path>',
   pause: '<line x1="9.5" y1="5.5" x2="9.5" y2="18.5"></line><line x1="14.5" y1="5.5" x2="14.5" y2="18.5"></line>',
+  lock: '<rect x="4.5" y="10.5" width="15" height="9.5" rx="2"></rect><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"></path>',
 };
 
 /** 回傳一段內嵌 SVG 字串。未知名稱回傳空字串。 */

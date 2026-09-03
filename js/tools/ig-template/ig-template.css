@@ -293,6 +293,15 @@
   border-right: 1px solid var(--border-soft);
 }
 .ige-tb-group { display: inline-flex; align-items: center; gap: 4px; }
+/* 設計鎖只是一個標記，不是控制項，所以不做成按鈕的樣子。
+   說明放在 title / aria-label 裡，畫面上就一把鎖。 */
+.ige-tb-lock,
+.ige-layer-lock {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--warning);
+}
 .ige-tb-label { font-size: var(--text-caption); color: var(--text-dim); }
 
 .doc-content .ige-tb-select,

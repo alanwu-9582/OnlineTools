@@ -11,7 +11,7 @@
 //
 // 改動下面的 SHELL 清單時，記得把 CACHE_VERSION 往上加一版，舊快取才會被丟掉。
 
-const CACHE_VERSION = "onlinetools-v19";
+const CACHE_VERSION = "onlinetools-v21";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;

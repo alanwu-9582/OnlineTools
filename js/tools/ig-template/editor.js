@@ -287,6 +287,22 @@ export function createEditor({ bundle, onRender, onNotify }) {
     const layer = byId.get(selectedId);
     toolbar.appendChild(el("span", { class: "ige-tb-name" }, layer.label));
 
+    // 設計鎖: 內容還是能改（文字照打、照片照換），但決定「長相」的東西
+    // 一律不放上來 —— 與其做成禁用的灰色欄位，不如根本不出現，
+    // 使用者才不會一直去點一個點不動的東西。
+    const locked = layer.lockDesign;
+    if (locked) {
+      // 只放一把鎖。說明留在 title 與 aria-label 裡 —— 工具列很窄，
+      // 一行字會把真正的控制項擠掉，而少了哪些控制項本來就看得出來。
+      const why = layer.type === "text" ? "這一層的設計由模板鎖定，只能改文字"
+        : layer.type === "rect" ? "這一層的設計由模板鎖定"
+          : "這一層的設計由模板鎖定，只能換圖";
+      toolbar.appendChild(el("span", {
+        class: "ige-tb-lock", title: why, role: "img", "aria-label": why,
+        html: icon("lock", { size: "14px" }),
+      }));
+    }
+
     if (layer.type === "text") {
       const fontFamilies = [
         ...bundle.fonts.map(({ value, label }) => ({ value, label: `${label} (模板)` })),
@@ -357,14 +373,16 @@ export function createEditor({ bundle, onRender, onNotify }) {
       const strokeColor = tbColor(layer.stroke?.color || "#ffffff",
         (hex) => applyStroke(layer.stroke?.width || Number(strokeWidth.value) || 0, hex), "外框");
 
-      toolbar.append(
-        tbGroup("", fontSel),
-        tbGroup("", sizeInput),
-        tbGroup("", weightSel),
-        tbGroup("", tbColor(layer.color, (hex) => { layer.color = hex; syncInlineStyle(); }, "文字")),
-        tbGroup("", alignGroup),
-        tbGroup("外框", strokeColor, strokeWidth),
-      );
+      if (!locked) {
+        toolbar.append(
+          tbGroup("", fontSel),
+          tbGroup("", sizeInput),
+          tbGroup("", weightSel),
+          tbGroup("", tbColor(layer.color, (hex) => { layer.color = hex; syncInlineStyle(); }, "文字")),
+          tbGroup("", alignGroup),
+          tbGroup("外框", strokeColor, strokeWidth),
+        );
+      }
     } else if (layer.type === "photo" || layer.type === "image") {
       const has = slots.has(layer.id);
       toolbar.append(tbGroup("", tbButton(has ? "換圖" : "上傳", () => pickImage(layer))));
@@ -398,16 +416,18 @@ export function createEditor({ bundle, onRender, onNotify }) {
           render();
         });
 
+        // 縮放與置中留著 —— 換了新照片總得把它擺進框裡，那是內容不是設計。
+        toolbar.append(tbGroup("縮放", zoom));
+        if (!locked) toolbar.append(tbGroup("透明", opacity));
         toolbar.append(
-          tbGroup("縮放", zoom),
-          tbGroup("透明", opacity),
           tbGroup("", tbButton("置中", () => {
             state.scale = 1; state.dx = 0; state.dy = 0; render(); buildToolbar();
           })),
           tbGroup("", tbButton("移除", () => clearImage(layer))),
         );
       }
-    } else if (layer.type === "rect") {
+    } else if (layer.type === "rect" && !locked) {
+      // 色塊沒有「內容」可言，整層都是設計，所以鎖住就什麼都不放。
       if (layer.gradient) {
         toolbar.append(
           tbGroup("起", tbColor(layer.gradient.from,
@@ -616,6 +636,16 @@ export function createEditor({ bundle, onRender, onNotify }) {
         el("span", { class: "ige-layer-name" }, layer.label),
         el("span", { class: "ige-layer-kind" }, empty ? "未填" : TYPE_NAME[layer.type]),
       );
+      // 設計鎖在清單上也標一下，不然使用者只會覺得工具列「怎麼少東西」。
+      if (layer.lockDesign) {
+        row.classList.add("is-design-locked");
+        row.title = "這一層的設計由模板鎖定，只能改內容";
+        // 清單上同樣只放圖示，跟工具列一致。
+        row.insertBefore(
+          el("span", { class: "ige-layer-lock", html: icon("lock", { size: "12px" }) }),
+          row.querySelector(".ige-layer-kind"),
+        );
+      }
       if (empty) row.classList.add("is-empty");
       if (layer.id === selectedId) row.classList.add("is-active");
       layerList.appendChild(row);

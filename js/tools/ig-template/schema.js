@@ -184,6 +184,10 @@ export function parseTemplate(raw) {
       rotate: num(input.rotate, 0) % 360,
       // 鎖住的圖層在畫布上點不到（背景色塊、裝飾），只能從圖層面板選。
       locked: input.locked === true,
+      // 設計鎖: 選得到、內容也改得動，但字型、字級、顏色、對齊、外框這些
+      // 「長相」的部分不給改。做給「版面已經定稿、只讓人換字換圖」的模板用。
+      // JSON 的欄位名是 lock-design（也吃 lockDesign 這種寫法）。
+      lockDesign: input["lock-design"] === true || input.lockDesign === true,
     };
 
     if (type === "photo" || type === "image") {
@@ -290,6 +294,7 @@ export function serializeTemplate(template, slots = new Map(), { includePhotos =
       if (layer.radius) out.radius = layer.radius;
       if (layer.rotate) out.rotate = layer.rotate;
       if (layer.locked) out.locked = true;
+      if (layer.lockDesign) out["lock-design"] = true;
 
       if (layer.type === "photo" || layer.type === "image") {
         out.fit = layer.fit;
