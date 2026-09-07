@@ -4,7 +4,7 @@
       "id": "credit-master",
       "type": "tool",
       "title": "學分大師",
-      "description": "北科大材資系材料組的成績與畢業學分管理, 課程與門檻直接抓學校的課程科目表",
+      "description": "成績與畢業學分管理",
       "path": "content/tools/credit-master.md",
       "category": "life",
       "tags": [
@@ -15,7 +15,7 @@
       ],
       "publishedDate": "2026/09/07",
       "updatedDate": "2026/09/07",
-      "readingMinutes": 4
+      "readingMinutes": 1
     },
     {
       "id": "rail-map",
