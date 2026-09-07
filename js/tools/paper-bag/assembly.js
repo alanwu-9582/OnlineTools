@@ -1,5 +1,5 @@
 // js/tools/paper-bag/assembly.js — 組裝動畫的播放器: 播放／暫停、
-// 進度條、章節，以及捲出畫面就停下來的那套邏輯。
+// 進度條、章節, 以及捲出畫面就停下來的那套邏輯。
 
 import { s, SVG_NS } from "../svg.js";
 import { el, icon, note } from "../kit.js";
@@ -10,7 +10,7 @@ const DURATION = 13000;
 const HOLD = 1100;
 
 /**
- * 組裝動畫本體: 一個會自己播的 SVG，加上播放／暫停、進度條與章節。
+ * 組裝動畫本體: 一個會自己播的 SVG, 加上播放／暫停、進度條與章節。
  * @returns {{node: HTMLElement, destroy: Function}}
  */
 export function buildAssembly(geo, showHoles) {
@@ -38,12 +38,12 @@ export function buildAssembly(geo, showHoles) {
   let last = null;
   let holdUntil = 0;
 
-  // 不裝提把的話最後一章就只是「完成」。章節鈕與說明共用同一份文案，
+  // 不裝提把的話最後一章就只是「完成」。章節鈕與說明共用同一份文案, 
   // 免得鈕上寫著「打洞、穿提把」、底下卻寫「完成」。
   const stageTitle = (i) => (showHoles || i !== STAGES.length - 1 ? STAGES[i].title : "完成");
   const stageDesc = (i) => (showHoles || i !== STAGES.length - 1
     ? STAGES[i].desc(geo)
-    : "袋身完成。沒有要裝提把的話，這裡就結束了。");
+    : "袋身完成。沒有要裝提把的話, 這裡就結束了。");
 
   const chipNodes = STAGES.map((stage, i) => {
     const node = el("button", {
@@ -80,13 +80,13 @@ export function buildAssembly(geo, showHoles) {
 
   function step(now) {
     if (last == null) last = now;
-    // 切到別的分頁時 rAF 會停，回來的第一格 now − last 可能是好幾秒，
+    // 切到別的分頁時 rAF 會停, 回來的第一格 now − last 可能是好幾秒, 
     // 不夾住的話進度會直接跳掉一大段。
     const dt = Math.min(now - last, 100);
     last = now;
     if (playing) {
       if (holdUntil) {
-        // 折完之後停一下再重來，不然看起來像沒播完就跳掉。
+        // 折完之後停一下再重來, 不然看起來像沒播完就跳掉。
         if (now >= holdUntil) { holdUntil = 0; t = 0; }
       } else {
         t += dt / DURATION;
@@ -120,10 +120,10 @@ export function buildAssembly(geo, showHoles) {
     el("div", { class: "bag-anim-controls" }, playBtn, scrub),
     chips,
     el("div", { class: "bag-anim-caption" }, title, desc),
-    reduced ? note("偵測到系統設定為減少動態效果，動畫預設不自動播放 —— 按播放或直接拖進度條。") : null,
+    reduced ? note("偵測到系統設定為減少動態效果, 動畫預設不自動播放 —— 按播放或直接拖進度條。") : null,
   );
 
-  // 捲出畫面就不要再算了。這頁很長，沒必要在看不到的地方燒 CPU。
+  // 捲出畫面就不要再算了。這頁很長, 沒必要在看不到的地方燒 CPU。
   let observer = null;
   if (typeof IntersectionObserver === "function") {
     observer = new IntersectionObserver((entries) => {

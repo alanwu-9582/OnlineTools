@@ -2,13 +2,13 @@
 //
 // 沒有「一層一個控制欄位」的清單了。想改哪裡就點哪裡: 
 //   空的照片框  → 點一下開檔案選擇
-//   放好的照片  → 拖曳平移，選取後用工具列換圖／縮放
+//   放好的照片  → 拖曳平移, 選取後用工具列換圖／縮放
 //   文字        → 點一下就地打字
 //   被蓋住的層  → 右上角圖層鈕展開清單去選
 //
-// 做法上的關鍵: canvas 上面疊一層 DOM 覆蓋層，用 transform: scale() 縮到
-// 跟顯示尺寸一致。覆蓋層裡面的東西全部用「畫布座標」（1080 那一套）擺，
-// 不用到處乘除比例，旋轉過的圖層也能直接把 rotate 套在命中框上。
+// 做法上的關鍵: canvas 上面疊一層 DOM 覆蓋層, 用 transform: scale() 縮到
+// 跟顯示尺寸一致。覆蓋層裡面的東西全部用「畫布座標」（1080 那一套）擺, 
+// 不用到處乘除比例, 旋轉過的圖層也能直接把 rotate 套在命中框上。
 
 import { el, icon } from "../kit.js";
 import { FONT_FAMILIES, WEIGHTS, MAX_FONT_SIZE, MAX_STROKE_WIDTH } from "./schema.js";
@@ -30,7 +30,7 @@ const TYPE_NAME = { photo: "照片", image: "素材", text: "文字", rect: "色
 export function createEditor({ bundle, onRender, onNotify }) {
   const template = bundle.template;
   const canEditLayerMeta = bundle.source?.kind === "pptx";
-  // 畫布可以是正方形也可以是長方形，所以兩個邊都要各自帶著走。
+  // 畫布可以是正方形也可以是長方形, 所以兩個邊都要各自帶著走。
   const canvasW = template.canvas.width;
   const canvasH = template.canvas.height;
   /** @type {Map<string, {path:string, img:HTMLImageElement, scale:number, dx:number, dy:number}>} */
@@ -67,8 +67,8 @@ export function createEditor({ bundle, onRender, onNotify }) {
   }, el("span", { class: "ige-ico", html: icon("grid", { size: "15px" }) }));
 
   const stage = el("div", { class: "ige-stage" }, canvas, overlay, layerToggle, layerPanel, toolbar);
-  // 舞台的長寬比由模板決定，不能寫死在 CSS 裡 —— 寫死的話直式模板會被
-  // 壓成正方形，命中框的位置就跟畫出來的東西對不上了。
+  // 舞台的長寬比由模板決定, 不能寫死在 CSS 裡 —— 寫死的話直式模板會被
+  // 壓成正方形, 命中框的位置就跟畫出來的東西對不上了。
   stage.style.aspectRatio = `${canvasW} / ${canvasH}`;
   const inspectorName = el("input", {
     class: "ige-meta-input", type: "text", "aria-label": "元素名稱",
@@ -96,7 +96,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
   stage.appendChild(inspector);
   const root = el("div", { class: "ige-editor" }, stage);
 
-  // 檔案選擇器共用一個，用完把 value 清掉，同一個檔案才選得了第二次。
+  // 檔案選擇器共用一個, 用完把 value 清掉, 同一個檔案才選得了第二次。
   const filePicker = el("input", { class: "ige-file", type: "file", accept: "image/*" });
   let pendingLayer = null;
   filePicker.addEventListener("change", () => {
@@ -191,7 +191,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
 
   const hits = new Map();
   for (const layer of template.layers) {
-    // DOM 順序 = 疊放順序，跟 canvas 的畫法一致，所以最上層自然接到點擊。
+    // DOM 順序 = 疊放順序, 跟 canvas 的畫法一致, 所以最上層自然接到點擊。
     const hit = el("button", {
       class: `ige-hit ige-hit-${layer.type}`,
       type: "button",
@@ -204,7 +204,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
       borderRadius: layer.radius ? `${layer.radius}px` : "",
       transform: layer.rotate ? `rotate(${layer.rotate}deg)` : "",
     });
-    // 鎖住的圖層（背景色塊、裝飾）在畫布上點不到，免得擋住底下真正要編輯的
+    // 鎖住的圖層（背景色塊、裝飾）在畫布上點不到, 免得擋住底下真正要編輯的
     // 東西；要改它們就從圖層面板選。
     if (layer.locked) hit.classList.add("is-locked");
     hits.set(layer.id, hit);
@@ -215,7 +215,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
 
   function syncScale() {
     const width = canvas.clientWidth || stage.clientWidth || canvasW;
-    // 舞台的 aspect-ratio 跟畫布一致，所以只用寬度算比例就夠，
+    // 舞台的 aspect-ratio 跟畫布一致, 所以只用寬度算比例就夠, 
     // 橫向與縱向永遠是同一個縮放值（不會把圖拉變形）。
     scaleFactor = width / canvasW;
     overlay.style.transform = `scale(${scaleFactor})`;
@@ -225,11 +225,11 @@ export function createEditor({ bundle, onRender, onNotify }) {
   resizeObserver.observe(stage);
   const onViewportChange = () => { if (selectedId) placeToolbar(); };
   window.addEventListener("resize", onViewportChange);
-  // capture 才能在頁面內任一捲動容器移動時同步，而不只監聽 window 本身。
+  // capture 才能在頁面內任一捲動容器移動時同步, 而不只監聽 window 本身。
   window.addEventListener("scroll", onViewportChange, true);
 
-  // 保險：萬一瀏覽器不吃 overflow: clip，退回 hidden 之後還是捲得動。
-  // 一被捲走就拉回原位，成品預覽永遠對齊舞台。
+  // 保險：萬一瀏覽器不吃 overflow: clip, 退回 hidden 之後還是捲得動。
+  // 一被捲走就拉回原位, 成品預覽永遠對齊舞台。
   stage.addEventListener("scroll", () => {
     if (stage.scrollLeft || stage.scrollTop) { stage.scrollLeft = 0; stage.scrollTop = 0; }
   });
@@ -248,7 +248,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
     return result;
   }
 
-  /** 哪些圖槽還是空的。拖曳時每一格都會跑到，所以只切 class 不重建 DOM。 */
+  /** 哪些圖槽還是空的。拖曳時每一格都會跑到, 所以只切 class 不重建 DOM。 */
   function syncEmptyMarks() {
     for (const [id, hit] of hits) {
       const layer = byId.get(id);
@@ -275,7 +275,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
       const path = `${dir}${layer.id}.${extForType(file.type)}`;
       const url = bundle.put(path, bytes, file.type);
       const img = await loadImage(url);
-      // 換圖等於重來，縮放與位移歸零 —— 沿用上一張的位移幾乎一定是錯的。
+      // 換圖等於重來, 縮放與位移歸零 —— 沿用上一張的位移幾乎一定是錯的。
       slots.set(layer.id, { path, img, scale: 1, dx: 0, dy: 0 });
       render();
       select(layer.id);
@@ -324,8 +324,8 @@ export function createEditor({ bundle, onRender, onNotify }) {
     const hit = hits.get(selectedId);
     const stageBox = stage.getBoundingClientRect();
     const margin = 4;
-    // 定位邊界不是整個畫布，而是「畫布目前看得到的部分」。頁面捲動或手機
-    // 視窗較小時，控制項才不會雖然留在畫布內，卻落在瀏覽器畫面外。
+    // 定位邊界不是整個畫布, 而是「畫布目前看得到的部分」。頁面捲動或手機
+    // 視窗較小時, 控制項才不會雖然留在畫布內, 卻落在瀏覽器畫面外。
     const visible = {
       left: Math.max(margin, -stageBox.left + margin),
       top: Math.max(margin, -stageBox.top + margin),
@@ -335,8 +335,8 @@ export function createEditor({ bundle, onRender, onNotify }) {
     const visibleWidth = Math.max(80, visible.right - visible.left);
     toolbar.style.maxWidth = `${visibleWidth}px`;
     inspector.style.width = `${Math.min(680, visibleWidth)}px`;
-    // 用命中框自己的 bounding rect —— 它已經套過 rotate，旋轉後的外框
-    // 直接就是對的，不用自己算四個角。
+    // 用命中框自己的 bounding rect —— 它已經套過 rotate, 旋轉後的外框
+    // 直接就是對的, 不用自己算四個角。
     const box = hit.getBoundingClientRect();
     const target = {
       left: box.left - stageBox.left,
@@ -373,7 +373,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
     const overlapArea = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left))
       * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
 
-    // 同時計算超出版面的程度與移回畫布後會遮住元素的面積，挑總分最低的位置。
+    // 同時計算超出版面的程度與移回畫布後會遮住元素的面積, 挑總分最低的位置。
     for (const [preference, candidate] of candidates.entries()) {
       const rawRight = candidate.x + gw;
       const rawBottom = candidate.y + gh;
@@ -417,8 +417,8 @@ export function createEditor({ bundle, onRender, onNotify }) {
   /**
    * 色票 + 透明度。
    *
-   * <input type="color"> 只吃 6 位 hex，塞 8 位進去透明度會被丟掉，
-   * 所以透明度另外用一個 0–100 的欄位，兩邊合成回 #RRGGBBAA。
+   * <input type="color"> 只吃 6 位 hex, 塞 8 位進去透明度會被丟掉, 
+   * 所以透明度另外用一個 0–100 的欄位, 兩邊合成回 #RRGGBBAA。
    *
    * @param {string} value    目前的顏色（任何 CSS 寫法都行）
    * @param {(hex:string)=>void} onPick  收到的一律是正規化過的 hex
@@ -441,7 +441,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
       if (!Number.isFinite(v) || v < 0 || v > 100) return;
       push(withAlpha(current, v / 100));
     });
-    // 兩個欄位是一組，包在一起才不會被 flex 換行拆開。
+    // 兩個欄位是一組, 包在一起才不會被 flex 換行拆開。
     return el("span", { class: "ige-tb-colorset" }, swatch, alpha);
   }
 
@@ -451,16 +451,16 @@ export function createEditor({ bundle, onRender, onNotify }) {
     const layer = byId.get(selectedId);
     toolbar.appendChild(el("span", { class: "ige-tb-name" }, layer.label));
 
-    // 設計鎖: 內容還是能改（文字照打、照片照換），但決定「長相」的東西
-    // 一律不放上來 —— 與其做成禁用的灰色欄位，不如根本不出現，
+    // 設計鎖: 內容還是能改（文字照打、照片照換）, 但決定「長相」的東西
+    // 一律不放上來 —— 與其做成禁用的灰色欄位, 不如根本不出現, 
     // 使用者才不會一直去點一個點不動的東西。
     const locked = layer.lockDesign;
     if (locked) {
-      // 只放一把鎖。說明留在 title 與 aria-label 裡 —— 工具列很窄，
-      // 一行字會把真正的控制項擠掉，而少了哪些控制項本來就看得出來。
-      const why = layer.type === "text" ? "這一層的設計由模板鎖定，只能改文字"
+      // 只放一把鎖。說明留在 title 與 aria-label 裡 —— 工具列很窄, 
+      // 一行字會把真正的控制項擠掉, 而少了哪些控制項本來就看得出來。
+      const why = layer.type === "text" ? "這一層的設計由模板鎖定, 只能改文字"
         : layer.type === "rect" ? "這一層的設計由模板鎖定"
-          : "這一層的設計由模板鎖定，只能換圖";
+          : "這一層的設計由模板鎖定, 只能換圖";
       toolbar.appendChild(el("span", {
         class: "ige-tb-lock", title: why, role: "img", "aria-label": why,
         html: icon("lock", { size: "14px" }),
@@ -472,9 +472,9 @@ export function createEditor({ bundle, onRender, onNotify }) {
         ...bundle.fonts.map(({ value, label }) => ({ value, label: `${label} (模板)` })),
         ...FONT_FAMILIES,
       ];
-      // 比對只看第一個字族名，不看後面的備援串。匯入的圖層寫的是
-      // `"Roboto", sans-serif`，模板字型註冊的是 `"Roboto"` —— 逐字比的話
-      // 會被當成兩種字型，下拉選單就會多出一個醜的重複項。
+      // 比對只看第一個字族名, 不看後面的備援串。匯入的圖層寫的是
+      // `"Roboto", sans-serif`, 模板字型註冊的是 `"Roboto"` —— 逐字比的話
+      // 會被當成兩種字型, 下拉選單就會多出一個醜的重複項。
       const primary = (css) => String(css).split(",")[0].trim().replace(/^["']|["']$/g, "").toLowerCase();
       const want = primary(layer.font.family);
       const match = fontFamilies.find((font) => primary(font.value) === want);
@@ -503,7 +503,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
         ...WEIGHTS.map((w) => el("option", { value: w.value }, w.label)));
       weightSel.value = String(layer.font.weight);
       if (weightSel.value !== String(layer.font.weight)) {
-        // 模板寫了清單裡沒有的字重（例如 600），補一個選項，不然會顯示成別的值。
+        // 模板寫了清單裡沒有的字重（例如 600）, 補一個選項, 不然會顯示成別的值。
         weightSel.prepend(el("option", { value: String(layer.font.weight) }, `${layer.font.weight}`));
         weightSel.value = String(layer.font.weight);
       }
@@ -559,7 +559,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
         });
         zoom.addEventListener("input", () => {
           state.scale = Number(zoom.value) / 100;
-          // 縮小之後原本的位移可能讓框邊露出底色，重新夾一次。
+          // 縮小之後原本的位移可能讓框邊露出底色, 重新夾一次。
           const fixed = clampOffset({
             imgW: state.img.naturalWidth, imgH: state.img.naturalHeight,
             box: layer.rect, fit: layer.fit, scale: state.scale, dx: state.dx, dy: state.dy,
@@ -567,7 +567,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
           state.dx = fixed.dx; state.dy = fixed.dy;
           render();
         });
-        // 照片沒有「顏色」可以調透明度，所以給圖層本身的不透明度。
+        // 照片沒有「顏色」可以調透明度, 所以給圖層本身的不透明度。
         const opacity = el("input", {
           class: "ige-tb-num ige-tb-alpha", type: "number", min: "0", max: "100", step: "1",
           value: String(Math.round(layer.opacity * 100)),
@@ -580,7 +580,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
           render();
         });
 
-        // 縮放與置中留著 —— 換了新照片總得把它擺進框裡，那是內容不是設計。
+        // 縮放與置中留著 —— 換了新照片總得把它擺進框裡, 那是內容不是設計。
         toolbar.append(tbGroup("縮放", zoom));
         if (!locked) toolbar.append(tbGroup("透明", opacity));
         toolbar.append(
@@ -591,7 +591,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
         );
       }
     } else if (layer.type === "rect" && !locked) {
-      // 色塊沒有「內容」可言，整層都是設計，所以鎖住就什麼都不放。
+      // 色塊沒有「內容」可言, 整層都是設計, 所以鎖住就什麼都不放。
       if (layer.gradient) {
         toolbar.append(
           tbGroup("起", tbColor(layer.gradient.from,
@@ -617,7 +617,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
     if (!inlineBox || !editingId) return;
     const layer = byId.get(editingId);
     const { x, y, w, h } = layer.rect;
-    // 用 canvas 那邊算出來的結果來擺輸入框，autoShrink 縮字、垂直對齊
+    // 用 canvas 那邊算出來的結果來擺輸入框, autoShrink 縮字、垂直對齊
     // 才會跟成品一致 —— 不然打完字一放開位置會整個跳掉。
     const laid = layoutText(ctx, { ...layer, text: inlineBox.value });
     const total = Math.max(laid.size * layer.font.lineHeight, laid.total);
@@ -636,13 +636,13 @@ export function createEditor({ bundle, onRender, onNotify }) {
       lineHeight: String(layer.font.lineHeight),
       letterSpacing: `${layer.font.letterSpacing || 0}px`,
       color: layer.color,
-      // 讓行內輸入框也帶上外框，打字時看到的跟放開之後一致。
+      // 讓行內輸入框也帶上外框, 打字時看到的跟放開之後一致。
       WebkitTextStrokeWidth: layer.stroke ? `${layer.stroke.width}px` : "",
       WebkitTextStrokeColor: layer.stroke ? layer.stroke.color : "",
       textAlign: layer.align,
       transform: layer.rotate ? `rotate(${layer.rotate}deg)` : "",
-      // 旋轉的基準要對齊 canvas: canvas 是繞 rect 中心轉，這裡的框卻是
-      // 從 top 開始量，所以把原點挪到 rect 中心相對於框的位置。
+      // 旋轉的基準要對齊 canvas: canvas 是繞 rect 中心轉, 這裡的框卻是
+      // 從 top 開始量, 所以把原點挪到 rect 中心相對於框的位置。
       transformOrigin: layer.rotate ? `${w / 2}px ${y + h / 2 - top}px` : "",
     });
   }
@@ -662,7 +662,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
     });
     inlineBox.addEventListener("keydown", (e) => {
       if (e.key === "Escape") { e.preventDefault(); commitText(); }
-      // Enter 要能換行（多行標題是常態），所以用 Ctrl/Cmd + Enter 結束。
+      // Enter 要能換行（多行標題是常態）, 所以用 Ctrl/Cmd + Enter 結束。
       else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); commitText(); }
       e.stopPropagation();
     });
@@ -693,7 +693,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
 
   /* ---- 指標: 點一下 vs 拖曳 ---- */
 
-  const DRAG_SLOP = 4;   // px，超過這個距離才算拖曳而不是點擊
+  const DRAG_SLOP = 4;   // px, 超過這個距離才算拖曳而不是點擊
 
   overlay.addEventListener("pointerdown", (e) => {
     const hit = e.target.closest(".ige-hit");
@@ -732,9 +732,9 @@ export function createEditor({ bundle, onRender, onNotify }) {
       activate(layer);
     };
 
-    // 抓住指標，拖到框外面也還收得到 move。合成事件的 pointerId 可能不是
-    // 真的作用中的指標，那會丟 NotFoundError，不能讓它中斷後面的註冊。
-    try { hit.setPointerCapture?.(e.pointerId); } catch { /* 沒抓到就算了，照樣能拖 */ }
+    // 抓住指標, 拖到框外面也還收得到 move。合成事件的 pointerId 可能不是
+    // 真的作用中的指標, 那會丟 NotFoundError, 不能讓它中斷後面的註冊。
+    try { hit.setPointerCapture?.(e.pointerId); } catch { /* 沒抓到就算了, 照樣能拖 */ }
     hit.addEventListener("pointermove", onMove);
     hit.addEventListener("pointerup", onUp);
     hit.addEventListener("pointercancel", onUp);
@@ -745,11 +745,11 @@ export function createEditor({ bundle, onRender, onNotify }) {
     select(layer.id);
     if (layer.type === "text") startTextEdit(layer);
     else if ((layer.type === "photo" || layer.type === "image") && !slots.has(layer.id)) {
-      pickImage(layer);            // 空的框直接開檔案選擇，少一次點擊
+      pickImage(layer);            // 空的框直接開檔案選擇, 少一次點擊
     }
   }
 
-  // 鍵盤操作: 命中框是 <button>，Enter / Space 會發 click。
+  // 鍵盤操作: 命中框是 <button>, Enter / Space 會發 click。
   overlay.addEventListener("click", (e) => {
     const hit = e.target.closest(".ige-hit");
     if (!hit || e.detail !== 0) return;        // detail 0 = 鍵盤觸發
@@ -757,7 +757,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
     if (layer) activate(layer);
   });
 
-  // 覆蓋層本身不吃事件，所以沒有命中框的地方會直接落在 canvas 上 —— 當作取消選取。
+  // 覆蓋層本身不吃事件, 所以沒有命中框的地方會直接落在 canvas 上 —— 當作取消選取。
   canvas.addEventListener("pointerdown", () => deselect());
 
   // 點畫布以外的地方就收工具列。
@@ -782,7 +782,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
 
   function buildLayerList() {
     layerList.replaceChildren();
-    // 由上到下 —— 使用者看到的疊放順序，跟 layers 陣列相反。
+    // 由上到下 —— 使用者看到的疊放順序, 跟 layers 陣列相反。
     for (const layer of [...template.layers].reverse()) {
       const empty = (layer.type === "photo" || layer.type === "image") && !slots.has(layer.id);
       const row = el("button", {
@@ -792,7 +792,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
         onclick: () => {
           toggleLayers(false);
           activate(layer);
-          // 文字層 activate 之後焦點在行內輸入框上，再 focus 命中框會把它踢掉。
+          // 文字層 activate 之後焦點在行內輸入框上, 再 focus 命中框會把它踢掉。
           if (layer.type !== "text") hits.get(layer.id)?.focus({ preventScroll: true });
         },
       },
@@ -800,11 +800,11 @@ export function createEditor({ bundle, onRender, onNotify }) {
         el("span", { class: "ige-layer-name" }, layer.label),
         el("span", { class: "ige-layer-kind" }, empty ? "未填" : TYPE_NAME[layer.type]),
       );
-      // 設計鎖在清單上也標一下，不然使用者只會覺得工具列「怎麼少東西」。
+      // 設計鎖在清單上也標一下, 不然使用者只會覺得工具列「怎麼少東西」。
       if (layer.lockDesign) {
         row.classList.add("is-design-locked");
-        row.title = "這一層的設計由模板鎖定，只能改內容";
-        // 清單上同樣只放圖示，跟工具列一致。
+        row.title = "這一層的設計由模板鎖定, 只能改內容";
+        // 清單上同樣只放圖示, 跟工具列一致。
         row.insertBefore(
           el("span", { class: "ige-layer-lock", html: icon("lock", { size: "12px" }) }),
           row.querySelector(".ige-layer-kind"),
@@ -820,7 +820,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
 
   /**
    * 畫一張沒有提示框、沒有選取框的乾淨成品。
-   * 畫完會把預覽狀態畫回去，不然畫面上的照片框提示會消失。
+   * 畫完會把預覽狀態畫回去, 不然畫面上的照片框提示會消失。
    */
   async function toBlob({ type = "image/jpeg", quality = 0.92 } = {}) {
     if (editingId) commitText();
@@ -835,7 +835,7 @@ export function createEditor({ bundle, onRender, onNotify }) {
   /* ---- 起手式 ---- */
 
   async function init() {
-    // 字型沒載完就量字寬，換行會全部算錯。
+    // 字型沒載完就量字寬, 換行會全部算錯。
     if (document.fonts?.ready) { try { await document.fonts.ready; } catch { /* 不擋流程 */ } }
 
     await Promise.all(template.layers.map(async (layer) => {

@@ -1,7 +1,7 @@
 // js/tools/text-stats/index.js — 字數統計。
 //
-// 中英文混排的字數不能只算一種: 中文論「字」，英文論「詞」。
-// 這裡把兩種分開數，再給一個常見的「總字數」（中文字 + 英文詞）。
+// 中英文混排的字數不能只算一種: 中文論「字」, 英文論「詞」。
+// 這裡把兩種分開數, 再給一個常見的「總字數」（中文字 + 英文詞）。
 
 import {
   panel, textArea, outputRow, note, el,
@@ -48,7 +48,7 @@ export function mount(host, { options = {} } = {}) {
     }
 
     const cjk = (text.match(CJK) || []).length;
-    // 先把中文字與標點抽掉，剩下的才用空白切成英文詞。
+    // 先把中文字與標點抽掉, 剩下的才用空白切成英文詞。
     const latin = text.replace(CJK, " ").replace(PUNCT, " ");
     const words = (latin.match(/[A-Za-z0-9_'-]+/g) || []).length;
     const lines = text.split(/\r?\n/).length;
@@ -68,7 +68,7 @@ export function mount(host, { options = {} } = {}) {
   host.appendChild(panel(
     source,
     el("div", { class: "tool-convert-list" }, ...Object.values(outs)),
-    note("字元數是用 Array.from 數的，所以 emoji 與罕用字這種佔兩個 UTF-16 單位的字元只算一個。"),
+    note("字元數是用 Array.from 數的, 所以 emoji 與罕用字這種佔兩個 UTF-16 單位的字元只算一個。"),
   ));
 
   update();

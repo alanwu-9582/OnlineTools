@@ -47,7 +47,7 @@ textarea:focus-visible,
 ::-webkit-scrollbar-track { background: var(--cffy-theme-surface-a0); }
 ::-webkit-scrollbar-thumb {
   background: var(--cffy-theme-surface-a30);
-  /* 拇指在 3px 內距下實寬 6px，2px 圓角仍在短邊 1/3 以內。 */
+  /* 拇指在 3px 內距下實寬 6px, 2px 圓角仍在短邊 1/3 以內。 */
   border-radius: 2px;
   border: 3px solid var(--cffy-theme-surface-a0);
   background-clip: padding-box;
@@ -99,7 +99,7 @@ textarea:focus-visible,
 .sidebar-toggle:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
 .sidebar-toggle svg { transition: transform 0.18s ease; flex-shrink: 0; }
 
-/* brand 是連結，但它讀起來是站名而不是可點文字，所以退出全域連結色與底線。 */
+/* brand 是連結, 但它讀起來是站名而不是可點文字, 所以退出全域連結色與底線。 */
 .brand {
   position: relative;
   display: flex;
@@ -299,7 +299,7 @@ textarea:focus-visible,
   overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }
 
-/* 鍵盤使用者第一個焦點，可以直接跳過側邊欄。 */
+/* 鍵盤使用者第一個焦點, 可以直接跳過側邊欄。 */
 .skip-link {
   position: fixed;
   top: 8px;

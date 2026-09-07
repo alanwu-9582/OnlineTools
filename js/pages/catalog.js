@@ -1,6 +1,6 @@
 // js/pages/catalog.js — 工具與文檔共用的列表: 清單、即時搜尋、篩選對話框。
 //
-// 兩個路由（#/tools、#/docs）掛的是同一個模組，差別只在 route.kind。
+// 兩個路由（#/tools、#/docs）掛的是同一個模組, 差別只在 route.kind。
 
 import {
   $, $$, el, icon, escapeHtml, debounce, formatDate, relativeDate,
@@ -105,7 +105,7 @@ export async function mountPage({ params, route, routeTo }) {
   } catch (err) {
     console.error(err);
     if (list) list.innerHTML =
-      `<div class="banner banner-danger" role="alert">資料載入失敗: ${escapeHtml(err.message)}。請確認網路連線，並以 HTTP 伺服器開啟（不要用 file://）後重新整理。</div>`;
+      `<div class="banner banner-danger" role="alert">資料載入失敗: ${escapeHtml(err.message)}。請確認網路連線, 並以 HTTP 伺服器開啟（不要用 file://）後重新整理。</div>`;
   }
 
   return () => {
@@ -141,7 +141,7 @@ function readStateFromParams(params) {
   state.cursor = -1;
 }
 
-/** 把目前的檢視寫回網址，篩選過的清單就能直接分享。 */
+/** 把目前的檢視寫回網址, 篩選過的清單就能直接分享。 */
 function writeStateToParams() {
   replaceParams(state.routeName, {
     q: state.query,
@@ -163,7 +163,7 @@ function ensureIndex() {
       return index;
     })
     .catch((err) => {
-      console.warn("全文索引載入失敗，改用標題與標籤搜尋: ", err);
+      console.warn("全文索引載入失敗, 改用標題與標籤搜尋: ", err);
       return null;
     });
 }
@@ -172,7 +172,7 @@ function ensureIndex() {
 
 function onKeydown(e) {
   const input = $("#catalog-search");
-  // 篩選對話框開著時，鍵盤歸它管。
+  // 篩選對話框開著時, 鍵盤歸它管。
   if (!input || document.querySelector(".modal-overlay")) return;
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "")
     || document.activeElement?.isContentEditable;
@@ -221,7 +221,7 @@ function applyCursor(rows = $$(".doc-row")) {
 /* ---------------- 篩選對話框 ---------------- */
 
 function openFilterModal() {
-  // 先改在草稿上，取消或 Esc 就不會動到已套用的條件。
+  // 先改在草稿上, 取消或 Esc 就不會動到已套用的條件。
   const draft = { category: state.category, tags: new Set(state.tags) };
 
   const body = el("div", { class: "filter-modal" });
@@ -237,7 +237,7 @@ function openFilterModal() {
   const tagRow = el("div", { class: "filter-row" });
   tagSection.appendChild(tagRow);
 
-  // 只列這一種列表真的用得到的類別與標籤，免得篩到 0 筆。
+  // 只列這一種列表真的用得到的類別與標籤, 免得篩到 0 筆。
   const usedCategories = new Set(state.docs.map((doc) => doc.category).filter(Boolean));
   const usedTags = new Set(state.docs.flatMap((doc) => doc.tags || []));
 
@@ -311,7 +311,7 @@ function syncToolbar() {
   const kbd = $("#search-kbd");
   if (kbd) kbd.hidden = Boolean(state.query);
 
-  // 已套用條件的摘要，可以一鍵移除。
+  // 已套用條件的摘要, 可以一鍵移除。
   const host = $("#active-filters");
   if (!host) return;
   host.replaceChildren();
@@ -363,7 +363,7 @@ function renderResults() {
   }
   if (!results.length) {
     setHeadVisible(false);
-    host.appendChild(stateBlock("search", "沒有符合的結果", "換個關鍵字，或把篩選清掉。"));
+    host.appendChild(stateBlock("search", "沒有符合的結果", "換個關鍵字, 或把篩選清掉。"));
     return;
   }
 
@@ -381,7 +381,7 @@ function setHeadVisible(visible) {
 
 function entryRow(doc, terms) {
   const params = { id: doc.id, from: state.kind };
-  // 命中內文時，直接連到那一節。
+  // 命中內文時, 直接連到那一節。
   if (doc.match?.headingId) params.h = doc.match.headingId;
   const query = new URLSearchParams(params).toString();
 
@@ -413,7 +413,7 @@ function entryRow(doc, terms) {
       : null,
   );
 
-  // 寬螢幕下 .row-meta 是 display: contents，子元素會直接對齊共用格線；
+  // 寬螢幕下 .row-meta 是 display: contents, 子元素會直接對齊共用格線；
   // 窄螢幕時它變成會換行的 flex 列。
   const meta = el("div", { class: "row-meta" },
     el("div", { class: "row-cat" }, categoryTag(doc.category, state.config)),
@@ -422,7 +422,7 @@ function entryRow(doc, terms) {
       class: "row-date",
       datetime: doc.publishedDate,
       title: `發佈於 ${formatDate(doc.publishedDate)}`
-        + (doc.updatedDate && doc.updatedDate !== doc.publishedDate ? `，更新於 ${formatDate(doc.updatedDate)}` : ""),
+        + (doc.updatedDate && doc.updatedDate !== doc.publishedDate ? `, 更新於 ${formatDate(doc.updatedDate)}` : ""),
     }, relativeDate(doc.publishedDate) || formatDate(doc.publishedDate)),
   );
 

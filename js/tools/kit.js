@@ -1,7 +1,7 @@
 // js/tools/kit.js — 工具共用的小元件。
 //
 // 每個工具都會用到同一批東西: 一排有標籤的輸入、一塊結果、一顆複製鈕。
-// 集中在這裡，工具模組就只剩下自己的邏輯，長相也不會各做各的。
+// 集中在這裡, 工具模組就只剩下自己的邏輯, 長相也不會各做各的。
 
 import { el, icon } from "../utils/utils.js";
 import { copyText } from "../utils/clipboard.js";
@@ -23,11 +23,11 @@ export function actions(...children) {
 }
 
 /**
- * 幫控制項加上標籤與說明。控制項本身要先建好再傳進來，
+ * 幫控制項加上標籤與說明。控制項本身要先建好再傳進來, 
  * 這樣呼叫端才拿得到它的參考去讀值。
  */
 export function field(label, control, hint) {
-  // 只有真正的表單元件才配 <label for>；分頁鈕那種自製控制項用 div 包，
+  // 只有真正的表單元件才配 <label for>；分頁鈕那種自製控制項用 div 包, 
   // 免得 label 把點擊事件轉給一個沒有值的元素。
   const formal = /^(INPUT|SELECT|TEXTAREA)$/.test(control.tagName);
   const parts = [
@@ -140,7 +140,7 @@ export function copyButton(getText, { label = "複製" } = {}) {
   node.addEventListener("click", async () => {
     const text = String(getText() ?? "");
     if (!text) { notify.warning("沒有可以複製的內容。"); return; }
-    if (!(await copyText(text))) { notify.danger("複製失敗，請手動選取。"); return; }
+    if (!(await copyText(text))) { notify.danger("複製失敗, 請手動選取。"); return; }
     notify.success("已複製");
     node.classList.add("is-copied");
     node.querySelector(".tool-copy-ico").innerHTML = icon("check", { size: "14px" });
@@ -157,7 +157,7 @@ export function copyButton(getText, { label = "複製" } = {}) {
 
 /**
  * 唯讀的結果列: 標籤、值、複製鈕。
- * 回傳的節點上掛了 `set(value)`，更新時直接呼叫。
+ * 回傳的節點上掛了 `set(value)`, 更新時直接呼叫。
  */
 export function outputRow(label, { value = "", mono = true } = {}) {
   const text = el("div", { class: mono ? "tool-out-value is-mono" : "tool-out-value" }, value);
@@ -191,7 +191,7 @@ export function note(...children) {
   return el("p", { class: "tool-note" }, children);
 }
 
-/** 小標題，把一個工具切成幾段。 */
+/** 小標題, 把一個工具切成幾段。 */
 export function subhead(text) {
   return el("div", { class: "tool-subhead" }, text);
 }

@@ -159,7 +159,7 @@
   transform: translateY(-2px);
 }
 .link-card:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
-/* 卡片右下角的暈染，用該分類的顏色。 */
+/* 卡片右下角的暈染, 用該分類的顏色。 */
 .link-card::after {
   content: "";
   position: absolute;
@@ -167,7 +167,7 @@
   bottom: -34px;
   width: 120px;
   height: 120px;
-  /* 正圓的柔光暈，是刻意的例外。 */
+  /* 正圓的柔光暈, 是刻意的例外。 */
   border-radius: 50%;
   background: var(--chip-color, var(--primary));
   opacity: 0.12;

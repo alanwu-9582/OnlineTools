@@ -1,6 +1,6 @@
 // js/services/data-service.js — 載入並快取 data/ 底下的 JSON。
 //
-// data/entries.json 與 data/search-index.json 由 tools/build-data.mjs 產生，
+// data/entries.json 與 data/search-index.json 由 tools/build-data.mjs 產生, 
 // 請不要手動編輯。
 
 import { loadJSON } from "../utils/utils.js";
@@ -10,7 +10,7 @@ const ENTRIES_URL = "data/entries.json";
 const SEARCH_INDEX_URL = "data/search-index.json";
 const LINKS_URL = "data/links.json";
 
-/** 每個網址只抓一次；失敗時把自己清掉，之後重試才有機會成功。 */
+/** 每個網址只抓一次；失敗時把自己清掉, 之後重試才有機會成功。 */
 function cached() {
   const store = new Map();
   return (url, transform) => {
@@ -35,7 +35,7 @@ export async function getConfig() {
   return { categories: site.categories || {}, tags: site.tags || {} };
 }
 
-/** 所有內容（工具 + 文檔），已依發佈日期由新到舊排好。 */
+/** 所有內容（工具 + 文檔）, 已依發佈日期由新到舊排好。 */
 export async function getEntries() {
   return load(ENTRIES_URL, (data) => (Array.isArray(data) ? data : data.entries || []));
 }
@@ -70,9 +70,9 @@ export async function getEntryById(id) {
 }
 
 /**
- * 相鄰內容，給檢視頁的上／下一篇用。只在同一種類型裡面找，
+ * 相鄰內容, 給檢視頁的上／下一篇用。只在同一種類型裡面找, 
  * 從工具翻頁不會突然翻到教學文檔。
- * 清單是由新到舊，所以「上一篇」是時間上更早的那一篇。
+ * 清單是由新到舊, 所以「上一篇」是時間上更早的那一篇。
  */
 export async function getNeighbours(id) {
   const entries = await getEntries();

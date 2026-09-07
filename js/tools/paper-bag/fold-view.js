@@ -7,8 +7,8 @@ import {
 } from "./fold-model.js";
 
 /**
- * 畫出 t 這一格。每一格都重新產生節點 —— 幾十個元素，比想辦法就地改屬性
- * 單純得多，也不會有前一格殘留的狀態。
+ * 畫出 t 這一格。每一格都重新產生節點 —— 幾十個元素, 比想辦法就地改屬性
+ * 單純得多, 也不會有前一格殘留的狀態。
  */
 export function buildFoldFrame(geo, t, showHoles) {
   const st = foldState(t);
@@ -34,7 +34,7 @@ export function buildFoldFrame(geo, t, showHoles) {
       area: signedArea(pts2),
     };
   });
-  // 遠的先畫，近的蓋上去。
+  // 遠的先畫, 近的蓋上去。
   drawn.sort((a, b) => b.depth - a.depth);
 
   // 後面那條提把繩要壓在袋身底下。
@@ -60,8 +60,8 @@ export function buildFoldFrame(geo, t, showHoles) {
     }));
   }
 
-  // 面的名稱只標在正對鏡頭的那幾片上，翻過去的不標 —— 免得看到反字。
-  // 字級跟著該面自己投影出來的短邊走: 黏合邊只有 20 mm 寬，用整體的字級
+  // 面的名稱只標在正對鏡頭的那幾片上, 翻過去的不標 —— 免得看到反字。
+  // 字級跟著該面自己投影出來的短邊走: 黏合邊只有 20 mm 寬, 用整體的字級
   // 會整個溢出去。太小就乾脆不標。
   const maxLabel = Math.max(Math.min(geo.W, geo.H) * 0.16, flat * 0.02);
   for (const face of drawn) {
@@ -99,7 +99,7 @@ function cordNode(geo, panel, cam, alpha, sw, opacity) {
   const [a, b] = holePoints(geo, panel);
   const [x1, y1] = cam.project(a);
   const [x2, y2] = cam.project(b);
-  // 提把拉起來的高度跟孔距成比例，大袋子的繩子才不會看起來像條線。
+  // 提把拉起來的高度跟孔距成比例, 大袋子的繩子才不會看起來像條線。
   const rise = geo.holeSpan * 0.55 * alpha;
   return s("path", {
     d: `M${x1.toFixed(2)},${y1.toFixed(2)} Q${((x1 + x2) / 2).toFixed(2)},${(Math.min(y1, y2) - rise).toFixed(2)} ${x2.toFixed(2)},${y2.toFixed(2)}`,
@@ -108,7 +108,7 @@ function cordNode(geo, panel, cam, alpha, sw, opacity) {
   });
 }
 
-/** 固定 3:2 的畫面，內容置中塞進去 —— 元素高度才不會每一格都在跳。 */
+/** 固定 3:2 的畫面, 內容置中塞進去 —— 元素高度才不會每一格都在跳。 */
 const VIEW_ASPECT = 3 / 2;
 
 function fitViewBox(pts, pad) {

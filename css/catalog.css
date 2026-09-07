@@ -37,7 +37,7 @@
   border-radius: 0;
   background: transparent;
 }
-/* 外框已經負責 focus 樣式，內層 input 不要再畫一次。 */
+/* 外框已經負責 focus 樣式, 內層 input 不要再畫一次。 */
 .search-bar input:focus { outline: none; border-color: transparent; box-shadow: none; }
 
 .filter-toggle {
@@ -80,7 +80,7 @@
 }
 .filter-toggle-count[hidden] { display: none; }
 
-/* 快捷鍵提示，開始輸入後就收起來。 */
+/* 快捷鍵提示, 開始輸入後就收起來。 */
 .search-kbd {
   position: absolute;
   right: 10px;
@@ -113,7 +113,7 @@
 }
 .sort-field select:hover { color: var(--text); }
 
-/* 目前套用的篩選，可以直接點掉。 */
+/* 目前套用的篩選, 可以直接點掉。 */
 .active-filters { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .active-chip {
   display: inline-flex;
@@ -185,7 +185,7 @@
 }
 
 /* ================= 文章列表 ================= */
-/* 表頭與每一列共用同一組欄寬，才能對齊。 */
+/* 表頭與每一列共用同一組欄寬, 才能對齊。 */
 .doc-table {
   --doc-cols: minmax(0, 1fr) 92px minmax(0, 210px) 100px;
   --doc-gap: 16px;
@@ -201,7 +201,7 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--text-dim);
-  /* 透明的左右框對應列的 1px 邊框，讓欄位標題和內容切齊。 */
+  /* 透明的左右框對應列的 1px 邊框, 讓欄位標題和內容切齊。 */
   border: 1px solid transparent;
   border-bottom-color: var(--border-soft);
   margin-bottom: 8px;
@@ -228,7 +228,7 @@
 }
 .doc-row:hover { border-color: var(--primary); background: var(--card-bg-alt); text-decoration: none; }
 .doc-row:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
-/* 鍵盤游標（↑/↓）刻意和 hover 長得不一樣，兩者可以同時出現。 */
+/* 鍵盤游標（↑/↓）刻意和 hover 長得不一樣, 兩者可以同時出現。 */
 .doc-row.is-cursor {
   border-color: var(--primary);
   background: var(--surface-selected);
@@ -268,7 +268,7 @@
   white-space: nowrap;
 }
 
-/* 命中內文時，顯示是哪一節、以及命中字詞附近的句子。 */
+/* 命中內文時, 顯示是哪一節、以及命中字詞附近的句子。 */
 .row-hit {
   display: flex;
   align-items: baseline;
@@ -312,12 +312,12 @@ mark.hl {
   font-weight: inherit;
 }
 
-/* ---------- 平板: 欄位保留，間距收緊 ---------- */
+/* ---------- 平板: 欄位保留, 間距收緊 ---------- */
 @media (max-width: 1024px) {
   .doc-table { --doc-cols: minmax(0, 1fr) 84px minmax(0, 148px) 92px; --doc-gap: 12px; }
 }
 
-/* ---------- 手機: 整列改成區塊，meta 自動換行 ---------- */
+/* ---------- 手機: 整列改成區塊, meta 自動換行 ---------- */
 @media (max-width: 760px) {
   .doc-list-head { display: none !important; }
   .doc-row {

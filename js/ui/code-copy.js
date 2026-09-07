@@ -34,7 +34,7 @@ export function addCopyButtons(container) {
       const text = code ? code.textContent : pre.textContent;
       const ok = await copyText(text);
       if (!ok) {
-        notify.danger("複製失敗，請手動選取程式碼。");
+        notify.danger("複製失敗, 請手動選取程式碼。");
         return;
       }
       notify.success("已複製程式碼");

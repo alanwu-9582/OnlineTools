@@ -31,7 +31,7 @@
       "name": "regex101",
       "url": "https://regex101.com",
       "group": "dev",
-      "desc": "正則表達式測試器，會把每個符號在做什麼逐條解釋，還能切換 JS/PCRE/Python 方言。",
+      "desc": "正則表達式測試器, 會把每個符號在做什麼逐條解釋, 還能切換 JS/PCRE/Python 方言。",
       "tags": ["正則", "偵錯"]
     },
     {
@@ -87,7 +87,7 @@
       "name": "Resource Boy",
       "url": "https://resourceboy.com/",
       "group": "design",
-      "desc": "免費素材網站，提供各種設計資源。",
+      "desc": "免費素材網站, 提供各種設計資源。",
       "tags": ["設計", "素材"]
     },
     {

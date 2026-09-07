@@ -1,5 +1,5 @@
 /* css/theme.css — 全站唯一的顏色、字體、尺寸來源。
-   任何顏色都必須經過這裡的變數，元件樣式不直接寫死色碼。 */
+   任何顏色都必須經過這裡的變數, 元件樣式不直接寫死色碼。 */
 
 :root {
   /** Base text colors */
@@ -55,9 +55,9 @@
   --text-dim: #8a8a8a;
   --primary: var(--cffy-theme-primary-a0);
   --primary-hover: var(--cffy-theme-primary-a10);
-  /* 主色是中性灰，實心填底時必須配深色文字才有足夠對比。 */
+  /* 主色是中性灰, 實心填底時必須配深色文字才有足夠對比。 */
   --on-primary: var(--cffy-theme-dark-a0);
-  /* 主色當文字用時提亮一階，在 #121212 上約 7.6:1。 */
+  /* 主色當文字用時提亮一階, 在 #121212 上約 7.6:1。 */
   --interactive: var(--cffy-theme-primary-a20);
   --link: var(--cffy-theme-info-a0);
   --success: var(--cffy-theme-success-a0);
@@ -67,15 +67,15 @@
   --disabled: var(--cffy-theme-surface-a40);
   --app-chrome-bg: var(--cffy-theme-surface-a10);
 
-  /* 半透明表面用的 rgb 分量，仍集中管理在這裡。 */
+  /* 半透明表面用的 rgb 分量, 仍集中管理在這裡。 */
   --rgb-primary: 143, 143, 143;
   --rgb-info: 135, 209, 255;
   --rgb-success: 125, 255, 149;
   --rgb-warning: 255, 188, 94;
   --rgb-danger: 255, 128, 128;
 
-  /* 圓角級距。全站規則: 圓角不超過該元素短邊的 1/3，
-     所以沒有膠囊（999px）或正圓（50%）圓角，除非另有註記。 */
+  /* 圓角級距。全站規則: 圓角不超過該元素短邊的 1/3, 
+     所以沒有膠囊（999px）或正圓（50%）圓角, 除非另有註記。 */
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius: 10px;

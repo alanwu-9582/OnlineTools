@@ -1,19 +1,19 @@
 // js/tools/paper-bag.js — 手工紙袋計算機。
 //
-// 算的是最常見的那種「方底提袋」（SOS bag）: 一張長方形紙，捲成筒、
-// 折出兩側的內凹側面，底部收成平的長方形。照片上那種牛皮紙袋就是這個結構。
+// 算的是最常見的那種「方底提袋」（SOS bag）: 一張長方形紙, 捲成筒、
+// 折出兩側的內凹側面, 底部收成平的長方形。照片上那種牛皮紙袋就是這個結構。
 //
 // 展開圖的幾何: 
 //
 //   橫向  [黏合邊 G][前 W][側 D][後 W][側 D]        紙寬 = G + 2W + 2D
 //   縱向  [上緣折邊 T][袋身 H][底部 B]              紙高 = T + H + B
 //
-// 底部高度 B = D/2 + 重疊。理由: 底面是一個 W×D 的長方形，前後兩片各要
-// 蓋過中線才黏得住 —— 剛好蓋到中線是 D/2，再多出來的就是重疊量。
-// 側面在底部收成兩個 45° 的三角形，頂點落在離底線 D/2 的地方，
-// 所以斜折線一定是 45°，這不是估的。
+// 底部高度 B = D/2 + 重疊。理由: 底面是一個 W×D 的長方形, 前後兩片各要
+// 蓋過中線才黏得住 —— 剛好蓋到中線是 D/2, 再多出來的就是重疊量。
+// 側面在底部收成兩個 45° 的三角形, 頂點落在離底線 D/2 的地方, 
+// 所以斜折線一定是 45°, 這不是估的。
 //
-// 提把只標打洞位置: 真正的紙繩提把要另外穿，怎麼穿跟紙張怎麼裁無關。
+// 提把只標打洞位置: 真正的紙繩提把要另外穿, 怎麼穿跟紙張怎麼裁無關。
 
 import {
   panel, row, field, numberInput, select, segmented, button, actions, outputRow,
@@ -52,7 +52,7 @@ export function mount(host, { options = {} } = {}) {
   const ease = numberInput({ value: "20", min: "0", step: "1", onInput: update });
   const headroom = numberInput({ value: "40", min: "0", step: "1", onInput: update });
 
-  // 手動改了長寬就不再是某個標準尺寸，把下拉選單退回「自訂」。
+  // 手動改了長寬就不再是某個標準尺寸, 把下拉選單退回「自訂」。
   const onPaperInput = () => { presetSelect.value = ""; update(); };
   const paperWInput = numberInput({ value: "297", min: "20", step: "1", onInput: onPaperInput });
   const paperHInput = numberInput({ value: "210", min: "20", step: "1", onInput: onPaperInput });
@@ -65,7 +65,7 @@ export function mount(host, { options = {} } = {}) {
     onChange: () => {
       const size = PAPER_SIZES.find((item) => item.label === presetSelect.value);
       if (!size) return;
-      // 帶入橫放。橫向要塞下整個袋子的一圈，幾乎都是那個方向先不夠用。
+      // 帶入橫放。橫向要塞下整個袋子的一圈, 幾乎都是那個方向先不夠用。
       paperWInput.value = String(size.h);
       paperHInput.value = String(size.w);
       update();
@@ -120,7 +120,7 @@ export function mount(host, { options = {} } = {}) {
       field("紙張高（mm）", paperHInput),
       field("方向", swapButton),
     ),
-    row(field("袋身比例", ratioTabs, "側面厚度相對於正面寬度。整張紙都會用掉，所以袋高不用選")),
+    row(field("袋身比例", ratioTabs, "側面厚度相對於正面寬度。整張紙都會用掉, 所以袋高不用選")),
   );
 
   const modeTabs = segmented(
@@ -157,7 +157,7 @@ export function mount(host, { options = {} } = {}) {
 
   const netHost = el("div", { class: "bag-net-host" });
   const stepHost = el("div", {});
-  // 動畫自己有 requestAnimationFrame 迴圈，換尺寸時要先把上一個關掉，
+  // 動畫自己有 requestAnimationFrame 迴圈, 換尺寸時要先把上一個關掉, 
   // 不然每改一次數字就多一條迴圈在背景跑。
   let assembly = null;
   const dropAssembly = () => { assembly?.destroy(); assembly = null; };
@@ -168,7 +168,7 @@ export function mount(host, { options = {} } = {}) {
       if (!geo) return;
       const svg = buildNetSvg(geo, { print: true, showHoles: holeToggle.checked });
       downloadSvg(svg, `紙袋展開圖-${mm(geo.W)}x${mm(geo.D)}x${mm(geo.H)}.svg`);
-      notify.success("已下載，用瀏覽器或 Illustrator 開就是實際大小");
+      notify.success("已下載, 用瀏覽器或 Illustrator 開就是實際大小");
     },
   });
 
@@ -188,9 +188,9 @@ export function mount(host, { options = {} } = {}) {
       const ph = Number(paperHInput.value);
       if (!Number.isFinite(pw) || !Number.isFinite(ph)) return { W: NaN, D: NaN, H: NaN };
       const fit = fitToPaper({ paperW: pw, paperH: ph, glue: g, hem: t, overlap: o, ratio });
-      if (!fit) return { W: NaN, D: NaN, H: NaN, note: "這張紙太小，扣掉黏合邊與上下折邊之後不夠做成袋子。" };
+      if (!fit) return { W: NaN, D: NaN, H: NaN, note: "這張紙太小, 扣掉黏合邊與上下折邊之後不夠做成袋子。" };
 
-      // 同一張紙轉 90° 常常差很多，算給使用者看，要不要轉他自己決定。
+      // 同一張紙轉 90° 常常差很多, 算給使用者看, 要不要轉他自己決定。
       const turned = fitToPaper({ paperW: ph, paperH: pw, glue: g, hem: t, overlap: o, ratio });
       const here = fit.W * fit.D * fit.H;
       const there = turned ? turned.W * turned.D * turned.H : 0;
@@ -206,7 +206,7 @@ export function mount(host, { options = {} } = {}) {
     const gap = Number(ease.value);
     const head = Number(headroom.value);
     if (![L, Wd, Ht, gap, head].every(Number.isFinite)) return { W: NaN, D: NaN, H: NaN };
-    // 紙袋一律是「寬的那一面朝前」，所以長寬先分出大小再放進去。
+    // 紙袋一律是「寬的那一面朝前」, 所以長寬先分出大小再放進去。
     return {
       W: roundUp5(Math.max(L, Wd) + gap),
       D: roundUp5(Math.min(L, Wd) + gap),
@@ -251,7 +251,7 @@ export function mount(host, { options = {} } = {}) {
     const stock = suggestPaper(geo.paperW, geo.paperH);
     outStock.set(stock
       ? `${stock.label}（${stock.w} × ${stock.h}）${stock.orientation}`
-      : "比全開紙還大，得自己拼接");
+      : "比全開紙還大, 得自己拼接");
 
     outLeftover.set(fit
       ? (fit.leftoverW < 0.5 && fit.leftoverH < 0.5
@@ -260,14 +260,14 @@ export function mount(host, { options = {} } = {}) {
       : "");
 
     const warnings = [];
-    if (D > W) warnings.push("袋深比袋寬大，折起來會像個方盒子而不是提袋");
-    if (ht + 8 > t) warnings.push(`上緣折邊只有 ${mm(t)}，打洞位置離邊太近容易撕破`);
+    if (D > W) warnings.push("袋深比袋寬大, 折起來會像個方盒子而不是提袋");
+    if (ht + 8 > t) warnings.push(`上緣折邊只有 ${mm(t)}, 打洞位置離邊太近容易撕破`);
     if (holeSpan > W - 20) warnings.push("提把孔太靠近側邊");
     if (geo.paperW > 1091 || geo.paperH > 1091) warnings.push("超過一般全開紙的尺寸");
-    if (mode === "paper" && H > W * 3) warnings.push("這張紙又窄又長，做出來會是細細高高的袋子");
+    if (mode === "paper" && H > W * 3) warnings.push("這張紙又窄又長, 做出來會是細細高高的袋子");
 
     if (warnings.length || note) info.set([note, ...warnings].filter(Boolean).join("；"), "warn");
-    else if (mode === "paper") info.set(`這張紙最大能做 ${mm(W)} × ${mm(D)} × ${mm(H)} mm，${geo.volume.toFixed(2)} 公升`, "ok");
+    else if (mode === "paper") info.set(`這張紙最大能做 ${mm(W)} × ${mm(D)} × ${mm(H)} mm, ${geo.volume.toFixed(2)} 公升`, "ok");
     else if (derived) info.set(`已從物品尺寸推算出袋子: ${mm(W)} × ${mm(D)} × ${mm(H)} mm`, "ok");
     else info.set(`共 ${mm(geo.paperW * geo.paperH / 100)} 平方公分的紙`, "ok");
 
@@ -304,8 +304,8 @@ export function mount(host, { options = {} } = {}) {
     netHost,
     buildLegend(),
     actions(download),
-    note("圖面朝上時看到的是紙袋的外側。除了兩條側面中線是谷折，其餘折線都往後折。"),
-    note("畫線時用外圈那兩排「自左邊量／自上緣量」的累計數字 —— 一段一段接力量，誤差會一路累積下去。下載的 SVG 標了毫米單位，列印選「實際大小／100%」時圖面就是 1:1（含四周的標示，所以印出來的紙會比裁切用的紙大一圈）。"),
+    note("圖面朝上時看到的是紙袋的外側。除了兩條側面中線是谷折, 其餘折線都往後折。"),
+    note("畫線時用外圈那兩排「自左邊量／自上緣量」的累計數字 —— 一段一段接力量, 誤差會一路累積下去。下載的 SVG 標了毫米單位, 列印選「實際大小／100%」時圖面就是 1:1（含四周的標示, 所以印出來的紙會比裁切用的紙大一圈）。"),
 
     subhead("組裝步驟"),
     stepHost,

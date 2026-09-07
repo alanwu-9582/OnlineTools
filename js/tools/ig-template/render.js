@@ -1,11 +1,11 @@
 // js/tools/ig-template/render.js — 把模板畫到 canvas 上。
 //
-// 圖片一律由呼叫端先載好再傳進來，這裡是同步的 —— 拖曳照片時每一格都要重畫，
+// 圖片一律由呼叫端先載好再傳進來, 這裡是同步的 —— 拖曳照片時每一格都要重畫, 
 // 中間夾一個 await 會讓畫面閃。
 
 import { applyFont, layoutText, fitPhoto } from "./layout.js";
 
-/** 圓角路徑。roundRect 是比較新的 API，沒有就自己補。 */
+/** 圓角路徑。roundRect 是比較新的 API, 沒有就自己補。 */
 function roundRectPath(ctx, x, y, w, h, r) {
   const radius = Math.max(0, Math.min(r, w / 2, h / 2));
   if (!radius) { ctx.rect(x, y, w, h); return; }
@@ -21,14 +21,14 @@ function roundRectPath(ctx, x, y, w, h, r) {
 /**
  * 依角度做線性漸層。
  *
- * angle 是「漸層流向」的方位角，0 朝上、順時針: 
+ * angle 是「漸層流向」的方位角, 0 朝上、順時針: 
  *   0 = 由下往上、90 = 由左往右、180 = 由上往下、270 = 由右往左。
  * 換句話說 from 那一端落在 angle 的反方向。實測過每一個象限。
  */
 function makeGradient(ctx, layer) {
   const { x, y, w, h } = layer.rect;
   const rad = ((layer.gradient.angle - 90) * Math.PI) / 180;
-  // 讓漸層軸的兩端落在 rect 的外接圓上，任何角度都能鋪滿。
+  // 讓漸層軸的兩端落在 rect 的外接圓上, 任何角度都能鋪滿。
   const r = Math.hypot(w, h) / 2;
   const cx = x + w / 2;
   const cy = y + h / 2;
@@ -47,13 +47,13 @@ function makeGradient(ctx, layer) {
  * @param {CanvasRenderingContext2D} ctx
  * @param {object} template
  * @param {{slots?:Map, placeholders?:boolean, hideText?:Set<string>}} opts
- *   slots       layerId -> { img, scale, dx, dy }。photo 與 image 共用一個 map，
- *               兩者都是「一個圖槽」，差別只在預設 fit 與語意。
+ *   slots       layerId -> { img, scale, dx, dy }。photo 與 image 共用一個 map, 
+ *               兩者都是「一個圖槽」, 差別只在預設 fit 與語意。
  *   placeholders 空的照片框要不要畫提示。預覽時開、匯出時關。
- *   hideText    正在用行內輸入框編輯的文字圖層，canvas 這邊要跳過不畫，
+ *   hideText    正在用行內輸入框編輯的文字圖層, canvas 這邊要跳過不畫, 
  *               不然會跟上面那層輸入框的字疊成兩份。
  *
- * 選取框不在這裡畫 —— 那是 DOM 覆蓋層的事。canvas 上永遠只有成品本身，
+ * 選取框不在這裡畫 —— 那是 DOM 覆蓋層的事。canvas 上永遠只有成品本身, 
  * 所以匯出前不需要先重畫一次。
  * @returns {{overflow:string[], missing:string[]}} 溢出與還沒放照片的圖層標籤
  */
@@ -73,7 +73,7 @@ export function renderTemplate(ctx, template, {
     const { x, y, w, h } = layer.rect;
     ctx.save();
     ctx.globalAlpha = layer.opacity;
-    // 繞 rect 中心旋轉。放在 clip 之前，裁切框才會跟著轉。
+    // 繞 rect 中心旋轉。放在 clip 之前, 裁切框才會跟著轉。
     if (layer.rotate) {
       ctx.translate(x + w / 2, y + h / 2);
       ctx.rotate((layer.rotate * Math.PI) / 180);
@@ -112,7 +112,7 @@ export function renderTemplate(ctx, template, {
       if (laid.overflow) overflow.push(layer.label);
 
       // 文字裁到框內。溢出的部分寧可被切掉也不要蓋到別的圖層 ——
-      // 反正上面已經記下來，UI 會明確講是哪一層爆掉。
+      // 反正上面已經記下來, UI 會明確講是哪一層爆掉。
       ctx.beginPath();
       ctx.rect(x, y, w, h);
       ctx.clip();
@@ -122,13 +122,13 @@ export function renderTemplate(ctx, template, {
       ctx.textBaseline = "middle";
       ctx.textAlign = layer.align;
 
-      // 文字外框。canvas 的描邊是「跨在字的輪廓上」，跟 PowerPoint 一樣，
-      // 所以先描邊再填色 —— 填色會蓋掉內側那一半，留在外面的剛好是半個線寬。
+      // 文字外框。canvas 的描邊是「跨在字的輪廓上」, 跟 PowerPoint 一樣, 
+      // 所以先描邊再填色 —— 填色會蓋掉內側那一半, 留在外面的剛好是半個線寬。
       const stroke = layer.stroke && layer.stroke.width > 0 ? layer.stroke : null;
       if (stroke) {
         ctx.strokeStyle = stroke.color;
         ctx.lineWidth = stroke.width;
-        // 尖角在細筆畫的轉折處會爆出長刺，圓角接合比較安全。
+        // 尖角在細筆畫的轉折處會爆出長刺, 圓角接合比較安全。
         ctx.lineJoin = "round";
         ctx.miterLimit = 2;
       }
@@ -140,7 +140,7 @@ export function renderTemplate(ctx, template, {
           : y;
 
       laid.lines.forEach((line, i) => {
-        // 每一行都垂直置中在自己的行高裡，行距才會平均。
+        // 每一行都垂直置中在自己的行高裡, 行距才會平均。
         const baseline = top + lineH * (i + 0.5);
         if (stroke) ctx.strokeText(line, anchorX, baseline);
         ctx.fillText(line, anchorX, baseline);
@@ -154,7 +154,7 @@ export function renderTemplate(ctx, template, {
   return { overflow, missing };
 }
 
-/** 還沒放照片的框: 畫一個虛線框跟提示字，不然預覽會是一片空白。 */
+/** 還沒放照片的框: 畫一個虛線框跟提示字, 不然預覽會是一片空白。 */
 function drawPlaceholder(ctx, layer) {
   const { x, y, w, h } = layer.rect;
   ctx.save();
@@ -177,7 +177,7 @@ function drawPlaceholder(ctx, layer) {
   ctx.restore();
 }
 
-/** 載一張圖，等它真的可以畫了才回來。 */
+/** 載一張圖, 等它真的可以畫了才回來。 */
 export function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -190,9 +190,9 @@ export function loadImage(src) {
 /**
  * 匯出成檔案。
  *
- * 注意: 如果有任何遠端圖片被畫進去，canvas 會被 taint，這裡會丟
+ * 注意: 如果有任何遠端圖片被畫進去, canvas 會被 taint, 這裡會丟
  * SecurityError。這也是為什麼 schema 只放行 data URI —— 讓問題在讀模板時
- * 就被擋掉，而不是等到使用者按下匯出。
+ * 就被擋掉, 而不是等到使用者按下匯出。
  */
 export function exportBlob(canvas, { type = "image/png", quality = 0.92 } = {}) {
   return new Promise((resolve, reject) => {

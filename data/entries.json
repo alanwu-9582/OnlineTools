@@ -1,10 +1,44 @@
 {
   "entries": [
     {
+      "id": "credit-master",
+      "type": "tool",
+      "title": "學分大師",
+      "description": "北科大材資系材料組的成績與畢業學分管理, 課程與門檻直接抓學校的課程科目表",
+      "path": "content/tools/credit-master.md",
+      "category": "life",
+      "tags": [
+        "study"
+      ],
+      "tools": [
+        "credit-master"
+      ],
+      "publishedDate": "2026/09/07",
+      "updatedDate": "2026/09/07",
+      "readingMinutes": 4
+    },
+    {
+      "id": "rail-map",
+      "type": "tool",
+      "title": "臺灣鐵路路網圖",
+      "description": "臺鐵、高鐵與各地捷運輕軌地圖, 資料來自 OpenStreetMap",
+      "path": "content/tools/rail-map.md",
+      "category": "life",
+      "tags": [
+        "transit"
+      ],
+      "tools": [
+        "rail-map"
+      ],
+      "publishedDate": "2026/09/06",
+      "updatedDate": "2026/09/06",
+      "readingMinutes": 1
+    },
+    {
       "id": "split-bill",
       "type": "tool",
       "title": "分帳結算",
-      "description": "誰付了什麼、誰分攤，算出誰轉給誰多少，用最少的轉帳次數",
+      "description": "誰付了什麼、誰分攤, 算出誰轉給誰多少, 用最少的轉帳次數",
       "path": "content/tools/split-bill.md",
       "category": "life",
       "tags": [
@@ -18,44 +52,10 @@
       "readingMinutes": 1
     },
     {
-      "id": "spacing",
-      "type": "tool",
-      "title": "等分排列計算機",
-      "description": "一段長度平均放 N 個東西，算出每個從邊緣量起的位置，附尺規圖",
-      "path": "content/tools/spacing.md",
-      "category": "craft",
-      "tags": [
-        "math"
-      ],
-      "tools": [
-        "spacing"
-      ],
-      "publishedDate": "2026/08/29",
-      "updatedDate": "2026/09/03",
-      "readingMinutes": 1
-    },
-    {
-      "id": "cone-unroll",
-      "type": "tool",
-      "title": "圓錐展開圖",
-      "description": "上下口徑與高度換成要裁的扇形，含弦長，可下載 1:1 SVG",
-      "path": "content/tools/cone-unroll.md",
-      "category": "craft",
-      "tags": [
-        "math"
-      ],
-      "tools": [
-        "cone-unroll"
-      ],
-      "publishedDate": "2026/08/29",
-      "updatedDate": "2026/09/03",
-      "readingMinutes": 1
-    },
-    {
       "id": "ig-template",
       "type": "tool",
       "title": "IG 貼文模板",
-      "description": "在 Canva 排好版面匯出成 pptx，就變成可以重複使用的貼文模板",
+      "description": "在 Canva 排好版面匯出成 pptx, 就變成可以重複使用的貼文模板",
       "path": "content/tools/ig-template.md",
       "category": "design",
       "tags": [
@@ -72,7 +72,7 @@
       "id": "paper-bag",
       "type": "tool",
       "title": "手工紙袋計算機",
-      "description": "輸入袋子或物品尺寸，算出展開圖、裁切折線與組裝步驟",
+      "description": "輸入袋子或物品尺寸, 算出展開圖、裁切折線與組裝步驟",
       "path": "content/tools/paper-bag.md",
       "category": "craft",
       "tags": [
@@ -86,27 +86,10 @@
       "readingMinutes": 3
     },
     {
-      "id": "timestamp",
-      "type": "tool",
-      "title": "時間戳轉換",
-      "description": "Unix 時間戳與日期互轉，自動判斷秒／毫秒，同時顯示本地與 UTC",
-      "path": "content/tools/timestamp.md",
-      "category": "convert",
-      "tags": [
-        "datetime"
-      ],
-      "tools": [
-        "timestamp"
-      ],
-      "publishedDate": "2026/08/26",
-      "updatedDate": "2026/09/03",
-      "readingMinutes": 2
-    },
-    {
       "id": "text-stats",
       "type": "tool",
       "title": "字數統計",
-      "description": "中文字與英文詞分開計算，另有字元數、行數、位元組與閱讀時間",
+      "description": "中文字與英文詞分開計算, 另有字元數、行數、位元組與閱讀時間",
       "path": "content/tools/text-stats.md",
       "category": "text",
       "tags": [
@@ -123,7 +106,7 @@
       "id": "add-a-tool",
       "type": "doc",
       "title": "怎麼加一個新工具",
-      "description": "寫一個 js/tools 模組、在 Markdown 裡放一個佔位、跑一次 build，就完成了",
+      "description": "寫一個 js/tools 模組、在 Markdown 裡放一個佔位、跑一次 build, 就完成了",
       "path": "content/docs/add-a-tool.md",
       "category": "guide",
       "tags": [

@@ -28,7 +28,7 @@ export async function mountPage({ routeTo }) {
       statsRow(entries, tools, docs, links),
       ...listSection({
         title: "工具",
-        desc: "點進去就能用，資料不會離開你的瀏覽器。",
+        desc: "資料只會在本地瀏覽器。",
         moreHref: "#/tools",
         moreLabel: "全部工具 →",
         items: tools.slice(0, TOOL_COUNT),
@@ -55,7 +55,7 @@ export async function mountPage({ routeTo }) {
   } catch (err) {
     console.error(err);
     host.innerHTML =
-      `<div class="banner banner-danger" role="alert">首頁資料載入失敗: ${escapeHtml(err.message)}。請確認網路連線，並以 HTTP 伺服器開啟（不要用 file://）後重新整理。</div>`;
+      `<div class="banner banner-danger" role="alert">首頁資料載入失敗: ${escapeHtml(err.message)}。請確認網路連線, 並以 HTTP 伺服器開啟（不要用 file://）後重新整理。</div>`;
   }
   return null;
 }

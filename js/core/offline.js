@@ -15,11 +15,11 @@ export function registerServiceWorker() {
     console.warn("離線功能註冊失敗: ", err);
   });
 
-  // 網站悄悄切到快取版本時要講一聲，不然讀者會以為是壞掉而不是離線。
+  // 網站悄悄切到快取版本時要講一聲, 不然讀者會以為是壞掉而不是離線。
   let wasOffline = !navigator.onLine;
   window.addEventListener("offline", () => {
     wasOffline = true;
-    notify.warning("目前離線，顯示的是先前已載入的內容。", { duration: 4000 });
+    notify.warning("目前離線, 顯示的是先前已載入的內容。", { duration: 4000 });
   });
   window.addEventListener("online", () => {
     if (!wasOffline) return;

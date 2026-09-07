@@ -34,7 +34,7 @@
 }
 .btn:hover { background: var(--border); text-decoration: none; }
 .btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
-/* 主色是中性灰，實心按鈕一定要配深色文字才有 AA 對比。 */
+/* 主色是中性灰, 實心按鈕一定要配深色文字才有 AA 對比。 */
 .btn-primary { background: var(--primary); color: var(--on-primary); }
 .btn-primary:hover { background: var(--primary-hover); }
 .btn-ghost { background: transparent; border-color: var(--border); color: var(--text); }

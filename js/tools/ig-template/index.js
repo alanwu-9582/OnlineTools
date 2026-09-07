@@ -1,9 +1,9 @@
 // js/tools/ig-template/index.js — IG 貼文模板。
 //
-// 載一份標準模板（.zip），照著參考成品把自己的照片與文字直接填在畫布上，
-// 輸出成品圖，或把改過的模板再存回一個 .zip。
+// 載一份標準模板（.zip）, 照著參考成品把自己的照片與文字直接填在畫布上, 
+// 輸出成品圖, 或把改過的模板再存回一個 .zip。
 //
-// 全程在瀏覽器裡跑，照片不會上傳到任何地方。
+// 全程在瀏覽器裡跑, 照片不會上傳到任何地方。
 
 import { panel, field, button, actions, status, subhead, el, icon } from "../kit.js";
 import { openModal } from "../../ui/modal.js";
@@ -18,16 +18,16 @@ export const styles = new URL("./ig-template.css", import.meta.url).href;
 export const meta = { title: "IG 貼文模板" };
 
 /**
- * 站上內建的範例模板，一份一個資料夾放在 assets/templates/ 底下，
- * 清單集中由 assets/templates/index.json 管理。路徑用 import.meta.url 推，
+ * 站上內建的範例模板, 一份一個資料夾放在 assets/templates/ 底下, 
+ * 清單集中由 assets/templates/index.json 管理。路徑用 import.meta.url 推, 
  * 站台掛在子目錄底下也對得到。
  */
 const BUILTIN_INDEX_URL = new URL("../../../assets/templates/index.json", import.meta.url).href;
 const builtinUrl = (dir) => new URL(`../../../assets/templates/${dir}/`, import.meta.url).href;
 
 const FORMATS = [
-  { value: "image/jpeg", label: "JPEG（檔案小，發文用）", ext: "jpg" },
-  { value: "image/png", label: "PNG（無損，字最利）", ext: "png" },
+  { value: "image/jpeg", label: "JPEG（檔案小, 發文用）", ext: "jpg" },
+  { value: "image/png", label: "PNG（無損, 字最利）", ext: "png" },
 ];
 
 /** 存成檔案。 */
@@ -39,7 +39,7 @@ function saveBlob(blob, filename) {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  // 立刻 revoke 有些瀏覽器會抓不到檔案，等一下再放。
+  // 立刻 revoke 有些瀏覽器會抓不到檔案, 等一下再放。
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
@@ -70,7 +70,7 @@ export function mount(host) {
   });
 
   // 解壓縮之後的資料夾也要能直接讀 —— 改完 template.json 就不用再壓回去。
-  // webkitdirectory 的 input 只選得到資料夾，所以跟檔案那個分開兩顆。
+  // webkitdirectory 的 input 只選得到資料夾, 所以跟檔案那個分開兩顆。
   const folderPicker = el("input", { class: "igt-file", type: "file", webkitdirectory: "", multiple: "" });
   folderPicker.addEventListener("change", async () => {
     const list = [...folderPicker.files || []];
@@ -86,7 +86,7 @@ export function mount(host) {
     tabindex: "0",
     role: "button",
     "aria-label": "選擇或拖放標準模板",
-    // filePicker.click() 會冒泡回這裡，不擋掉就無限遞迴。
+    // filePicker.click() 會冒泡回這裡, 不擋掉就無限遞迴。
     onclick: (e) => { if (e.target !== filePicker) filePicker.click(); },
     onkeydown: (e) => {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); filePicker.click(); }
@@ -96,7 +96,7 @@ export function mount(host) {
     ondrop: (e) => {
       e.preventDefault();
       dropZone.classList.remove("is-over");
-      // entry 一定要在 await 之前同步取出來，不然 DataTransfer 就失效了。
+      // entry 一定要在 await 之前同步取出來, 不然 DataTransfer 就失效了。
       const entries = dropEntries(e.dataTransfer);
       const folders = entries.filter((entry) => entry.isDirectory);
       if (folders.length || entries.length > 1) {
@@ -115,11 +115,11 @@ export function mount(host) {
     el("div", {},
       el("div", { class: "igt-drop-title" }, "拖曳或選擇檔案"),
       el("div", { class: "igt-drop-hint" },
-        "標準模板／模板整合包 .zip、解壓縮後的資料夾，或只有版面的 .json"),
-      // 「不知道怎麼從 Canva 匯出」是自己做模板時最大的卡點，
-      // 所以把那條選單路徑直接寫在這裡，不要只留在說明文件裡。
+        "標準模板／模板整合包 .zip、解壓縮後的資料夾, 或只有版面的 .json"),
+      // 「不知道怎麼從 Canva 匯出」是自己做模板時最大的卡點, 
+      // 所以把那條選單路徑直接寫在這裡, 不要只留在說明文件裡。
       el("div", { class: "igt-drop-hint igt-drop-canva" },
-        "Canva 分享 → 下載(建議單個頁面) → PowerPoint (.pptx)，上傳檔案"),
+        "Canva 分享 → 下載(建議單個頁面) → PowerPoint (.pptx), 上傳檔案"),
     ),
     filePicker,
     folderPicker,
@@ -156,7 +156,7 @@ export function mount(host) {
     const sequence = ++packSequence;
     const group = `${pack.name}${sourceName ? `（${sourceName}）` : ""}`;
     const oldCount = packCatalog.filter((entry) => entry.packId === pack.id).length;
-    // pack.json 頂層 id 相同代表同一個整合包的新版本：整包替換，避免舊版中
+    // pack.json 頂層 id 相同代表同一個整合包的新版本：整包替換, 避免舊版中
     // 已刪除的模板仍殘留在選單裡。templates[].id 只需在包內唯一。
     packCatalog = packCatalog.filter((entry) => entry.packId !== pack.id);
     for (const [index, item] of pack.templates.entries()) {
@@ -172,7 +172,7 @@ export function mount(host) {
     renderTemplateCatalog();
     info.set(
       `已加入模板包「${pack.name}」的 ${pack.templates.length} 個範例`
-      + `${oldCount ? `，已取代相同整合包 ID 的舊版本（原有 ${oldCount} 個範例）` : ""}。`,
+      + `${oldCount ? `, 已取代相同整合包 ID 的舊版本（原有 ${oldCount} 個範例）` : ""}。`,
       "ok",
     );
   }
@@ -206,8 +206,8 @@ export function mount(host) {
 
   /* ---------------- 匯入的多頁檔案 ---------------- */
 
-  // .pptx 可能有好幾頁（Canva 的多頁設計、輪播貼文）。一次只做一張，
-  // 但要能換 —— 來源檔案留在 bundle.source 上，換頁不用重讀檔。
+  // .pptx 可能有好幾頁（Canva 的多頁設計、輪播貼文）。一次只做一張, 
+  // 但要能換 —— 來源檔案留在 bundle.source 上, 換頁不用重讀檔。
   const slideSelect = el("select", {
     class: "tool-input",
     onchange: () => {
@@ -235,8 +235,8 @@ export function mount(host) {
   const referenceImg = el("img", { class: "igt-ref-img", alt: "參考成品" });
   const openReference = () => { if (referenceImg.getAttribute("src")) enlarge("參考成品", referenceImg.src); };
 
-  // 參考成品只是拿來對照的，做成一張窄卡片；要看細節就點開放大。
-  // 這樣編輯區才吃得到整個內文欄寬 —— 並排兩欄的話兩邊都只剩三百多 px，
+  // 參考成品只是拿來對照的, 做成一張窄卡片；要看細節就點開放大。
+  // 這樣編輯區才吃得到整個內文欄寬 —— 並排兩欄的話兩邊都只剩三百多 px, 
   // 在上面直接點文字、拖照片會很難按。
   const refCard = el("button", {
     class: "igt-ref-card",
@@ -261,7 +261,7 @@ export function mount(host) {
     editorHost,
   );
 
-  /** 點開放大。參考圖與成品走同一個出口，兩邊行為才一致。 */
+  /** 點開放大。參考圖與成品走同一個出口, 兩邊行為才一致。 */
   function enlarge(title, src, onClose) {
     openModal({
       title,
@@ -317,7 +317,7 @@ export function mount(host) {
       saveBlob(zip, `${safeName(bundle.template.name)}.zip`);
       info.set(
         `已輸出標準模板（${Math.round(zip.size / 1024)} KB）`
-        + `${includePhotos.checked ? "，含你放的照片" : "，不含你放的照片"}。`,
+        + `${includePhotos.checked ? ", 含你放的照片" : ", 不含你放的照片"}。`,
         "ok",
       );
     } catch (err) {
@@ -362,7 +362,7 @@ export function mount(host) {
       return;
     }
 
-    // 舊的先收乾淨，不然每載一次就漏掉一批 blob URL。
+    // 舊的先收乾淨, 不然每載一次就漏掉一批 blob URL。
     editor?.destroy();
     bundle?.dispose();
     bundle = next;
@@ -377,7 +377,7 @@ export function mount(host) {
     const preview = bundle.previewUrl;
     if (preview) referenceImg.src = preview;
     else referenceImg.removeAttribute("src");
-    // 縮圖的長寬比跟著模板走，直式模板才不會在正方形的框裡上下留一堆空白。
+    // 縮圖的長寬比跟著模板走, 直式模板才不會在正方形的框裡上下留一堆空白。
     const { width, height } = bundle.template.canvas;
     referenceImg.style.aspectRatio = `${width} / ${height}`;
     refCard.hidden = !preview;
@@ -389,7 +389,7 @@ export function mount(host) {
     syncSlidePicker();
 
     // 匯入來的模板沒有 preview.jpg。拿第一次渲染的結果當參考成品 ——
-    // 那就是「原稿的樣子」，之後把照片文字換掉還看得到原本長什麼樣。
+    // 那就是「原稿的樣子」, 之後把照片文字換掉還看得到原本長什麼樣。
     if (!bundle.previewPath) {
       try {
         const shot = await editor.toBlob({ type: "image/jpeg", quality: 0.85 });
@@ -400,7 +400,7 @@ export function mount(host) {
         referenceImg.style.aspectRatio = `${bundle.template.canvas.width} / ${bundle.template.canvas.height}`;
         refCard.hidden = false;
       } catch {
-        /* 產不出參考圖不影響編輯，就不顯示那張卡片。 */
+        /* 產不出參考圖不影響編輯, 就不顯示那張卡片。 */
       }
     }
 
@@ -416,7 +416,7 @@ export function mount(host) {
     if (missing.length) parts.push(`還沒放圖: ${missing.join("、")}`);
     if (overflow.length) parts.push(`字太多了!!: ${overflow.join("、")}`);
     if (parts.length) info.set(parts.join(" · "), "warn");
-    else info.set("看起來可以了，按「下載成品圖」輸出。", "ok");
+    else info.set("看起來可以了, 按「下載成品圖」輸出。", "ok");
   }
 
   /* ---------------- 組起來 ---------------- */
@@ -434,7 +434,7 @@ export function mount(host) {
     exportRow,
   ));
 
-  info.set("選擇範例模板，或上傳 .zip／.pptx／解壓縮後的資料夾", "ok");
+  info.set("選擇範例模板, 或上傳 .zip／.pptx／解壓縮後的資料夾", "ok");
   void loadBuiltinCatalog();
 
   return () => {

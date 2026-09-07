@@ -1,5 +1,5 @@
 /* js/tools/paper-bag/paper-bag.css — 只有這個工具會用到的樣式。
-   由 index.js 的 styles 宣告，tool-host 在掛載前才載進來。 */
+   由 index.js 的 styles 宣告, tool-host 在掛載前才載進來。 */
 
 .bag-net-host {
   padding: 12px;
@@ -12,10 +12,10 @@
   display: block;
   width: 100%;
   height: auto;
-  /* 手機上整張縮到 250px 寬，尺寸數字會小到看不見。給一個下限，
-     讓它在外框裡橫向捲動，總比縮到讀不出來好。 */
+  /* 手機上整張縮到 250px 寬, 尺寸數字會小到看不見。給一個下限, 
+     讓它在外框裡橫向捲動, 總比縮到讀不出來好。 */
   min-width: 480px;
-  /* 展開圖很扁，太高會把步驟圖擠到看不見。 */
+  /* 展開圖很扁, 太高會把步驟圖擠到看不見。 */
   max-height: 70vh;
 }
 
@@ -50,7 +50,7 @@
   border-radius: 50%;
 }
 
-/* 組裝動畫。內容是照使用者的尺寸算的，所以是即時投影的 SVG 而不是一張 GIF。 */
+/* 組裝動畫。內容是照使用者的尺寸算的, 所以是即時投影的 SVG 而不是一張 GIF。 */
 .bag-anim {
   display: flex;
   flex-direction: column;
@@ -66,7 +66,7 @@
   display: block;
   width: 100%;
   height: auto;
-  /* viewBox 固定 3:2，元素高度才不會每一格都在跳。 */
+  /* viewBox 固定 3:2, 元素高度才不會每一格都在跳。 */
   aspect-ratio: 3 / 2;
 }
 

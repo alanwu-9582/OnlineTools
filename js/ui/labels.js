@@ -1,4 +1,4 @@
-// js/ui/labels.js — 類別／標籤 chip，顏色來自 data/site.json。
+// js/ui/labels.js — 類別／標籤 chip, 顏色來自 data/site.json。
 
 import { el } from "../utils/utils.js";
 

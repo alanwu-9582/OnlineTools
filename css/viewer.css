@@ -1,7 +1,7 @@
 /* css/viewer.css — 單篇文章的版面與 Markdown 排版。 */
 
 /* ================= Viewer layout ================= */
-/* 內文欄寬約 800px，再加 240px 的大綱側欄；行太長會很難讀，所以是置中不是撐滿。 */
+/* 內文欄寬約 800px, 再加 240px 的大綱側欄；行太長會很難讀, 所以是置中不是撐滿。 */
 .viewer {
   max-width: 1064px;
   margin-inline: auto;
@@ -160,7 +160,7 @@
 .outline-title:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
 .outline-nav { display: flex; flex-direction: column; gap: 1px; }
 .outline-link {
-  /* 用格線讓自動編號自成一欄，標題換行時才不會縮到編號底下。 */
+  /* 用格線讓自動編號自成一欄, 標題換行時才不會縮到編號底下。 */
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 6px;
@@ -220,7 +220,7 @@
 }
 
 /* ---------- 章節錨點 ---------- */
-/* 整個網站活在 hash 裡，純 #id 錨點會把路由洗掉，所以改成複製完整網址的按鈕。 */
+/* 整個網站活在 hash 裡, 純 #id 錨點會把路由洗掉, 所以改成複製完整網址的按鈕。 */
 .doc-heading { position: relative; }
 .heading-anchor {
   margin-left: 8px;
@@ -241,7 +241,7 @@
 .heading-anchor:focus-visible { outline: var(--focus-ring); outline-offset: 1px; }
 @media (hover: none) { .heading-anchor { opacity: 0.5; } }
 
-/* 從分享連結或搜尋結果進來時閃一下，指出停在哪一節。 */
+/* 從分享連結或搜尋結果進來時閃一下, 指出停在哪一節。 */
 .doc-heading.is-targeted {
   animation: heading-flash 2s var(--easing-standard);
   border-radius: var(--radius-xs);
@@ -259,7 +259,7 @@
 
 .doc-content p { margin: 0 0 16px; }
 
-/* 行內連結: hover 時加淡色底與較亮的底線。左右的 padding／負 margin 成對，
+/* 行內連結: hover 時加淡色底與較亮的底線。左右的 padding／負 margin 成對, 
    確保 highlight 不會把文字擠位移。 */
 .doc-content a {
   color: var(--link);
@@ -291,9 +291,43 @@
 .doc-content li { margin: 4px 0; }
 .doc-content li > ul, .doc-content li > ol { margin: 4px 0; }
 .doc-content input[type="checkbox"] {
-  width: auto;
-  margin-right: 6px;
-  accent-color: var(--primary);
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  width: 18px;
+  height: 18px;
+  margin: 0 6px 0 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--card-bg);
+  vertical-align: -3px;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--easing-standard),
+              border-color var(--duration-fast) var(--easing-standard);
+}
+.doc-content input[type="checkbox"]::before {
+  width: 9px;
+  height: 5px;
+  border: solid var(--on-primary);
+  border-width: 0 0 2px 2px;
+  content: "";
+  transform: translateY(-1px) rotate(-45deg) scale(0);
+  transition: transform var(--duration-fast) var(--easing-standard);
+}
+.doc-content input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.doc-content input[type="checkbox"]:checked::before {
+  transform: translateY(-1px) rotate(-45deg) scale(1);
+}
+.doc-content input[type="checkbox"]:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+.doc-content input[type="checkbox"]:disabled {
+  cursor: default;
+  opacity: 0.8;
 }
 
 .doc-content blockquote {
@@ -328,14 +362,14 @@
   max-width: 100%;
   height: auto;
   margin: 8px 0 18px;
-  /* 圖片大小差很多，圓角要小到連 18px 高的圖也符合短邊 1/3 的規則。 */
+  /* 圖片大小差很多, 圓角要小到連 18px 高的圖也符合短邊 1/3 的規則。 */
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-soft);
   background: var(--cffy-theme-surface-a10);
 }
 
 /* ---------- 圖片 + hover 說明 ---------- */
-/* 外框收縮到圖片實際寬度，說明列才會跟圖片同寬。 */
+/* 外框收縮到圖片實際寬度, 說明列才會跟圖片同寬。 */
 .doc-content .doc-figure {
   position: relative;
   display: block;
@@ -374,7 +408,7 @@
   opacity: 1;
   transform: translateY(0);
 }
-/* 觸控裝置沒有 hover，說明就固定顯示，不然永遠看不到。 */
+/* 觸控裝置沒有 hover, 說明就固定顯示, 不然永遠看不到。 */
 @media (hover: none) {
   .doc-figure-cap { opacity: 1; transform: translateY(0); }
 }
@@ -438,7 +472,7 @@
 }
 
 /* ---------- 表格 ---------- */
-/* 外框負責圓角與橫向捲動；表格本身用 separate border，內部格線才不會疊成兩條。 */
+/* 外框負責圓角與橫向捲動；表格本身用 separate border, 內部格線才不會疊成兩條。 */
 .doc-content .table-wrap {
   margin: 0 0 18px;
   border: 1px solid var(--border);
@@ -483,7 +517,7 @@
 }
 
 /* ---------- 程式碼區塊 + 複製鈕 ---------- */
-/* 按鈕掛在外層，長行左右捲動時它才不會跟著跑掉。 */
+/* 按鈕掛在外層, 長行左右捲動時它才不會跟著跑掉。 */
 .doc-content .code-wrap { position: relative; margin: 0 0 18px; }
 .doc-content .code-wrap > pre.code-block { margin: 0; padding-right: 96px; }
 
@@ -519,7 +553,7 @@
   border-color: color-mix(in srgb, var(--cffy-theme-success-a0) 45%, transparent);
   background: color-mix(in srgb, var(--cffy-theme-success-a0) 14%, transparent);
 }
-/* 觸控裝置沒有 hover，按鈕一律保持看得見。 */
+/* 觸控裝置沒有 hover, 按鈕一律保持看得見。 */
 @media (hover: none) {
   .code-copy { opacity: 1; }
   .code-copy .code-copy-label { display: none; }

@@ -3,7 +3,7 @@
   "version": 2,
   "name": "簡潔圖文",
   "preview": "preview.jpg",
-  "note": "一張照片加一段文字，最通用的版型。沒有外部素材，所以這份模板只有 template.json 跟 preview.png。想改版面就直接改各層的 rect。",
+  "note": "一張照片加一段文字, 最通用的版型。沒有外部素材, 所以這份模板只有 template.json 跟 preview.png。想改版面就直接改各層的 rect。",
   "canvas": {
     "size": 1080,
     "background": "#f4efe6"

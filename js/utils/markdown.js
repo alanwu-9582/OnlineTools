@@ -3,7 +3,7 @@
 // 需要時才從 jsdelivr 載入: marked@4（舊版 renderer API）、highlight.js、
 // KaTeX（含 auto-render）、mermaid。
 // 支援圖片、圖片連結、原生 HTML（工具佔位就是靠它）、程式碼區塊（語法上色）、
-// 表格、清單、LaTeX（$…$、$$…$$）、Mermaid，以及標題大綱。
+// 表格、清單、LaTeX（$…$、$$…$$）、Mermaid, 以及標題大綱。
 
 import { escapeHtml, slugify } from "./utils.js";
 
@@ -53,7 +53,7 @@ function loadCss(href) {
 export function loadMarkdownLibs() {
   if (libsPromise) return libsPromise;
   loadCss(CDN.katexCss);
-  // highlight.js 的配色寫在 css/viewer.css，全部走主題變數，所以不載 CDN 主題。
+  // highlight.js 的配色寫在 css/viewer.css, 全部走主題變數, 所以不載 CDN 主題。
   libsPromise = (async () => {
     await Promise.all([loadScript(CDN.marked), loadScript(CDN.hljs)]);
     await loadScript(CDN.katex);
@@ -98,7 +98,7 @@ export function loadMarkdownLibs() {
   return libsPromise;
 }
 
-/** 改寫圖片路徑: 先套舊前綴對照，其餘相對路徑補上基準資料夾。 */
+/** 改寫圖片路徑: 先套舊前綴對照, 其餘相對路徑補上基準資料夾。 */
 function rewriteImageSrc(src) {
   const raw = String(src || "").trim();
   if (!raw) return raw;
@@ -119,7 +119,7 @@ function buildRenderer() {
     let unique = id, n = 2;
     while (usedIds.has(unique)) unique = `${id}-${n++}`;
     usedIds.add(unique);
-    // id 要留著（大綱與捲動定位都靠它），但不放可見的錨點符號。
+    // id 要留著（大綱與捲動定位都靠它）, 但不放可見的錨點符號。
     return `<h${level} id="${unique}" class="doc-heading" data-level="${level}">${text}</h${level}>\n`;
   };
 
@@ -129,7 +129,7 @@ function buildRenderer() {
     const titleAttr = title ? ` title="${escapeHtml(title)}"` : "";
     const img = `<img src="${escapeHtml(src)}" alt="${alt}"${titleAttr} loading="lazy" class="doc-img">`;
     // alt / title 會在滑過圖片時當成說明浮出來。用 <span>（樣式設成 block）而不是
-    // <figure>: 後者放在 marked 產生的 <p> 裡不合法，會被 HTML parser 拉出去，把段落切斷。
+    // <figure>: 後者放在 marked 產生的 <p> 裡不合法, 會被 HTML parser 拉出去, 把段落切斷。
     const caption = title || text || "";
     if (!caption) return img;
     return `<span class="doc-figure">${img}`
@@ -157,7 +157,7 @@ function buildRenderer() {
     return `<pre class="code-block"><code>${escapeHtml(code)}</code></pre>`;
   };
 
-  // 表格外包一層，圓角與 overflow 交給外層處理 —— border-collapse 的表格切不出自己的圓角。
+  // 表格外包一層, 圓角與 overflow 交給外層處理 —— border-collapse 的表格切不出自己的圓角。
   renderer.table = (header, body) => {
     const tbody = body ? `<tbody>${body}</tbody>` : "";
     return `<div class="table-wrap"><table><thead>${header}</thead>${tbody}</table></div>\n`;
@@ -176,12 +176,12 @@ function buildRenderer() {
 }
 
 /**
- * marked 4 遇到 `**文字（abbr）**: ` 這種、右括號後面直接接中文標點的情況，
- * 有時會整段不處理。先把這個特例換成語意 HTML，作者就能照常用中文標點。
+ * marked 4 遇到 `**文字（abbr）**: ` 這種、右括號後面直接接中文標點的情況, 
+ * 有時會整段不處理。先把這個特例換成語意 HTML, 作者就能照常用中文標點。
  */
 function normalizeStrongBeforeCjkPunctuation(markdown) {
   return String(markdown).replace(
-    /\*\*([^*\r\n]+[)\]）】])\*\*(?=[: ；，。、！？])/g,
+    /\*\*([^*\r\n]+[)\]）】])\*\*(?=[: ；, 。、！？])/g,
     "<strong>$1</strong>",
   );
 }

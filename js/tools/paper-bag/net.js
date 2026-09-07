@@ -33,7 +33,7 @@ const PRINT = {
 };
 
 /**
- * 展開圖。單位就是毫米 —— 下載下來的 SVG 標了 mm，列印時是 1:1。
+ * 展開圖。單位就是毫米 —— 下載下來的 SVG 標了 mm, 列印時是 1:1。
  * @param {object} geo
  * @param {{print?:boolean, showHoles?:boolean}} opts
  */
@@ -41,10 +41,10 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   const c = print ? PRINT : SCREEN;
   const { x, y, paperW, paperH } = geo;
 
-  // 線寬與字級跟著紙張大小走，不然大袋子的標示會小到看不見。
+  // 線寬與字級跟著紙張大小走, 不然大袋子的標示會小到看不見。
   const sw = Math.max(0.25, paperW / 900);
   const fs = Math.max(4, paperW / 58);
-  // 上／左各有三層標示（分段、累計刻度、總長），右／下放提把孔的座標。
+  // 上／左各有三層標示（分段、累計刻度、總長）, 右／下放提把孔的座標。
   const pad = { l: fs * 11.2, t: fs * 11.2, r: showHoles ? fs * 5.2 : fs * 1.6, b: fs * 6.6 };
 
   const svg = s("svg", {
@@ -55,7 +55,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
       : {}),
     class: "bag-net",
     role: "img",
-    "aria-label": `紙袋展開圖，紙張 ${mm(paperW)} × ${mm(paperH)} 毫米`,
+    "aria-label": `紙袋展開圖, 紙張 ${mm(paperW)} × ${mm(paperH)} 毫米`,
   });
 
   if (print) {
@@ -76,7 +76,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     transform: opts.rotate ? `rotate(${opts.rotate} ${tx} ${ty})` : null,
   }, text);
 
-  /* ---- 面的底色: 相鄰的面深淺交錯，一眼看得出邊界在哪 ---- */
+  /* ---- 面的底色: 相鄰的面深淺交錯, 一眼看得出邊界在哪 ---- */
   const panels = [
     [x.left, x.glue, c.panelB],
     [x.glue, x.front, c.panelA],
@@ -109,8 +109,8 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   }
 
   /* ---- 底部: 45° 斜折線 + 底面中線 ---- */
-  // 每一個「袋角」的兩側各一條 45° 斜線。紙的右邊緣捲起來之後會貼到黏合線上，
-  // 所以它跟 x.glue 是同一個角，兩邊都要有斜線，只是各自被紙邊切掉一半。
+  // 每一個「袋角」的兩側各一條 45° 斜線。紙的右邊緣捲起來之後會貼到黏合線上, 
+  // 所以它跟 x.glue 是同一個角, 兩邊都要有斜線, 只是各自被紙邊切掉一半。
   const half = geo.D / 2;
   const diagDash = `${sw * 4} ${sw * 3}`;
   for (const px of [x.glue, x.front, x.side1, x.back, x.right]) {
@@ -119,7 +119,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     if (left > 0) svg.appendChild(line(px, y.bottomFold, px - left, y.bottomFold + left, c.diagonal, diagDash));
     if (right > 0) svg.appendChild(line(px, y.bottomFold, px + right, y.bottomFold + right, c.diagonal, diagDash));
   }
-  // 底面中線: 三角形的頂點都落在這裡。是對位用的參考線，不是折線。
+  // 底面中線: 三角形的頂點都落在這裡。是對位用的參考線, 不是折線。
   svg.appendChild(line(0, y.base, paperW, y.base, c.dim, `${sw * 1.5} ${sw * 3}`));
 
   /* ---- 提把孔 ---- */
@@ -127,7 +127,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     const holeR = Math.max(1.6, fs * 0.34);
     for (const center of [geo.frontCenter, geo.backCenter]) {
       for (const dx of [-geo.holeSpan / 2, geo.holeSpan / 2]) {
-        // 袋身那一層是實線；上緣折邊上的是對稱位置，折起來會疊在一起。
+        // 袋身那一層是實線；上緣折邊上的是對稱位置, 折起來會疊在一起。
         svg.appendChild(s("circle", {
           cx: center + dx, cy: y.hem + geo.holeTop, r: holeR,
           fill: "none", stroke: c.hole, "stroke-width": sw * 1.6,
@@ -152,7 +152,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   for (const [px, text, width] of names) {
     if (width < fs * 1.4) continue;
     svg.appendChild(label(px, bodyMid - fs * 0.75, text, { size: fs * 1.5, weight: 700, fill: c.dim }));
-    // 每個面自己的長寬。折起來之後這一面就是這麼大，比只寫「前」有用。
+    // 每個面自己的長寬。折起來之後這一面就是這麼大, 比只寫「前」有用。
     const size = `${mm(width)} × ${mm(geo.H)}`;
     if (width >= size.length * fs * 0.55) {
       svg.appendChild(label(px, bodyMid + fs * 1.05, size, { size: fs * 0.78, fill: c.dim }));
@@ -176,11 +176,11 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     return g;
   };
 
-  // 窄的區段（黏合邊、上緣折邊）擠不下標示，就把數字挪高一階再拉一條引線回去。
+  // 窄的區段（黏合邊、上緣折邊）擠不下標示, 就把數字挪高一階再拉一條引線回去。
   // 直接省略不畫是不行的 —— 那兩段的長度正是最容易忘記留的。
   /**
-   * 粗估一段文字有多寬。中日韓字元大約佔一個字身，數字與英文只有六成左右 ——
-   * 一律用字數乘同一個係數會把「上緣 30」這種中英混排低估掉，標示就會疊在一起。
+   * 粗估一段文字有多寬。中日韓字元大約佔一個字身, 數字與英文只有六成左右 ——
+   * 一律用字數乘同一個係數會把「上緣 30」這種中英混排低估掉, 標示就會疊在一起。
    */
   const textWidth = (text, size) => {
     let units = 0;
@@ -194,7 +194,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
 
   /**
    * 一條「從邊緣量起」的累計刻度。
-   * 真的在紙上畫線時，是拿尺壓著同一個邊一路量到底，不是一段一段接力量 ——
+   * 真的在紙上畫線時, 是拿尺壓著同一個邊一路量到底, 不是一段一段接力量 ——
    * 接力量每一段都會累積誤差。所以這排數字才是照著做的人真正會用到的。
    *
    * @param {number[]} positions  沿著軸的位置（毫米）
@@ -210,7 +210,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
       ? s("line", { x1: 0, y1: offset, x2: span, y2: offset, stroke: c.dim, "stroke-width": sw })
       : s("line", { x1: offset, y1: 0, x2: offset, y2: span, stroke: c.dim, "stroke-width": sw }));
 
-    // 數字擠在一起時錯開到第二排，再拉一條引線指回自己的刻度。
+    // 數字擠在一起時錯開到第二排, 再拉一條引線指回自己的刻度。
     const ends = [-Infinity, -Infinity];
     for (const pos of positions) {
       const text = mm(pos);
@@ -237,7 +237,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     }
 
     if (caption) {
-      // 直向刻度的說明也轉成直排。橫排的話它會往左伸進分段標示那一欄，
+      // 直向刻度的說明也轉成直排。橫排的話它會往左伸進分段標示那一欄, 
       // 大尺寸時就會跟「上緣 30」之類的標籤疊在一起。
       g.appendChild(horizontal
         ? label(-fs * 0.8, offset, caption, { size: fs * 0.72, fill: c.dim, anchor: "end" })
@@ -246,7 +246,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     return g;
   };
 
-  /** 一整排「起點 → 終點」的分段標示，太窄就把數字挪開再拉引線。 */
+  /** 一整排「起點 → 終點」的分段標示, 太窄就把數字挪開再拉引線。 */
   const segmentBand = (parts, { axis, offset }) => {
     const horizontal = axis === "x";
     for (const [a, b, text] of parts) {
@@ -274,7 +274,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
     [x.back, x.right, mm(geo.D)],
   ], { axis: "x", offset: -fs * 1.1 });
 
-  // 每一條直向折線的位置，側面中線也算 —— 不然使用者得自己去算 D/2 落在哪。
+  // 每一條直向折線的位置, 側面中線也算 —— 不然使用者得自己去算 D/2 落在哪。
   svg.appendChild(tickScale(
     [x.glue, x.front, geo.gusset1, x.side1, x.back, geo.gusset2, x.right],
     { axis: "x", offset: -fs * 6.2, caption: "自左邊量" },
@@ -287,7 +287,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   segmentBand([
     [y.top, y.hem, `上緣 ${mm(geo.hem)}`],
     [y.hem, y.bottomFold, `袋高 ${mm(geo.H)}`],
-    // 底部拆成兩段: 斜折線到得了的深度，跟前後兩片互相蓋住的量。
+    // 底部拆成兩段: 斜折線到得了的深度, 跟前後兩片互相蓋住的量。
     [y.bottomFold, y.base, `斜折 ${mm(geo.D / 2)}`],
     [y.base, y.end, `重疊 ${mm(geo.overlap)}`],
   ], { axis: "y", offset: -fs * 1.1 });
@@ -300,7 +300,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   svg.appendChild(arrow(-fs * 9.5, 0, -fs * 9.5, paperH));
   svg.appendChild(label(-fs * 10.3, paperH / 2, `紙長 ${mm(paperH)}`, { size: fs * 0.95, weight: 700, rotate: -90 }));
 
-  /* 提把孔: 橫向位置放下面，縱向位置放右邊，兩個一起就能定出八個孔。 */
+  /* 提把孔: 橫向位置放下面, 縱向位置放右邊, 兩個一起就能定出八個孔。 */
   if (showHoles) {
     const holeXs = [geo.frontCenter, geo.backCenter]
       .flatMap((center) => [center - geo.holeSpan / 2, center + geo.holeSpan / 2])
@@ -315,7 +315,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
       svg.appendChild(label(geo.frontCenter, spanY + fs * 0.85, `孔距 ${mm(geo.holeSpan)}`, { size: fs * 0.85, fill: c.dim }));
     }
 
-    // 兩排孔對稱地落在上緣折線的兩側，折起來剛好疊在一起。
+    // 兩排孔對稱地落在上緣折線的兩側, 折起來剛好疊在一起。
     svg.appendChild(tickScale([y.hem - geo.holeTop, y.hem + geo.holeTop], {
       axis: "y", offset: paperW + fs * 1.7, side: 1, caption: "提把孔",
     }));
@@ -324,7 +324,7 @@ export function buildNetSvg(geo, { print = false, showHoles = true } = {}) {
   return svg;
 }
 
-/** 圖例。用 DOM 而不是畫進 SVG，才能跟著版面換行。 */
+/** 圖例。用 DOM 而不是畫進 SVG, 才能跟著版面換行。 */
 export function buildLegend() {
   const items = [
     ["cut", "裁切線"],

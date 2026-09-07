@@ -1,17 +1,17 @@
 // js/tools/split-bill/settle.js — 分帳的算法。這一層不碰 DOM。
 
-/** 金額一律取整數元，避免結算結果出現零錢。 */
+/** 金額一律取整數元, 避免結算結果出現零錢。 */
 const toUnits = (n) => Math.round(Number(n));
 
 /**
- * 把一筆金額拆給 n 個人，尾差指定給其中一個人吞掉。
+ * 把一筆金額拆給 n 個人, 尾差指定給其中一個人吞掉。
  * 1000 分 3 人 = 334 / 333 / 333 —— 總和精確等於 1000。
  */
 function share(units, n, absorber = 0) {
   const base = Math.floor(units / n);
   const rest = units - base * n;
   return Array.from({ length: n }, (_, i) => {
-    // 尾差從吞的人開始往後發，每人最多多 1 分。
+    // 尾差從吞的人開始往後發, 每人最多多 1 分。
     const offset = (i - absorber + n) % n;
     return base + (offset < rest ? 1 : 0);
   });
@@ -24,7 +24,7 @@ function share(units, n, absorber = 0) {
  * @param {Array<{amount:number, payer:string, participants:string[]}>} expenses
  * @returns {{balances:Object<string,number>, paid:Object<string,number>,
  *            owed:Object<string,number>, total:number, skipped:number}}
- *   金額單位都是元（已經處理過尾差，加總會精確歸零）。
+ *   金額單位都是元（已經處理過尾差, 加總會精確歸零）。
  */
 export function computeBalances(members, expenses) {
   const paid = {};
@@ -39,7 +39,7 @@ export function computeBalances(members, expenses) {
     if (!units || !people.length || !members.includes(item.payer)) { skipped += 1; continue; }
     total += units;
     paid[item.payer] += units;
-    // 讓付錢的人吞尾差 —— 他本來就經手最多，多負擔一元最不會有人有意見。
+    // 讓付錢的人吞尾差 —— 他本來就經手最多, 多負擔一元最不會有人有意見。
     const absorber = Math.max(0, people.indexOf(item.payer));
     const parts = share(units, people.length, absorber);
     people.forEach((p, i) => { owed[p] += parts[i]; });
@@ -59,10 +59,10 @@ export function computeBalances(members, expenses) {
 /**
  * 把淨額結算成一串轉帳。
  *
- * 反覆把「欠最多的」配給「該收最多的」，這樣每做一筆至少有一個人歸零，
+ * 反覆把「欠最多的」配給「該收最多的」, 這樣每做一筆至少有一個人歸零, 
  * 所以筆數一定不超過 人數 − 1。
  *
- * 注意: 真正的「最少轉帳次數」是 NP-hard，這個貪婪法不保證絕對最少，
+ * 注意: 真正的「最少轉帳次數」是 NP-hard, 這個貪婪法不保證絕對最少, 
  * 實務上幾乎都是最佳解。不要對外宣稱它是最少。
  *
  * @returns {Array<{from:string, to:string, amount:number}>}
@@ -94,14 +94,14 @@ export function settle(balances) {
 
 /** 貼回群組用的純文字。 */
 export function asText({ members, balances, transfers, total }) {
-  const lines = [`總支出 ${fmt(total)} 元，${members.length} 人`, ""];
+  const lines = [`總支出 ${fmt(total)} 元, ${members.length} 人`, ""];
   for (const name of members) {
     const v = balances[name] || 0;
     if (v === 0) lines.push(`${name} 剛好`);
     else if (v > 0) lines.push(`${name} 多付 ${fmt(v)}`);
     else lines.push(`${name} 少付 ${fmt(-v)}`);
   }
-  lines.push("", transfers.length ? "怎麼轉: " : "不用轉，剛好打平。");
+  lines.push("", transfers.length ? "怎麼轉: " : "不用轉, 剛好打平。");
   for (const t of transfers) lines.push(`${t.from} → ${t.to} ${fmt(t.amount)}`);
   return lines.join("\n");
 }

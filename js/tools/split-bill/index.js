@@ -1,6 +1,6 @@
 // js/tools/split-bill/index.js — 分帳結算。
 //
-// 一群人出去玩，誰付了什麼、誰有份，最後算出誰要轉給誰多少。
+// 一群人出去玩, 誰付了什麼、誰有份, 最後算出誰要轉給誰多少。
 
 import {
   panel, row, field, textInput, numberInput, select, button, actions,
@@ -56,7 +56,7 @@ export function mount(host) {
 
   function removeMember(name) {
     members = members.filter((m) => m !== name);
-    // 這個人付的帳要改人，不然那筆錢會憑空消失。
+    // 這個人付的帳要改人, 不然那筆錢會憑空消失。
     for (const item of expenses) {
       if (item.payer === name) item.payer = members[0] || "";
       if (Array.isArray(item.participants)) {
@@ -85,7 +85,7 @@ export function mount(host) {
 
   const expenseList = el("div", { class: "sb-expenses" });
 
-  /** participants 是 null 代表「全部人分」，成員變動時自動跟著走。 */
+  /** participants 是 null 代表「全部人分」, 成員變動時自動跟著走。 */
   const partsOf = (item) => (Array.isArray(item.participants)
     ? item.participants.filter((p) => members.includes(p))
     : members.slice());
@@ -179,14 +179,14 @@ export function mount(host) {
       expenses = DEFAULT.expenses.map((e) => ({ ...e }));
       clear();
       renderAll();
-      flash("已清空，回到預設的範例");
+      flash("已清空, 回到預設的範例");
     },
   });
 
   function recompute() {
     persist();
-    // participants 是 null 代表「全部人分」，那是給 UI 用的簡寫。
-    // 算式那一層只認實際名單，要先展開，不然整筆會被當成沒人分攤而跳過。
+    // participants 是 null 代表「全部人分」, 那是給 UI 用的簡寫。
+    // 算式那一層只認實際名單, 要先展開, 不然整筆會被當成沒人分攤而跳過。
     const resolved = expenses.map((item) => ({ ...item, participants: partsOf(item) }));
     const { balances, total, skipped } = computeBalances(members, resolved);
     const transfers = settle(balances);
@@ -210,10 +210,10 @@ export function mount(host) {
     )));
     if (!transfers.length) {
       transferList.appendChild(el("div", { class: "sb-empty" },
-        result.total > 0 ? "不用轉，剛好打平。" : "還沒有可以結算的支出。"));
+        result.total > 0 ? "不用轉, 剛好打平。" : "還沒有可以結算的支出。"));
     }
 
-    const messages = [`總支出 ${fmt(total)} 元，${members.length} 人`];
+    const messages = [`總支出 ${fmt(total)} 元, ${members.length} 人`];
     if (transfers.length) messages.push(`${transfers.length} 筆轉帳就結清`);
     if (skipped) messages.push(`有 ${skipped} 筆沒算進去（金額是 0、沒選付款人或沒人分攤）`);
     info.set(messages.join(" · "), skipped ? "warn" : "ok");
@@ -248,7 +248,7 @@ export function mount(host) {
     transferList,
     info,
     actions(copyResult, reset),
-    note("轉帳筆數用貪婪法壓到「欠最多的先還給該收最多的」，人數 N 最多 N−1 筆。嚴格的最少筆數是 NP-hard，這裡不保證絕對最少，但實務上幾乎都是最好的解。"),
+    note("轉帳筆數用貪婪法壓到「欠最多的先還給該收最多的」, 人數 N 最多 N−1 筆。嚴格的最少筆數是 NP-hard, 這裡不保證絕對最少, 但實務上幾乎都是最好的解。"),
   ));
 
   renderAll();

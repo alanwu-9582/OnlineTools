@@ -1,7 +1,7 @@
 // js/utils/utils.js — 共用小工具與 DOM 輔助函式。
 
 /* ---------------- 圖示 ---------------- */
-// 直接內嵌 SVG（用 currentColor 上色），不額外抓檔案，也避免 mask URL 的相對路徑問題。
+// 直接內嵌 SVG（用 currentColor 上色）, 不額外抓檔案, 也避免 mask URL 的相對路徑問題。
 const ICON_PATHS = {
   home: '<path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V20h13V9.5"></path><path d="M9.5 20v-6h5v6"></path>',
   book: '<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H19v18H5.5A1.5 1.5 0 0 1 4 19.5z"></path><path d="M4 17h15"></path><path d="M8 7.5h7"></path>',
@@ -40,12 +40,12 @@ export function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
-/** 正規化文字，供不分大小寫的比較使用。 */
+/** 正規化文字, 供不分大小寫的比較使用。 */
 export function normalizeText(value) {
   return String(value ?? "").trim().toLowerCase();
 }
 
-/** 取 JSON，失敗時給出清楚的訊息。 */
+/** 取 JSON, 失敗時給出清楚的訊息。 */
 export async function loadJSON(path) {
   const res = await fetch(path, { cache: "no-cache" });
   if (!res.ok) throw new Error(`載入失敗 (${res.status}): ${path}`);
@@ -81,7 +81,7 @@ export function formatDate(value) {
   return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())}`;
 }
 
-/** 解析 "YYYY/MM/DD" 之類的值成毫秒，失敗回傳 NaN。 */
+/** 解析 "YYYY/MM/DD" 之類的值成毫秒, 失敗回傳 NaN。 */
 function parseDate(value) {
   return Date.parse(String(value ?? "").replace(/\//g, "-"));
 }
@@ -127,20 +127,20 @@ export function queryTerms(query) {
 }
 
 /**
- * 轉義 text 之後，把命中的 terms 包上 <mark>，不分大小寫。
+ * 轉義 text 之後, 把命中的 terms 包上 <mark>, 不分大小寫。
  */
 export function highlightTerms(text, terms = []) {
   const raw = String(text ?? "");
   const list = terms.filter(Boolean);
   if (!raw || !list.length) return escapeHtml(raw);
   const pattern = list
-    // 長的排前面，避免互相蓋住。
+    // 長的排前面, 避免互相蓋住。
     .slice().sort((a, b) => b.length - a.length)
     .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
     .join("|");
   if (!pattern) return escapeHtml(raw);
   const re = new RegExp(`(${pattern})`, "gi");
-  // 有一個捕捉群組時，split() 會是「文字、命中、文字、命中…」交錯。
+  // 有一個捕捉群組時, split() 會是「文字、命中、文字、命中…」交錯。
   return raw
     .split(re)
     .map((piece, i) => (i % 2 === 1
@@ -153,7 +153,7 @@ export function highlightTerms(text, terms = []) {
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-/** 建立元素，可帶屬性與子節點。 */
+/** 建立元素, 可帶屬性與子節點。 */
 export function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {

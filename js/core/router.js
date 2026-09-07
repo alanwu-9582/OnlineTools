@@ -1,11 +1,11 @@
-// js/core/router.js — hash 路由: 只換掉 #page-outlet，側邊欄一直活著。
+// js/core/router.js — hash 路由: 只換掉 #page-outlet, 側邊欄一直活著。
 
 import { icon } from "../utils/utils.js";
 import { getSite } from "../services/data-service.js";
 
 /**
- * `kind` 會傳給列表頁，決定它要列工具還是教學文檔 ——
- * 兩個列表長得一樣，只差在資料的篩選條件。
+ * `kind` 會傳給列表頁, 決定它要列工具還是教學文檔 ——
+ * 兩個列表長得一樣, 只差在資料的篩選條件。
  */
 const ROUTES = {
   home: { fragment: "pages/home.html", module: "../pages/home.js", label: "首頁", icon: "home", nav: true },
@@ -31,7 +31,7 @@ export function routeTo(name, params = {}) {
   location.hash = buildHash(name, params);
 }
 
-/** 組出某個路由的 hash，空參數會被丟掉。 */
+/** 組出某個路由的 hash, 空參數會被丟掉。 */
 export function buildHash(name, params = {}) {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
@@ -43,8 +43,8 @@ export function buildHash(name, params = {}) {
 }
 
 /**
- * 只換掉目前路由的 query，不重新掛載頁面。
- * 列表頁用它把搜尋與篩選寫進網址，又不讓每個按鍵都塞進瀏覽紀錄。
+ * 只換掉目前路由的 query, 不重新掛載頁面。
+ * 列表頁用它把搜尋與篩選寫進網址, 又不讓每個按鍵都塞進瀏覽紀錄。
  */
 export function replaceParams(name, params = {}) {
   const hash = buildHash(name, params);
@@ -63,8 +63,8 @@ export function readRoute() {
 }
 
 /**
- * 沒有自己導覽項目的路由，要點亮哪一個。
- * 檢視頁依內容種類回到「工具」或「文檔」，所以要看 query 才知道。
+ * 沒有自己導覽項目的路由, 要點亮哪一個。
+ * 檢視頁依內容種類回到「工具」或「文檔」, 所以要看 query 才知道。
  */
 function navParent(routeState) {
   if (routeState.name !== "entry") return routeState.name;

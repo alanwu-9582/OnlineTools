@@ -1,13 +1,13 @@
 // js/tools/ig-template/zip.js — 最小可用的 ZIP 讀寫。零依賴。
 //
-// 為什麼自己寫: 模板要把「版面資料 + 素材圖 + 參考成品」放在同一個檔案裡，
+// 為什麼自己寫: 模板要把「版面資料 + 素材圖 + 參考成品」放在同一個檔案裡, 
 // ZIP 是唯一使用者手上一定有工具能打開來看、能自己改完再壓回去的格式。
 // 引一個 zip 函式庫進來就違反了整站「不外掛 JS 套件」的規則。
 //
-// 壓縮本身不用自己實作 —— CompressionStream("deflate-raw") 就是 DEFLATE，
+// 壓縮本身不用自己實作 —— CompressionStream("deflate-raw") 就是 DEFLATE, 
 // 瀏覽器原生。這裡只負責 CRC32 與那幾個 header 結構。
 //
-// 不支援 ZIP64（4 GB 以上、65535 筆以上）與加密。模板不會長那樣，
+// 不支援 ZIP64（4 GB 以上、65535 筆以上）與加密。模板不會長那樣, 
 // 真的遇到會明確報錯而不是靜靜讀出壞資料。
 
 const LOCAL_SIG = 0x04034b50;
@@ -15,7 +15,7 @@ const CENTRAL_SIG = 0x02014b50;
 const EOCD_SIG = 0x06054b50;
 const UTF8_FLAG = 0x0800;
 
-/** 固定的 DOS 時間戳（2026-01-01 00:00）。輸出要能重現，才 diff 得出來。 */
+/** 固定的 DOS 時間戳（2026-01-01 00:00）。輸出要能重現, 才 diff 得出來。 */
 const DOS_DATE = ((2026 - 1980) << 9) | (1 << 5) | 1;
 const DOS_TIME = 0;
 
@@ -48,8 +48,8 @@ const hasInflate = typeof DecompressionStream !== "undefined";
 
 async function pipe(bytes, stream) {
   const writer = stream.writable.getWriter();
-  // 不 await write()，只 await close() —— 對小資料 write 的 promise 可能要等
-  // 讀端開始抽才會 resolve，先 await 會直接卡死。
+  // 不 await write(), 只 await close() —— 對小資料 write 的 promise 可能要等
+  // 讀端開始抽才會 resolve, 先 await 會直接卡死。
   writer.write(bytes);
   const done = writer.close();
   const out = new Uint8Array(await new Response(stream.readable).arrayBuffer());
@@ -67,7 +67,7 @@ async function deflateRaw(bytes) {
 }
 
 async function inflateRaw(bytes) {
-  if (!hasInflate) throw new Error("這個瀏覽器不支援解壓縮（DecompressionStream），請改用未壓縮的 ZIP。");
+  if (!hasInflate) throw new Error("這個瀏覽器不支援解壓縮（DecompressionStream）, 請改用未壓縮的 ZIP。");
   return pipe(bytes, new DecompressionStream("deflate-raw"));
 }
 
@@ -82,7 +82,7 @@ export function looksLikeZip(buf) {
   return b.length >= 4 && b[0] === 0x50 && b[1] === 0x4b && b[2] === 0x03 && b[3] === 0x04;
 }
 
-/** 從尾巴往前找 EOCD。註解最長 65535，所以最多往前找 65557 個位元組。 */
+/** 從尾巴往前找 EOCD。註解最長 65535, 所以最多往前找 65557 個位元組。 */
 function findEocd(view, size) {
   const from = Math.max(0, size - 65557);
   for (let i = size - 22; i >= from; i -= 1) {
@@ -101,15 +101,15 @@ export async function readZip(buffer) {
   const bytes = new Uint8Array(buffer);
   const view = new DataView(buffer);
   const size = bytes.length;
-  if (size < 22) throw new Error("檔案太小，不是一個 ZIP。");
+  if (size < 22) throw new Error("檔案太小, 不是一個 ZIP。");
 
   const eocd = findEocd(view, size);
-  if (eocd < 0) throw new Error("找不到 ZIP 的結尾紀錄，檔案可能不完整或不是 ZIP。");
+  if (eocd < 0) throw new Error("找不到 ZIP 的結尾紀錄, 檔案可能不完整或不是 ZIP。");
 
   const count = view.getUint16(eocd + 10, true);
   const cdOffset = view.getUint32(eocd + 16, true);
   if (count === 0xffff || cdOffset === 0xffffffff) {
-    throw new Error("這是 ZIP64 格式，這個工具讀不了。");
+    throw new Error("這是 ZIP64 格式, 這個工具讀不了。");
   }
 
   const files = new Map();
@@ -132,10 +132,10 @@ export async function readZip(buffer) {
     const rawName = bytes.subarray(p + 46, p + 46 + nameLen);
     p += 46 + nameLen + extraLen + commentLen;
 
-    if (flags & 0x0001) throw new Error("ZIP 有加密，這個工具讀不了。");
+    if (flags & 0x0001) throw new Error("ZIP 有加密, 這個工具讀不了。");
 
     const name = decoder.decode(rawName);
-    // 目錄項目沒有內容，直接略過。
+    // 目錄項目沒有內容, 直接略過。
     if (name.endsWith("/")) continue;
     // 路徑穿越防護: 模板只該有相對路徑。
     if (name.startsWith("/") || name.includes("..")) {
@@ -161,7 +161,7 @@ export async function readZip(buffer) {
     if (data.length !== usize) {
       throw new Error(`「${name}」解出來的長度不對（${data.length} ≠ ${usize}）。`);
     }
-    if (crc32(data) !== crc) throw new Error(`「${name}」的 CRC 不符，檔案可能損壞。`);
+    if (crc32(data) !== crc) throw new Error(`「${name}」的 CRC 不符, 檔案可能損壞。`);
 
     files.set(name, data);
   }
@@ -173,7 +173,7 @@ export async function readZip(buffer) {
 /**
  * 打包成 ZIP。
  *
- * 每一筆都先試 DEFLATE，壓不小就退回 STORE —— JPEG／PNG 本來就壓過了，
+ * 每一筆都先試 DEFLATE, 壓不小就退回 STORE —— JPEG／PNG 本來就壓過了, 
  * 硬壓只會變大。JSON 跟 SVG 反而能小掉八成以上。
  *
  * @param {Array<{name:string, data:Uint8Array|string}>} entries

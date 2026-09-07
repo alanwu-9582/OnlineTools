@@ -1,14 +1,14 @@
-// tools/build-data.mjs — 掃描 content/**/*.md，產生
+// tools/build-data.mjs — 掃描 content/**/*.md, 產生
 // data/entries.json 與 data/search-index.json。
 //
 //   node tools/build-data.mjs          產生檔案
 //   node tools/build-data.mjs --check  只檢查、不寫檔（有落差時以非 0 結束）
 //
 // 設計原則: 
-//   1. 不動任何 .md 原始檔，只讀檔頭的 <!-- key: value --> 註解。
-//   2. id 依 path 沿用既有資料，避免既有連結失效。
+//   1. 不動任何 .md 原始檔, 只讀檔頭的 <!-- key: value --> 註解。
+//   2. id 依 path 沿用既有資料, 避免既有連結失效。
 //   3. 「最後更新」從 git 紀錄自動抓（不是 git 專案就退回發佈日期）。
-//   4. 內文裡的 <div data-tool="…"> 會被記下來，順便檢查工具模組存不存在。
+//   4. 內文裡的 <div data-tool="…"> 會被記下來, 順便檢查工具模組存不存在。
 //
 // 檔頭可用欄位: 
 //   title / description / category / tags / published time / cover / type
@@ -24,7 +24,7 @@ const TOOL_MODULE_DIR = path.join(ROOT, "js", "tools");
 const ENTRIES_JSON = path.join(ROOT, "data", "entries.json");
 const SITE_JSON = path.join(ROOT, "data", "site.json");
 const SEARCH_JSON = path.join(ROOT, "data", "search-index.json");
-/** 檔頭只寫檔名時，封面圖從這裡找。 */
+/** 檔頭只寫檔名時, 封面圖從這裡找。 */
 const COVER_BASE = "assets/images/covers";
 
 /** 頂層資料夾 → 內容種類。檔頭的 type 可以蓋過去。 */
@@ -37,7 +37,7 @@ const warn = (msg) => warnings.push(msg);
 
 /* ============================ 小工具 ============================ */
 
-/** 必須與 js/utils/utils.js 的 slugify() 完全一致，否則搜尋深連結會對不上。 */
+/** 必須與 js/utils/utils.js 的 slugify() 完全一致, 否則搜尋深連結會對不上。 */
 function slugify(value) {
   return String(value ?? "")
     .trim()
@@ -48,7 +48,7 @@ function slugify(value) {
     .replace(/^-|-$/g, "");
 }
 
-/** 去掉行內 Markdown 語法，取純文字（標題 slug 與全文索引都要用）。 */
+/** 去掉行內 Markdown 語法, 取純文字（標題 slug 與全文索引都要用）。 */
 function stripInline(text) {
   return String(text ?? "")
     .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")   // 圖片 → alt
@@ -137,8 +137,8 @@ function stripFrontmatter(source) {
 }
 
 /**
- * 內文裡出現過的工具 id，依出現順序、不重複。
- * 程式碼區塊裡的要跳過 —— 說明文件會把佔位當範例寫出來，那不是真的要掛工具。
+ * 內文裡出現過的工具 id, 依出現順序、不重複。
+ * 程式碼區塊裡的要跳過 —— 說明文件會把佔位當範例寫出來, 那不是真的要掛工具。
  */
 function extractToolIds(body) {
   const ids = [];
@@ -155,7 +155,7 @@ function extractToolIds(body) {
 }
 
 /**
- * 把正文切成 { headingId, heading, text } 區塊，搜尋結果才能直接跳到章節。
+ * 把正文切成 { headingId, heading, text } 區塊, 搜尋結果才能直接跳到章節。
  * 標題 id 的產生方式（含重複時補 -2、-3）必須與 js/utils/markdown.js 的
  * renderer.heading 一致。
  */
@@ -210,14 +210,14 @@ function extractBlocks(body) {
     .filter((b) => b.heading || b.text);
 }
 
-/** 中文以字數、英文以詞數估算閱讀時間（分鐘，最少 1）。 */
+/** 中文以字數、英文以詞數估算閱讀時間（分鐘, 最少 1）。 */
 function readingMinutes(plainText) {
   const cjk = (plainText.match(/[㐀-鿿豈-﫿]/g) || []).length;
   const words = (plainText.replace(/[㐀-鿿豈-﫿]/g, " ").match(/[A-Za-z0-9_.-]+/g) || []).length;
   return Math.max(1, Math.round(cjk / 350 + words / 200));
 }
 
-/** 封面: 完整路徑原樣用，只寫檔名就補上 assets/images/covers/。 */
+/** 封面: 完整路徑原樣用, 只寫檔名就補上 assets/images/covers/。 */
 function resolveCover(value) {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
@@ -239,11 +239,11 @@ function canonical(value, keys, kind, file) {
   if (!raw) return "";
   const hit = keys.find((k) => k.toLowerCase() === raw.toLowerCase());
   if (hit) return hit;
-  warn(`${file}: 未知的${kind}「${raw}」，請先加入 data/site.json`);
+  warn(`${file}: 未知的${kind}「${raw}」, 請先加入 data/site.json`);
   return raw;
 }
 
-/** description 常見的佔位字串，一律視為未填。 */
+/** description 常見的佔位字串, 一律視為未填。 */
 function cleanText(value) {
   const raw = String(value ?? "").trim();
   if (!raw || /^(nan|null|undefined|-)$/i.test(raw)) return "";
@@ -286,15 +286,15 @@ for (const file of walkMarkdown(CONTENT_DIR)) {
 
   const toolIds = extractToolIds(body);
   for (const id of toolIds) {
-    // 一個工具一個資料夾，進入點固定是 index.js。
+    // 一個工具一個資料夾, 進入點固定是 index.js。
     if (!existsSync(path.join(TOOL_MODULE_DIR, id, "index.js"))) {
       warn(`${rel}: 找不到工具模組 js/tools/${id}/index.js`);
     }
   }
 
-  // 種類: 檔頭最優先，其次看放在哪個資料夾，最後看內文有沒有工具。
+  // 種類: 檔頭最優先, 其次看放在哪個資料夾, 最後看內文有沒有工具。
   const declared = cleanText(meta.type).toLowerCase();
-  if (declared && !TYPES.has(declared)) warn(`${rel}: 未知的 type「${declared}」，只能是 tool 或 doc`);
+  if (declared && !TYPES.has(declared)) warn(`${rel}: 未知的 type「${declared}」, 只能是 tool 或 doc`);
   const type = TYPES.has(declared)
     ? declared
     : (FOLDER_TYPE[topFolder(rel)] || (toolIds.length ? "tool" : "doc"));
@@ -303,10 +303,10 @@ for (const file of walkMarkdown(CONTENT_DIR)) {
     warn(`${rel}: 標成 tool 但內文沒有任何 <div data-tool="…"></div>`);
   }
 
-  // id: 既有的優先沿用，其次用檔名，重複時補流水號。
+  // id: 既有的優先沿用, 其次用檔名, 重複時補流水號。
   let id = prior.id || slugify(path.basename(file, ".md"));
   if (usedIds.has(id)) {
-    warn(`${rel}: id「${id}」重複，已自動改名`);
+    warn(`${rel}: id「${id}」重複, 已自動改名`);
     let n = 2;
     while (usedIds.has(`${id}-${n}`)) n++;
     id = `${id}-${n}`;
@@ -322,8 +322,8 @@ for (const file of walkMarkdown(CONTENT_DIR)) {
   const blocks = extractBlocks(body);
   const plain = blocks.map((b) => `${b.heading} ${b.text}`).join(" ");
 
-  if (!description) warn(`${rel}: 沒有 description，列表會少一行說明`);
-  if (!publishedDate) warn(`${rel}: 沒有 published time，日期會留空`);
+  if (!description) warn(`${rel}: 沒有 description, 列表會少一行說明`);
+  if (!publishedDate) warn(`${rel}: 沒有 published time, 日期會留空`);
 
   entries.push({
     id,
@@ -370,7 +370,7 @@ if (existsSync(TOOL_MODULE_DIR)) {
     // 資料夾才是工具；kit.js 那種放在外面的是共用元件。
     if (!statSync(full).isDirectory()) continue;
     if (!existsSync(path.join(full, "index.js"))) {
-      warn(`js/tools/${entry}/: 少了 index.js，工具載不起來`);
+      warn(`js/tools/${entry}/: 少了 index.js, 工具載不起來`);
     } else if (!referenced.has(entry)) {
       warn(`js/tools/${entry}/: 沒有任何 .md 用到它`);
     }
@@ -393,10 +393,10 @@ for (const w of warnings) console.warn(`! ${w}`);
 
 if (CHECK_ONLY) {
   if (changed) {
-    console.error("x data/ 與 content/ 不同步，請執行: node tools/build-data.mjs");
+    console.error("x data/ 與 content/ 不同步, 請執行: node tools/build-data.mjs");
     process.exit(1);
   }
-  console.log(`v ${entries.length} 筆內容，資料已同步`);
+  console.log(`v ${entries.length} 筆內容, 資料已同步`);
 } else {
   writeFileSync(ENTRIES_JSON, entriesOut);
   writeFileSync(SEARCH_JSON, searchOut);

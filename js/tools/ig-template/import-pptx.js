@@ -5,34 +5,34 @@ const P_NS = "http://schemas.openxmlformats.org/presentationml/2006/main";
 const R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const PKG_REL_NS = "http://schemas.openxmlformats.org/package/2006/relationships";
 
-/** 1 英吋 = 914400 EMU，畫面 96 px/英吋 → 每 px 9525 EMU。 */
+/** 1 英吋 = 914400 EMU, 畫面 96 px/英吋 → 每 px 9525 EMU。 */
 const EMU_PER_PX = 9525;
-/** 字級是 1/100 pt，1 pt = 96/72 px。 */
+/** 字級是 1/100 pt, 1 pt = 96/72 px。 */
 const PT_TO_PX = 96 / 72;
 /** 旋轉是 1/60000 度。 */
 const ROT_PER_DEG = 60000;
 /**
  * <a:ln> 沒寫 w 的時候用的外框粗細（pt）。
- * DrawingML 的預設是 0（髮絲線），但 PowerPoint 的文字外框實際上是這個粗細，
+ * DrawingML 的預設是 0（髮絲線）, 但 PowerPoint 的文字外框實際上是這個粗細, 
  * 而且真的畫成 0 的話在 1080 的畫布上等於看不見。
  */
 const DEFAULT_OUTLINE_PT = 1;
 
-/** bodyPr 沒寫時的文字內縮（OOXML 的預設值），單位 EMU。 */
+/** bodyPr 沒寫時的文字內縮（OOXML 的預設值）, 單位 EMU。 */
 const DEFAULT_INSET = { l: 91440, r: 91440, t: 45720, b: 45720 };
 
-/** IG 的原生寬度。版面等比縮放到這個寬度，輸出解析度才夠。 */
+/** IG 的原生寬度。版面等比縮放到這個寬度, 輸出解析度才夠。 */
 const TARGET_WIDTH = 1080;
 /** IG 貼文／限動的標準高度（寬 1080 時）。差一兩個 px 就對齊到這些值。 */
 const IG_HEIGHTS = [566, 1080, 1350, 1920];
 
-/** 圖片面積佔畫布這個比例以上的，當成「要換的照片」；以下的當成素材（logo、圖示）。 */
+/** 圖片面積佔畫布這個比例以上的, 當成「要換的照片」；以下的當成素材（logo、圖示）。 */
 const PHOTO_AREA_RATIO = 0.15;
 
 const MEDIA_MIME = {
   png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif",
   svg: "image/svg+xml", webp: "image/webp", bmp: "image/bmp", tiff: "image/tiff",
-  emf: null, wmf: null,          // 向量中繼檔，瀏覽器畫不出來
+  emf: null, wmf: null,          // 向量中繼檔, 瀏覽器畫不出來
 };
 
 import { MAX_FONT_SIZE } from "./schema.js";
@@ -43,7 +43,7 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 /* ---------------- XML 小工具 ---------------- */
 
-/** 直接子元素，依 local name 找。 */
+/** 直接子元素, 依 local name 找。 */
 function kids(node, ns, name) {
   const out = [];
   for (const child of node?.children || []) {
@@ -62,7 +62,7 @@ const attr = (node, name, fallback = null) => (node?.hasAttribute(name) ? node.g
 
 /**
  * OOXML 的布林屬性可以寫 "1"／"0"／"true"／"false" —— 而且不同產生器各寫一種。
- * Canva 用的是 "true"，只比對 "1" 的話粗體、斜體、翻轉全都會被漏掉。
+ * Canva 用的是 "true", 只比對 "1" 的話粗體、斜體、翻轉全都會被漏掉。
  */
 const flag = (node, name) => {
   const v = attr(node, name);
@@ -126,7 +126,7 @@ function readColor(holder, theme, warnings, where) {
     const key = attr(scheme, "val", "");
     rgb = theme.get(key) || theme.get({ tx1: "dk1", tx2: "dk2", bg1: "lt1", bg2: "lt2" }[key]) || null;
     if (!rgb) {
-      warnings.push(`${where}: 認不出佈景主題色「${key}」，改用黑色。`);
+      warnings.push(`${where}: 認不出佈景主題色「${key}」, 改用黑色。`);
       rgb = "000000";
     }
   }
@@ -149,7 +149,7 @@ function readColor(holder, theme, warnings, where) {
 
   const alphaNode = kid(node, A_NS, "alpha");
   const alpha = alphaNode ? num(attr(alphaNode, "val", 100000)) / 100000 : 1;
-  // 模板裡的顏色統一是 hex，帶透明度就是 8 位。
+  // 模板裡的顏色統一是 hex, 帶透明度就是 8 位。
   return toHex({ r, g, b, a: alpha });
 }
 
@@ -168,14 +168,14 @@ function readTheme(files, warnings) {
       if (val) map.set(child.localName, val);
     }
   } catch (err) {
-    warnings.push(`讀不到佈景主題配色（${err.message}），schemeClr 的顏色會用黑色代替。`);
+    warnings.push(`讀不到佈景主題配色（${err.message}）, schemeClr 的顏色會用黑色代替。`);
   }
   return map;
 }
 
 /* ---------------- 幾何 ---------------- */
 
-/** 讀 a:xfrm。回傳的是「投影片座標的 EMU」，還沒套群組轉換。 */
+/** 讀 a:xfrm。回傳的是「投影片座標的 EMU」, 還沒套群組轉換。 */
 function readXfrm(node) {
   if (!node) return null;
   const off = kid(node, A_NS, "off");
@@ -193,8 +193,8 @@ function readXfrm(node) {
 /**
  * 群組的座標轉換: 子座標 → 父座標。
  *
- * 除了 chOff / chExt 的縮放，還要帶上群組自己的旋轉與旋轉中心 ——
- * Canva 很愛用「把一個橫的漸層整組轉 90 度」來做直式的壓暗，
+ * 除了 chOff / chExt 的縮放, 還要帶上群組自己的旋轉與旋轉中心 ——
+ * Canva 很愛用「把一個橫的漸層整組轉 90 度」來做直式的壓暗, 
  * 忽略旋轉的話那一層會躺著、而且位置整個跑掉。
  */
 function groupTransform(xfrm, node) {
@@ -218,9 +218,9 @@ function groupTransform(xfrm, node) {
 /**
  * 把一連串群組轉換套到一個方框上。
  *
- * 群組旋轉的處理: 方框的寬高不變，只把中心點繞群組中心轉過去，再把角度
- * 累加到圖層自己的 rotate 上 —— 我們的 rotate 就是繞圖層自己的中心轉，
- * 所以這樣拆剛好等價，不需要格式支援任意變換矩陣。
+ * 群組旋轉的處理: 方框的寬高不變, 只把中心點繞群組中心轉過去, 再把角度
+ * 累加到圖層自己的 rotate 上 —— 我們的 rotate 就是繞圖層自己的中心轉, 
+ * 所以這樣拆剛好等價, 不需要格式支援任意變換矩陣。
  *
  * @returns {{x:number, y:number, cx:number, cy:number, rot:number}}
  */
@@ -252,10 +252,10 @@ function readRadius(spPr, w, h, warnings, where) {
   const geom = kid(spPr, A_NS, "prstGeom");
   if (!geom) {
     // custGeom 是自訂路徑。矩形的那種（Canva 大部分的框都是）直接當矩形；
-    // 有曲線的畫不出來，要講清楚而不是默默變成方框。
+    // 有曲線的畫不出來, 要講清楚而不是默默變成方框。
     const custom = kid(spPr, A_NS, "custGeom");
     if (custom && /cubicBezTo|quadBezTo|arcTo/.test(custom.innerHTML || "")) {
-      warnings.push(`${where}: 原稿是自訂的曲線形狀，這裡只能畫成矩形。`);
+      warnings.push(`${where}: 原稿是自訂的曲線形狀, 這裡只能畫成矩形。`);
     }
     return 0;
   }
@@ -269,7 +269,7 @@ function readRadius(spPr, w, h, warnings, where) {
     const adj = num(fmla.replace(/^val\s+/, ""), 16667) / 100000;
     return clamp(adj, 0, 0.5) * shortest;
   }
-  warnings.push(`${where}: 形狀「${prst}」畫不出來，改用矩形。`);
+  warnings.push(`${where}: 形狀「${prst}」畫不出來, 改用矩形。`);
   return 0;
 }
 
@@ -292,7 +292,7 @@ function paragraphText(p) {
 /**
  * 讀一個文字框。
  *
- * 我們的格式是「一層一種樣式」，所以只取第一個 run 的字型設定；
+ * 我們的格式是「一層一種樣式」, 所以只取第一個 run 的字型設定；
  * 一層裡混了多種樣式的時候會講清楚它被統一了。
  */
 function readText(txBody, theme, warnings, where) {
@@ -314,21 +314,21 @@ function readText(txBody, theme, warnings, where) {
     if (fill) colors.add(readColor(fill, theme, [], where));
   }
   if (sizes.size > 1 || colors.size > 1) {
-    warnings.push(`${where}: 這一層裡有多種字級或顏色，已統一成第一段的設定。`);
+    warnings.push(`${where}: 這一層裡有多種字級或顏色, 已統一成第一段的設定。`);
   }
   const family = attr(descend(firstRun || txBody, A_NS, "latin"), "typeface", null);
   // 字型名稱本身就寫著 Italic 的時候（Canva 會內嵌「Roboto Bold Italics」
-  // 這種獨立的字重檔），斜體是烤在字型檔裡的，沒有東西掉，不用報。
+  // 這種獨立的字重檔）, 斜體是烤在字型檔裡的, 沒有東西掉, 不用報。
   if (flag(firstRun, "i") && !/italic|oblique/i.test(family || "")) {
-    warnings.push(`${where}: 斜體做不出來，已改成正體。`);
+    warnings.push(`${where}: 斜體做不出來, 已改成正體。`);
   }
   const vert = attr(bodyPr, "vert");
   if (vert && vert !== "horz") {
-    warnings.push(`${where}: 直排文字做不出來，已改成橫排（可以用圖層的 rotate 自己轉）。`);
+    warnings.push(`${where}: 直排文字做不出來, 已改成橫排（可以用圖層的 rotate 自己轉）。`);
   }
 
   // 文字外框（PowerPoint 的「文字外框」／Canva 的 text outline）。
-  // 藏在 rPr 底下的 <a:ln> 裡，跟形狀的框線是同一組結構。
+  // 藏在 rPr 底下的 <a:ln> 裡, 跟形狀的框線是同一組結構。
   let stroke = null;
   const ln = kid(firstRun, A_NS, "ln");
   if (ln && !kid(ln, A_NS, "noFill")) {
@@ -337,28 +337,28 @@ function readText(txBody, theme, warnings, where) {
     let color = readColor(solid, theme, warnings, where);
     if (!color && grad) {
       color = readColor(kid(kid(grad, A_NS, "gsLst"), A_NS, "gs"), theme, warnings, where);
-      warnings.push(`${where}: 文字外框是漸層的，只能取第一個顏色。`);
+      warnings.push(`${where}: 文字外框是漸層的, 只能取第一個顏色。`);
     }
     if (color) {
       const w = num(attr(ln, "w", 0));
       stroke = {
         color,
         widthPt: w ? w / EMU_PER_PX / PT_TO_PX : DEFAULT_OUTLINE_PT,
-        // .pptx 沒寫粗細的時候記一下，最後統一告訴使用者那是估的。
+        // .pptx 沒寫粗細的時候記一下, 最後統一告訴使用者那是估的。
         assumedWidth: !w,
       };
     }
   }
 
   const sz = num(attr(firstRun, "sz", 1800));
-  // normAutofit 表示原稿已經把字縮小塞進框裡，照它的比例走才會一樣大。
+  // normAutofit 表示原稿已經把字縮小塞進框裡, 照它的比例走才會一樣大。
   const autofit = kid(bodyPr, A_NS, "normAutofit");
   const fontScale = autofit ? num(attr(autofit, "fontScale", 100000)) / 100000 : 1;
 
   const lnSpcNode = descend(firstPPr || txBody, A_NS, "lnSpc");
   const lnPct = lnSpcNode ? kid(lnSpcNode, A_NS, "spcPct") : null;
-  // spcPts 是「固定行高幾點」而不是倍數。Canva 全部用這一種，
-  // 只認 spcPct 的話行距會全部變成預設值，多行的標題就對不上。
+  // spcPts 是「固定行高幾點」而不是倍數。Canva 全部用這一種, 
+  // 只認 spcPct 的話行距會全部變成預設值, 多行的標題就對不上。
   const lnPts = lnSpcNode ? kid(lnSpcNode, A_NS, "spcPts") : null;
   const spc = num(attr(firstRun, "spc", 0));
 
@@ -391,17 +391,17 @@ function readText(txBody, theme, warnings, where) {
 /**
  * 把 OOXML 的圖片裁切／擺放換算成我們的 fit + scale + dx/dy。
  *
- * 兩種寫法都要吃，而且方向剛好相反: 
+ * 兩種寫法都要吃, 而且方向剛好相反: 
  *
  *   a:srcRect            「只顯示原圖的這一塊」。正值 = 從那一邊切掉。
  *   a:stretch/a:fillRect 「把圖畫在方框的這個範圍」。負值 = 圖溢出方框外
  *                        （＝放大裁切）。Canva 用的是這一種。
  *
- * 兩者可以同時出現，所以統一成一組公式: 先由 srcRect 決定可見的原圖比例，
+ * 兩者可以同時出現, 所以統一成一組公式: 先由 srcRect 決定可見的原圖比例, 
  * 再由 fillRect 決定那一塊被畫到方框的哪個範圍。
  *
- * 我們的 fitPhoto 只做等比，所以寬高兩個方向推出來的縮放不一致時會回報 ——
- * 那是原稿把圖拉變形了，畫不出來。
+ * 我們的 fitPhoto 只做等比, 所以寬高兩個方向推出來的縮放不一致時會回報 ——
+ * 那是原稿把圖拉變形了, 畫不出來。
  */
 function cropToOffset({ src, fill }, rect, imgW, imgH, warnings, where) {
   const s1 = src || { l: 0, r: 0, t: 0, b: 0 };
@@ -412,13 +412,13 @@ function cropToOffset({ src, fill }, rect, imgW, imgH, warnings, where) {
   const fw = 1 - s1.l - s1.r;          // 可見的原圖寬度比例
   const fh = 1 - s1.t - s1.b;
   if (fw <= 0 || fh <= 0) {
-    warnings.push(`${where}: 裁切把整張圖都切掉了，已忽略裁切。`);
+    warnings.push(`${where}: 裁切把整張圖都切掉了, 已忽略裁切。`);
     return null;
   }
   const gw = 1 - f2.l - f2.r;          // 那一塊在方框裡佔的寬度比例
   const gh = 1 - f2.t - f2.b;
   if (gw <= 0 || gh <= 0) {
-    warnings.push(`${where}: 圖片的擺放範圍是空的，已忽略。`);
+    warnings.push(`${where}: 圖片的擺放範圍是空的, 已忽略。`);
     return null;
   }
 
@@ -429,9 +429,9 @@ function cropToOffset({ src, fill }, rect, imgW, imgH, warnings, where) {
   const sByH = H / imgH;
   const mismatch = Math.abs(sByW - sByH) / Math.max(sByW, sByH);
   if (mismatch > 0.02) {
-    warnings.push(`${where}: 原稿把圖片做了非等比的裁切或拉伸，這裡只能等比顯示，構圖會有一點差異。`);
+    warnings.push(`${where}: 原稿把圖片做了非等比的裁切或拉伸, 這裡只能等比顯示, 構圖會有一點差異。`);
   }
-  const s = Math.max(sByW, sByH);      // 取大的，寧可裁掉也不要露出底色
+  const s = Math.max(sByW, sByH);      // 取大的, 寧可裁掉也不要露出底色
   const shown = { w: imgW * s, h: imgH * s };
 
   const base = Math.max(rect.w / imgW, rect.h / imgH);   // fit: cover 的基準
@@ -479,23 +479,23 @@ const EOT_XOR = 0x10000000;
 /**
  * 從 .fntdata 取出真正的字型檔。
  *
- * .fntdata 是 EOT（Embedded OpenType）容器: 前面是一段標頭，字型本體就是
- * 最後 FontDataSize 個位元組。旗標沒有設壓縮／混淆的話，那一段直接就是
+ * .fntdata 是 EOT（Embedded OpenType）容器: 前面是一段標頭, 字型本體就是
+ * 最後 FontDataSize 個位元組。旗標沒有設壓縮／混淆的話, 那一段直接就是
  * 可以餵給 FontFace 的 TTF 或 OTF。
  */
 function unwrapFntdata(bytes, where, warnings) {
-  if (bytes.length < 84) { warnings.push(`${where}: 字型檔太小，已略過。`); return null; }
+  if (bytes.length < 84) { warnings.push(`${where}: 字型檔太小, 已略過。`); return null; }
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const eotSize = view.getUint32(0, true);
   const dataSize = view.getUint32(4, true);
   const flags = view.getUint32(12, true);
   if (view.getUint16(EOT_MAGIC_OFFSET, true) !== EOT_MAGIC) {
-    // 不是 EOT。有些工具會直接放原始的 TTF，那就照原樣用。
+    // 不是 EOT。有些工具會直接放原始的 TTF, 那就照原樣用。
     return sniffFont(bytes) ? bytes : null;
   }
   if (flags & EOT_COMPRESSED) {
-    warnings.push(`${where}: 字型是壓縮過的（MicroType Express），這個工具解不開。`
-      + "這種壓縮是 PowerPoint 重新存檔時加上的 —— 直接用 Canva 匯出的原始 .pptx 就不會有這個問題，"
+    warnings.push(`${where}: 字型是壓縮過的（MicroType Express）, 這個工具解不開。`
+      + "這種壓縮是 PowerPoint 重新存檔時加上的 —— 直接用 Canva 匯出的原始 .pptx 就不會有這個問題, "
       + "或是把字型檔自己放進標準模板的 fonts/ 裡。");
     return null;
   }
@@ -510,7 +510,7 @@ function unwrapFntdata(bytes, where, warnings) {
   return sniffFont(data) ? data : null;
 }
 
-/** 認一下這段位元組是不是字型，順便回報副檔名。 */
+/** 認一下這段位元組是不是字型, 順便回報副檔名。 */
 function sniffFont(bytes) {
   if (bytes.length < 4) return null;
   const tag = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
@@ -526,10 +526,10 @@ function sniffFont(bytes) {
 const fontFileName = (family) => String(family).replace(/[\/:*?"<>|]+/g, "-").trim();
 
 /**
- * 讀 p:embeddedFontLst，把用得到的字型抓出來。
+ * 讀 p:embeddedFontLst, 把用得到的字型抓出來。
  *
- * Canva 匯出的 .pptx **會**內嵌字型（saveSubsetFonts="1"），所以排版可以
- * 跟原稿一模一樣。不過它是「子集化」的 —— 只帶了原稿真的用到的字，
+ * Canva 匯出的 .pptx **會**內嵌字型（saveSubsetFonts="1"）, 所以排版可以
+ * 跟原稿一模一樣。不過它是「子集化」的 —— 只帶了原稿真的用到的字, 
  * 之後打新的字可能會掉回備援字型。
  *
  * @param {Set<string>} used  版面上真的用到的字型名稱
@@ -556,17 +556,17 @@ function readEmbeddedFonts(files, used, warnings) {
   for (const entry of list) {
     const family = attr(kid(entry, P_NS, "font"), "typeface", "");
     if (!family) continue;
-    // 只帶版面上用得到的，不然三套字型就多幾百 KB。
+    // 只帶版面上用得到的, 不然三套字型就多幾百 KB。
     if (used.size && !used.has(family)) continue;
 
-    // 一個字型可能有 regular / bold / italic / boldItalic 幾個檔，
-    // 我們的格式一層只有一個 family，所以取 regular（沒有就取第一個）。
+    // 一個字型可能有 regular / bold / italic / boldItalic 幾個檔, 
+    // 我們的格式一層只有一個 family, 所以取 regular（沒有就取第一個）。
     const pick = kid(entry, P_NS, "regular")
       || kid(entry, P_NS, "bold") || kid(entry, P_NS, "italic") || kid(entry, P_NS, "boldItalic");
     const relId = pick?.getAttributeNS(R_NS, "id");
     const target = relId ? rels.get(relId)?.path : null;
     if (!target || !files.has(target)) {
-      warnings.push(`字型「${family}」在 .pptx 裡標了內嵌，但找不到檔案，會用備援字型。`);
+      warnings.push(`字型「${family}」在 .pptx 裡標了內嵌, 但找不到檔案, 會用備援字型。`);
       continue;
     }
     const data = unwrapFntdata(files.get(target), `字型「${family}」`, warnings);
@@ -577,8 +577,8 @@ function readEmbeddedFonts(files, used, warnings) {
   }
 
   if (out.size && subsetted) {
-    warnings.push(`已從 .pptx 取出 ${out.size} 套內嵌字型（${[...out.keys()].map((k) => k.slice(6)).join("、")}），`
-      + "排版會跟原稿一致。要注意這些是子集化的字型，只含原稿用到的字 ——"
+    warnings.push(`已從 .pptx 取出 ${out.size} 套內嵌字型（${[...out.keys()].map((k) => k.slice(6)).join("、")}）, `
+      + "排版會跟原稿一致。要注意這些是子集化的字型, 只含原稿用到的字 ——"
       + "打進沒用過的字（例如把年份改成別的數字）可能會掉回系統字型。");
   }
   return out;
@@ -602,11 +602,11 @@ function slidePaths(files, warnings) {
     if (target && files.has(target)) out.push(target);
   }
   if (!out.length) {
-    // 沒有 rels 或對不上的時候，退回檔名排序。
+    // 沒有 rels 或對不上的時候, 退回檔名排序。
     const fallback = [...files.keys()]
       .filter((n) => /^ppt\/slides\/slide\d+\.xml$/.test(n))
       .sort((a, b) => num(a.match(/(\d+)/)[1]) - num(b.match(/(\d+)/)[1]));
-    if (fallback.length) warnings.push("讀不到投影片順序，改用檔名排序。");
+    if (fallback.length) warnings.push("讀不到投影片順序, 改用檔名排序。");
     return { paths: fallback, doc };
   }
   return { paths: out, doc };
@@ -629,7 +629,7 @@ export async function importPptx(files, { slide = 0 } = {}) {
   const index = clamp(Math.round(slide), 0, paths.length - 1);
   const slidePath = paths[index];
 
-  // 投影片尺寸 → 畫布。等比縮放到 IG 的原生寬度，輸出解析度才夠用。
+  // 投影片尺寸 → 畫布。等比縮放到 IG 的原生寬度, 輸出解析度才夠用。
   const sldSz = presentation.getElementsByTagNameNS(P_NS, "sldSz")[0];
   const slideWpx = num(attr(sldSz, "cx"), TARGET_WIDTH * EMU_PER_PX) / EMU_PER_PX;
   const slideHpx = num(attr(sldSz, "cy"), TARGET_WIDTH * EMU_PER_PX) / EMU_PER_PX;
@@ -638,12 +638,12 @@ export async function importPptx(files, { slide = 0 } = {}) {
   if (slideHpx * k > 4096) k = 4096 / slideHpx;
   const canvasW = Math.round(slideWpx * k);
   let canvasH = Math.round(slideHpx * k);
-  // Canva 的投影片高度常常差 IG 標準尺寸一兩個 px（例如 1349 而不是 1350），
-  // 那是它自己的 EMU 進位。差不到 1% 就對齊過去，上傳才不會被再壓一次。
+  // Canva 的投影片高度常常差 IG 標準尺寸一兩個 px（例如 1349 而不是 1350）, 
+  // 那是它自己的 EMU 進位。差不到 1% 就對齊過去, 上傳才不會被再壓一次。
   const snapped = IG_HEIGHTS.find((h) => Math.abs(h - canvasH) / h <= 0.01);
   if (snapped && snapped !== canvasH) canvasH = snapped;
   if (Math.abs(k - 1) > 0.001) {
-    warnings.push(`原稿是 ${Math.round(slideWpx)} × ${Math.round(slideHpx)}，已等比放大／縮小到 ${canvasW} × ${canvasH}（IG 的原生寬度是 1080）。`);
+    warnings.push(`原稿是 ${Math.round(slideWpx)} × ${Math.round(slideHpx)}, 已等比放大／縮小到 ${canvasW} × ${canvasH}（IG 的原生寬度是 1080）。`);
   }
 
   /** EMU → 我們的畫布 px。 */
@@ -672,7 +672,7 @@ export async function importPptx(files, { slide = 0 } = {}) {
     return id;
   };
 
-  /** 元素的顯示名稱，圖層面板會用到。 */
+  /** 元素的顯示名稱, 圖層面板會用到。 */
   const nameOf = (node) => attr(descend(node, P_NS, "cNvPr"), "name", "") || "";
 
   function pushRect(id, label, rect, spPr, radius) {
@@ -684,7 +684,7 @@ export async function importPptx(files, { slide = 0 } = {}) {
       id, type: "rect", label,
       rect,
       radius: Math.round(radius * 10) / 10,
-      // 匯入的色塊都是裝飾。鎖起來，它們才不會擋住上面真正要編輯的文字。
+      // 匯入的色塊都是裝飾。鎖起來, 它們才不會擋住上面真正要編輯的文字。
       locked: true,
       color: "#000000",
     };
@@ -705,7 +705,7 @@ export async function importPptx(files, { slide = 0 } = {}) {
         };
         layer.color = stops[0].color;
         if (stops.length > 2) {
-          warnings.push(`${label}: 漸層有 ${stops.length} 個色停點，只保留頭尾兩個。`);
+          warnings.push(`${label}: 漸層有 ${stops.length} 個色停點, 只保留頭尾兩個。`);
         }
       } else {
         return false;
@@ -734,12 +734,12 @@ export async function importPptx(files, { slide = 0 } = {}) {
       if (kind === "graphicFrame") {
         const uri = attr(descend(child, A_NS, "graphicData"), "uri", "");
         const what = uri.includes("/table") ? "表格" : uri.includes("/chart") ? "圖表" : "內嵌物件";
-        warnings.push(`「${nameOf(child) || what}」是${what}，讀不進來，已略過。在 Canva 裡把它當成圖片匯出就可以了。`);
+        warnings.push(`「${nameOf(child) || what}」是${what}, 讀不進來, 已略過。在 Canva 裡把它當成圖片匯出就可以了。`);
         continue;
       }
 
       if (kind === "cxnSp") {
-        warnings.push(`「${nameOf(child) || "連接線"}」是線條，讀不進來，已略過。畫成細長的矩形就可以。`);
+        warnings.push(`「${nameOf(child) || "連接線"}」是線條, 讀不進來, 已略過。畫成細長的矩形就可以。`);
         continue;
       }
 
@@ -749,15 +749,15 @@ export async function importPptx(files, { slide = 0 } = {}) {
       const raw = readXfrm(kid(spPr, A_NS, "xfrm"));
       const label = nameOf(child) || (kind === "pic" ? "圖片" : "元素");
       if (!raw) {
-        warnings.push(`「${label}」沒有自己的位置資訊（是版面配置的佔位框），讀不進來，已略過。`);
+        warnings.push(`「${label}」沒有自己的位置資訊（是版面配置的佔位框）, 讀不進來, 已略過。`);
         continue;
       }
       if (raw.flipH || raw.flipV) {
-        warnings.push(`「${label}」在原稿裡被翻轉過，這個做不出來，已用未翻轉的樣子。`);
+        warnings.push(`「${label}」在原稿裡被翻轉過, 這個做不出來, 已用未翻轉的樣子。`);
       }
 
       const box = applyTransforms(raw, stack);
-      // 圖層自己的旋轉，加上外層群組轉過來的角度。
+      // 圖層自己的旋轉, 加上外層群組轉過來的角度。
       const totalRot = raw.rot + box.rot;
       const rect = {
         x: Math.round(toPx(box.x) * 10) / 10,
@@ -768,7 +768,7 @@ export async function importPptx(files, { slide = 0 } = {}) {
       const rotate = Math.round(((totalRot % 360) + 360) % 360 * 100) / 100;
       const radius = readRadius(spPr, rect.w, rect.h, warnings, label);
 
-      // 圖片有兩種寫法: <p:pic>，或是一個 <p:sp> 用 <a:blipFill> 填圖。
+      // 圖片有兩種寫法: <p:pic>, 或是一個 <p:sp> 用 <a:blipFill> 填圖。
       // Canva 的照片框、logo 全部是後者 —— 只認 p:pic 的話整張照片會消失。
       const blipFill = kid(spPr, A_NS, "blipFill") || kid(child, P_NS, "blipFill");
       if (blipFill) {
@@ -776,13 +776,13 @@ export async function importPptx(files, { slide = 0 } = {}) {
         const relId = blip?.getAttributeNS(R_NS, "embed");
         const target = relId ? rels.get(relId) : null;
         if (!target?.path || !files.has(target.path)) {
-          warnings.push(`「${label}」的圖片檔在 .pptx 裡找不到，已略過。`);
+          warnings.push(`「${label}」的圖片檔在 .pptx 裡找不到, 已略過。`);
           continue;
         }
         const ext = target.path.split(".").pop().toLowerCase();
         const type = MEDIA_MIME[ext];
         if (!type) {
-          warnings.push(`「${label}」是 .${ext} 格式的圖，瀏覽器畫不出來，已略過。請在原稿裡改成 PNG 或 JPG。`);
+          warnings.push(`「${label}」是 .${ext} 格式的圖, 瀏覽器畫不出來, 已略過。請在原稿裡改成 PNG 或 JPG。`);
           continue;
         }
 
@@ -790,8 +790,8 @@ export async function importPptx(files, { slide = 0 } = {}) {
         const assetPath = `assets/${id}.${ext}`;
         assets.set(assetPath, { bytes: files.get(target.path), type });
 
-        // 面積夠大的當「要換的照片」，小的當素材（logo、圖示）。
-        // 這只是預設值 —— 兩種都點得到、都換得掉，差別只在匯出時
+        // 面積夠大的當「要換的照片」, 小的當素材（logo、圖示）。
+        // 這只是預設值 —— 兩種都點得到、都換得掉, 差別只在匯出時
         // 「不含我放的照片」會不會把它拿掉。
         const areaRatio = (rect.w * rect.h) / (canvasW * canvasH);
         const layer = {
@@ -806,15 +806,15 @@ export async function importPptx(files, { slide = 0 } = {}) {
           src: readEdges(descend(blipFill, A_NS, "srcRect")),
           fill: readEdges(descend(kid(blipFill, A_NS, "stretch"), A_NS, "fillRect")),
         };
-        // 裁切要換算成 scale / dx / dy，那得知道圖片的原始尺寸 ——
-        // 等 spTree 走完再一次量完，不要在遞迴裡穿插 await。
+        // 裁切要換算成 scale / dx / dy, 那得知道圖片的原始尺寸 ——
+        // 等 spTree 走完再一次量完, 不要在遞迴裡穿插 await。
         pictures.push({ layer, assetPath, crop, label });
         layers.push(layer);
         continue;
       }
 
-      // p:sp —— 可能同時有填色與文字。我們一層只能有一種，所以拆成兩層: 
-      // 底下一個 rect，上面一個 text。這樣外觀才留得住。
+      // p:sp —— 可能同時有填色與文字。我們一層只能有一種, 所以拆成兩層: 
+      // 底下一個 rect, 上面一個 text。這樣外觀才留得住。
       const txBody = kid(child, P_NS, "txBody");
       const style = txBody ? readText(txBody, theme, warnings, label) : null;
 
@@ -828,7 +828,7 @@ export async function importPptx(files, { slide = 0 } = {}) {
         const inset = style.inset;
         const layer = {
           id, type: "text", label,
-          // bodyPr 的內縮要吃掉，不然文字會比原稿往左上偏。
+          // bodyPr 的內縮要吃掉, 不然文字會比原稿往左上偏。
           rect: {
             x: Math.round((rect.x + toPx(inset.l)) * 10) / 10,
             y: Math.round((rect.y + toPx(inset.t)) * 10) / 10,
@@ -850,7 +850,7 @@ export async function importPptx(files, { slide = 0 } = {}) {
         if (style.stroke) {
           layer.stroke = {
             color: style.stroke.color,
-            // pt → px，再乘上版面正規化的比例。
+            // pt → px, 再乘上版面正規化的比例。
             width: Math.round(style.stroke.widthPt * PT_TO_PX * k * 100) / 100,
           };
           if (style.stroke.assumedWidth) assumedStrokes.push(label);
@@ -869,34 +869,34 @@ export async function importPptx(files, { slide = 0 } = {}) {
     throw new Error(`第 ${index + 1} 頁沒有任何讀得進來的元素。`);
   }
 
-  // 圖片的原始尺寸: 換算裁切，順便檢查方框比例對不對得上。
+  // 圖片的原始尺寸: 換算裁切, 順便檢查方框比例對不對得上。
   await Promise.all(pictures.map(async ({ layer, assetPath, crop, label }) => {
     const asset = assets.get(assetPath);
     const size = await measureImage(asset.bytes, asset.type);
     if (!size || !size.w || !size.h) {
-      warnings.push(`「${label}」的圖片量不到尺寸，裁切與縮放會用預設值。`);
+      warnings.push(`「${label}」的圖片量不到尺寸, 裁切與縮放會用預設值。`);
       return;
     }
     const fixed = cropToOffset(crop, layer.rect, size.w, size.h, warnings, label);
     if (fixed) { Object.assign(layer, fixed); return; }
-    // 沒有裁切、但方框跟圖片的長寬比不一樣: 原稿是把圖拉變形塞進框裡，
-    // 我們只做等比，所以會變成裁切。差得多的時候要講。
+    // 沒有裁切、但方框跟圖片的長寬比不一樣: 原稿是把圖拉變形塞進框裡, 
+    // 我們只做等比, 所以會變成裁切。差得多的時候要講。
     const boxRatio = layer.rect.w / layer.rect.h;
     const imgRatio = size.w / size.h;
     const off = Math.abs(boxRatio - imgRatio) / Math.max(boxRatio, imgRatio);
     if (off > 0.08) {
-      warnings.push(`「${label}」的框是 ${boxRatio.toFixed(2)}:1、圖片是 ${imgRatio.toFixed(2)}:1，`
-        + "原稿把它拉變形了。這裡改成等比填滿（會裁到邊），拖曳可以調整要露出哪一塊。");
+      warnings.push(`「${label}」的框是 ${boxRatio.toFixed(2)}:1、圖片是 ${imgRatio.toFixed(2)}:1, `
+        + "原稿把它拉變形了。這裡改成等比填滿（會裁到邊）, 拖曳可以調整要露出哪一塊。");
     }
   }));
 
   if (assumedStrokes.length) {
-    warnings.push(`${assumedStrokes.join("、")} 有文字外框，但 .pptx 裡沒有記錄外框的粗細 ——`
-      + `原稿的設計工具沒有把它寫進檔案。這裡先用最細的 ${DEFAULT_OUTLINE_PT} pt，`
-      + "看起來太細的話點那一層，用工具列的「外框」把粗細調上去。");
+    warnings.push(`${assumedStrokes.join("、")} 有文字外框, 但 .pptx 裡沒有記錄外框的粗細 ——`
+      + `原稿的設計工具沒有把它寫進檔案。這裡先用最細的 ${DEFAULT_OUTLINE_PT} pt, `
+      + "看起來太細的話點那一層, 用工具列的「外框」把粗細調上去。");
   }
 
-  // 內嵌字型。Canva 會把用到的字型一起塞進 .pptx，抓出來排版才會跟原稿一樣。
+  // 內嵌字型。Canva 會把用到的字型一起塞進 .pptx, 抓出來排版才會跟原稿一樣。
   const embedded = readEmbeddedFonts(files, fonts, warnings);
   for (const [path, asset] of embedded) assets.set(path, asset);
 
@@ -906,11 +906,11 @@ export async function importPptx(files, { slide = 0 } = {}) {
     && !embedded.has(`fonts/${fontFileName(f)}.woff2`));
   if (missingFonts.length) {
     warnings.push(`這些字型沒有內嵌在 .pptx 裡: ${missingFonts.join("、")}。`
-      + "現在是用系統上找得到的替代字型排版。要一模一樣的話，把字型檔（.woff2 / .ttf）"
-      + "放進標準模板的 fonts/ 裡，檔名就是字型名稱。");
+      + "現在是用系統上找得到的替代字型排版。要一模一樣的話, 把字型檔（.woff2 / .ttf）"
+      + "放進標準模板的 fonts/ 裡, 檔名就是字型名稱。");
   }
   if (paths.length > 1) {
-    warnings.push(`這份檔案有 ${paths.length} 頁，目前顯示第 ${index + 1} 頁。上面的「頁面」可以換。`);
+    warnings.push(`這份檔案有 ${paths.length} 頁, 目前顯示第 ${index + 1} 頁。上面的「頁面」可以換。`);
   }
 
   return {

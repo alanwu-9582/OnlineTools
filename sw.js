@@ -2,22 +2,22 @@
 //
 // 策略刻意偏向「拿到最新的」: 
 //
-//   同源的所有東西  → 先走網路，失敗才用快取
-//   圖片            → 先用快取（圖片只會新增，不會就地改內容）
+//   同源的所有東西  → 先走網路, 失敗才用快取
+//   圖片            → 先用快取（圖片只會新增, 不會就地改內容）
 //   CDN 函式庫      → 先用快取（網址都鎖了版本）
 //
-// 如果程式碼也先走快取，改過的工具或修好的 bug 就要等第二次造訪才看得到。
+// 如果程式碼也先走快取, 改過的工具或修好的 bug 就要等第二次造訪才看得到。
 // 有網路的人一律拿到目前的檔案；快取只是為了完全沒網路的時候。
 //
-// 改動下面的 SHELL 清單時，記得把 CACHE_VERSION 往上加一版，舊快取才會被丟掉。
+// 改動下面的 SHELL 清單時, 記得把 CACHE_VERSION 往上加一版, 舊快取才會被丟掉。
 
-const CACHE_VERSION = "onlinetools-v21";
+const CACHE_VERSION = "onlinetools-v27";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
 const KEEP = new Set([SHELL_CACHE, ASSET_CACHE, CDN_CACHE]);
 
-/** 預先快取，讓第一次離線造訪也還能開得起來。 */
+/** 預先快取, 讓第一次離線造訪也還能開得起來。 */
 const SHELL = [
   "./",
   "index.html",
@@ -49,7 +49,7 @@ const SHELL = [
   "js/utils/search.js",
   "js/utils/markdown.js",
   "js/utils/clipboard.js",
-  // 工具模組與它們自己的樣式都是動態載入的，沒先快取起來，
+  // 工具模組與它們自己的樣式都是動態載入的, 沒先快取起來, 
   // 離線時工具會變成錯誤訊息。加新工具時這裡要一起補。
   "js/tools/kit.js",
   "js/tools/svg.js",
@@ -84,6 +84,21 @@ const SHELL = [
   "js/tools/ig-template/color.js",
   "js/tools/ig-template/import-pptx.js",
   "js/tools/ig-template/ig-template.css",
+  "js/tools/rail-map/index.js",
+  "js/tools/rail-map/geo.js",
+  "js/tools/rail-map/network.js",
+  "js/tools/rail-map/source.js",
+  "js/tools/rail-map/layout.js",
+  "js/tools/rail-map/render.js",
+  "js/tools/rail-map/rail-map.css",
+  "data/rail-network.json",
+  "js/tools/credit-master/index.js",
+  "js/tools/credit-master/curriculum.js",
+  "js/tools/credit-master/grades.js",
+  "js/tools/credit-master/storage.js",
+  "js/tools/credit-master/credit-master.css",
+  "data/ntut-curriculum.json",
+  "data/ntut-courses.json",
   "assets/templates/index.json",
   "assets/templates/basic/template.json",
   "assets/templates/basic/preview.jpg",
@@ -119,7 +134,7 @@ self.addEventListener("activate", (event) => {
   })());
 });
 
-/** 走網路，順手留一份；網路不通時再拿出來用。 */
+/** 走網路, 順手留一份；網路不通時再拿出來用。 */
 async function networkFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   try {
@@ -137,7 +152,7 @@ async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
   if (cached) {
-    // 背景更新，不讓這次請求等它。
+    // 背景更新, 不讓這次請求等它。
     fetch(request).then((r) => { if (r.ok) cache.put(request, r.clone()); }).catch(() => {});
     return cached;
   }
@@ -162,7 +177,7 @@ self.addEventListener("fetch", (event) => {
   }
   if (url.origin !== self.location.origin) return;
 
-  // 圖片檔案大，而且都是「新增一張」而不是就地改掉，快取那份永遠是對的。
+  // 圖片檔案大, 而且都是「新增一張」而不是就地改掉, 快取那份永遠是對的。
   if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(url.pathname)) {
     event.respondWith(cacheFirst(request, ASSET_CACHE));
     return;
@@ -171,7 +186,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith((async () => {
     const cacheName = url.pathname.includes("/assets/") ? ASSET_CACHE : SHELL_CACHE;
     const response = await networkFirst(request, cacheName);
-    // 整個 miss 掉的導覽請求，至少要落到一個能用的頁面。
+    // 整個 miss 掉的導覽請求, 至少要落到一個能用的頁面。
     if (response.type === "error" && request.mode === "navigate") {
       const shell = await caches.match("index.html");
       if (shell) return shell;

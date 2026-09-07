@@ -1,7 +1,7 @@
-// js/pages/entry.js — 渲染單筆內容（工具或教學文檔），附大綱與捲動定位。
+// js/pages/entry.js — 渲染單筆內容（工具或教學文檔）, 附大綱與捲動定位。
 //
 // 工具與文檔走的是同一條路: 都是 Markdown。差別只在工具的 .md 內文裡
-// 放了 <div data-tool="…"></div>，渲染完之後由 tool-host 換成真的工具。
+// 放了 <div data-tool="…"></div>, 渲染完之後由 tool-host 換成真的工具。
 
 import {
   $, el, icon, escapeHtml, formatDate, relativeDate, readingLabel, loadText,
@@ -17,7 +17,7 @@ import { enableLightbox } from "../ui/lightbox.js";
 import { notify } from "../ui/notifications.js";
 import { buildHash, replaceParams } from "../core/router.js";
 
-/** 回列表的目的地，跟著內容的種類走。 */
+/** 回列表的目的地, 跟著內容的種類走。 */
 const BACK = {
   tool: { hash: "#/tools", label: "返回工具列表" },
   doc: { hash: "#/docs", label: "返回文檔列表" },
@@ -45,7 +45,7 @@ export async function mountPage({ params }) {
     if (!doc) {
       header.replaceChildren();
       content.innerHTML =
-        `<div class="banner banner-danger" role="alert">找不到這筆內容（id: ${escapeHtml(id || "")}）。它可能已經移除，請<a href="#/tools">回到工具列表</a>看看其他的。</div>`;
+        `<div class="banner banner-danger" role="alert">找不到這筆內容（id: ${escapeHtml(id || "")}）。它可能已經移除, 請<a href="#/tools">回到工具列表</a>看看其他的。</div>`;
       if (outlineAside) outlineAside.hidden = true;
       return null;
     }
@@ -54,8 +54,8 @@ export async function mountPage({ params }) {
     document.title = `${doc.title} · ${site.title || "OnlineTools"}`;
     renderHeader(header, doc, config);
 
-    // 函式庫與 Markdown 原始檔同時抓。CDN 被擋或離線時，內容還是得送到讀者眼前，
-    // 所以退而顯示未排版的原始文字，而不是整片空白。
+    // 函式庫與 Markdown 原始檔同時抓。CDN 被擋或離線時, 內容還是得送到讀者眼前, 
+    // 所以退而顯示未排版的原始文字, 而不是整片空白。
     const [libs, md] = await Promise.all([
       loadMarkdownLibs().then(() => true, (err) => { console.warn(err); return false; }),
       loadText(doc.path),
@@ -64,13 +64,13 @@ export async function mountPage({ params }) {
 
     if (!libs) {
       content.innerHTML =
-        '<div class="banner banner-warning" role="alert">排版元件載入失敗（可能是離線或網路被擋），以下顯示未排版的原始內容。</div>'
+        '<div class="banner banner-warning" role="alert">排版元件載入失敗（可能是離線或網路被擋）, 以下顯示未排版的原始內容。</div>'
         + `<pre class="code-block"><code>${escapeHtml(source)}</code></pre>`;
       if (outlineAside) outlineAside.hidden = true;
     } else {
       content.innerHTML = renderMarkdown(source);
-      // 內文的加工要在掛工具之前跑完。KaTeX 會把整個容器裡的 $…$ 當成數學式，
-      // 掛好的工具如果剛好輸出了金錢符號，就會被吃掉。這時候佔位還是空的，很安全。
+      // 內文的加工要在掛工具之前跑完。KaTeX 會把整個容器裡的 $…$ 當成數學式, 
+      // 掛好的工具如果剛好輸出了金錢符號, 就會被吃掉。這時候佔位還是空的, 很安全。
       await enhanceMarkdown(content);
       addCopyButtons(content);
       teardown.push(enableLightbox(content));
@@ -122,7 +122,7 @@ function renderHeader(host, doc, config) {
       class: "doc-date",
       datetime: doc.publishedDate,
       title: `發佈於 ${formatDate(doc.publishedDate)}`
-        + (doc.updatedDate && doc.updatedDate !== doc.publishedDate ? `，更新於 ${formatDate(doc.updatedDate)}` : ""),
+        + (doc.updatedDate && doc.updatedDate !== doc.publishedDate ? `, 更新於 ${formatDate(doc.updatedDate)}` : ""),
     }, `${formatDate(doc.publishedDate)} · ${relativeDate(doc.updatedDate || doc.publishedDate)}更新`),
     readingLabel(doc.readingMinutes)
       ? el("span", { class: "doc-readtime" }, readingLabel(doc.readingMinutes))
@@ -155,7 +155,7 @@ function addHeadingAnchors(content, doc) {
           await navigator.clipboard.writeText(url);
           notify.success("已複製章節連結");
         } catch {
-          notify.warning("無法複製，請手動從網址列取得連結");
+          notify.warning("無法複製, 請手動從網址列取得連結");
         }
         replaceParams("entry", { id: doc.id, from: doc.type, h: node.id });
       },
@@ -166,7 +166,7 @@ function addHeadingAnchors(content, doc) {
 
 /**
  * 進站時直接跳到某一節（分享連結或搜尋命中）。
- * 這時圖片還在載，第一次跳會落在偏上的位置，等下方圖片都有高度後要再校正一次。
+ * 這時圖片還在載, 第一次跳會落在偏上的位置, 等下方圖片都有高度後要再校正一次。
  */
 function scrollToHeading(headingId, content) {
   const node = document.getElementById(headingId);
@@ -174,7 +174,7 @@ function scrollToHeading(headingId, content) {
 
   let cancelled = false;
   const align = () => { if (!cancelled) node.scrollIntoView({ behavior: "auto", block: "start" }); };
-  // 瀏覽器自己也會在 load 後還原捲動位置，所以每個可能移動目標的時機都重新對齊: 
+  // 瀏覽器自己也會在 load 後還原捲動位置, 所以每個可能移動目標的時機都重新對齊: 
   // 下一個影格、window load、以及每張圖片載完。
   const stop = () => { cancelled = true; };
   for (const evt of ["wheel", "touchstart", "keydown"]) {
@@ -249,7 +249,7 @@ function neighbourLink(doc, dir) {
 
 /* ---------------- 閱讀進度 ---------------- */
 
-/** 視窗頂端的細條，顯示目前讀到內文的哪裡。 */
+/** 視窗頂端的細條, 顯示目前讀到內文的哪裡。 */
 function trackReadingProgress(content) {
   const bar = $("#read-progress");
   if (!bar || !content) return null;
@@ -271,7 +271,7 @@ function trackReadingProgress(content) {
   };
 }
 
-/* 大綱編號: 六層，隨著層級加深在「純數字」與「括號」之間交替 ——
+/* 大綱編號: 六層, 隨著層級加深在「純數字」與「括號」之間交替 ——
    1. → (1). → A. → (A). → a. → (a). */
 const TIER_FORMATTERS = [
   (n) => `${n}.`,
@@ -282,7 +282,7 @@ const TIER_FORMATTERS = [
   (n) => `(${letterLabel(n)}).`,
 ];
 
-/** 1 → a、2 → b、…、27 → aa（試算表式編號，深層清單也不會用完）。 */
+/** 1 → a、2 → b、…、27 → aa（試算表式編號, 深層清單也不會用完）。 */
 function letterLabel(n) {
   let out = "";
   let value = n;
@@ -294,14 +294,14 @@ function letterLabel(n) {
 }
 
 /**
- * 給每個標題一個階層編號。計數器是依「巢狀深度」而不是原始標題層級，
- * 所以就算內文跳級（h2 → h4）也能編得乾淨，而且每一層在換父節點時會重新從 1 開始。
+ * 給每個標題一個階層編號。計數器是依「巢狀深度」而不是原始標題層級, 
+ * 所以就算內文跳級（h2 → h4）也能編得乾淨, 而且每一層在換父節點時會重新從 1 開始。
  */
 function numberOutline(items) {
   const openLevels = [];
   const counts = [];
   return items.map((item) => {
-    // 只收掉「更深」的層級（嚴格大於）。同層的兄弟必須沿用同一個計數器，
+    // 只收掉「更深」的層級（嚴格大於）。同層的兄弟必須沿用同一個計數器, 
     // 才會往下數而不是重新從 1 開始。
     while (openLevels.length && openLevels[openLevels.length - 1] > item.level) {
       openLevels.pop();

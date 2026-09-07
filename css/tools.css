@@ -1,8 +1,8 @@
 /* css/tools.css — 內文裡的工具區塊。
-   顏色一律走 theme.css 的變數，這裡不寫死任何色碼。 */
+   顏色一律走 theme.css 的變數, 這裡不寫死任何色碼。 */
 
 /* ================= 佔位與外框 ================= */
-/* 工具是內文的一部分，所以外距跟段落、程式碼區塊對齊。 */
+/* 工具是內文的一部分, 所以外距跟段落、程式碼區塊對齊。 */
 .doc-content .tool-slot {
   margin: 18px 0 22px;
 }
@@ -29,21 +29,21 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--cffy-theme-surface-a0);
-  /* 內文是 15.5px／1.75，工具是操作介面，收緊一點才不會鬆散。 */
+  /* 內文是 15.5px／1.75, 工具是操作介面, 收緊一點才不會鬆散。 */
   font-size: var(--text-body);
   line-height: 1.5;
 }
 
-/* 一排裡的欄位平分寬度，放不下就換行。 */
+/* 一排裡的欄位平分寬度, 放不下就換行。 */
 .tool-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 14px 12px;
   align-items: start;
 }
-/* display: grid 會蓋掉 UA 的 [hidden] { display: none }，所以要自己補回來。 */
+/* display: grid 會蓋掉 UA 的 [hidden] { display: none }, 所以要自己補回來。 */
 .tool-row[hidden], .tool-field[hidden], .tool-actions[hidden], .tool-out[hidden] { display: none; }
-/* 同一排的欄位共用「標籤／控制項／說明」三條列軌，
+/* 同一排的欄位共用「標籤／控制項／說明」三條列軌, 
    有說明文字的欄位就不會把自己的輸入框往上頂 —— 一排的輸入框一定切齊。 */
 @supports (grid-template-rows: subgrid) {
   .tool-row > .tool-field {
@@ -72,7 +72,7 @@
 .tool-panel > .tool-subhead:first-child { border-top: none; margin-top: 0; padding-top: 0; }
 
 /* ================= 欄位 ================= */
-/* 三列: 標籤、控制項、說明。沒有說明時第三列高度是 0，不佔位。 */
+/* 三列: 標籤、控制項、說明。沒有說明時第三列高度是 0, 不佔位。 */
 .tool-field {
   display: grid;
   grid-template-rows: auto auto auto;
@@ -94,7 +94,7 @@
   color: var(--text-dim);
 }
 
-/* 內文的 .doc-content 有自己的 input 樣式，這裡要蓋過去。 */
+/* 內文的 .doc-content 有自己的 input 樣式, 這裡要蓋過去。 */
 .doc-content .tool-input,
 .doc-content .tool-textarea,
 .tool-input,
@@ -115,7 +115,7 @@ select.tool-input { cursor: pointer; }
 .is-mono, .doc-content .is-mono {
   font-family: var(--font-mono);
   font-size: 13.5px;
-  /* 數字對齊，換算結果一列一列看下來才不會跳。 */
+  /* 數字對齊, 換算結果一列一列看下來才不會跳。 */
   font-variant-numeric: tabular-nums;
 }
 .tool-input:focus, .tool-textarea:focus {
@@ -215,7 +215,7 @@ select.tool-input { cursor: pointer; }
   background: color-mix(in srgb, var(--success) 14%, transparent);
 }
 
-/* 工具掛在 .doc-content 底下，內文的 `p { margin-bottom: 16px }` specificity 比較高，
+/* 工具掛在 .doc-content 底下, 內文的 `p { margin-bottom: 16px }` specificity 比較高, 
    要蓋掉就得同樣帶上 .doc-content。下面的 li 與 checkbox 也是同一個原因。 */
 .doc-content .tool-status,
 .tool-status {
@@ -252,14 +252,14 @@ select.tool-input { cursor: pointer; }
 }
 
 @media (pointer: coarse) {
-  .tool-copy, .tool-seg { min-height: var(--hit-min); }
+  .tool-copy, .tool-seg, .tool-flag { min-height: var(--hit-min); }
 }
 
 .tool-flag {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 10px;
+  gap: 0;
+  padding: 2px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--card-bg);
@@ -268,16 +268,27 @@ select.tool-input { cursor: pointer; }
   color: var(--text-muted);
   cursor: pointer;
 }
-.tool-flag:hover { color: var(--text); border-color: var(--cffy-theme-surface-a40); }
-.tool-flag:has(.tool-check:checked) {
-  color: var(--interactive);
-  border-color: color-mix(in srgb, var(--primary) 60%, transparent);
-  background: var(--surface-selected);
+.tool-flag > span {
+  padding: 5px 12px;
+  border-radius: var(--radius-xs);
+  transition: background var(--duration-fast) var(--easing-standard),
+              color var(--duration-fast) var(--easing-standard);
+}
+.tool-flag:hover > span { color: var(--text); }
+.tool-flag:has(.tool-check:checked) > span {
+  color: var(--on-primary);
+  background: var(--primary);
+}
+.tool-flag:has(.tool-check:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
 }
 .doc-content .tool-flag .tool-check,
 .tool-check {
-  width: auto;
+  position: absolute;
+  width: 1px;
+  height: 1px;
   margin: 0;
-  accent-color: var(--primary);
-  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
 }

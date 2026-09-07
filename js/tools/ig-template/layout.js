@@ -7,13 +7,13 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const CJK = /[⺀-鿿぀-ヿ㇀-㇯＀-￯ -〿]/;
 
 /** 不能出現在行首的字: 標點被推到下一行的開頭很難看。 */
-const NO_LINE_START = "、。，．！？；: ）］｝」』〕〉》”’·ー―…‥%,.!?;:)]}»";
+const NO_LINE_START = "、。, ．！？；: ）］｝」』〕〉》”’·ー―…‥%,.!?;:)]}»";
 /** 不能出現在行尾的字: 開括號黏在行尾同樣不對。 */
 const NO_LINE_END = "（［｛「『〔〈《“‘([{«";
 
 /**
  * 把一段文字切成「可以斷行的最小單位」。
- * 中日韓一個字一個單位；拉丁字母要整個詞一起走，而且把前導空白帶上，
+ * 中日韓一個字一個單位；拉丁字母要整個詞一起走, 而且把前導空白帶上, 
  * 這樣量寬度時空白才算進去。
  */
 function tokenize(text) {
@@ -34,7 +34,7 @@ function tokenize(text) {
   return tokens;
 }
 
-/** 單獨一個 token 就比整行還寬（超長英文字）的時候，只能硬切。 */
+/** 單獨一個 token 就比整行還寬（超長英文字）的時候, 只能硬切。 */
 function hardBreak(ctx, token, maxWidth) {
   const pieces = [];
   let piece = "";
@@ -66,7 +66,7 @@ export function wrapText(ctx, text, maxWidth) {
 
     for (const token of tokenize(paragraph)) {
       if (!line.length && ctx.measureText(token).width > maxWidth) {
-        // 行首就塞不下這一個 token，硬切。
+        // 行首就塞不下這一個 token, 硬切。
         const pieces = hardBreak(ctx, token, maxWidth);
         out.push(...pieces.slice(0, -1));
         line = [pieces[pieces.length - 1] || ""];
@@ -75,25 +75,25 @@ export function wrapText(ctx, text, maxWidth) {
       if (line.length && widthOf([...line, token]) > maxWidth) {
         // 禁則處理必須在折行的當下做。做法是「追い出し」: 把不該落在
         // 行首的標點連同前一個字一起推到下一行 —— 而不是讓它掛在行尾。
-        // 掛在行尾會讓那一行比行寬還長，文字被切掉就白做了。
+        // 掛在行尾會讓那一行比行寬還長, 文字被切掉就白做了。
         const carry = [token];
 
         const wantsPullDown = token.length === 1 && NO_LINE_START.includes(token);
         const endsWithOpener = () => line.length > 1
           && NO_LINE_END.includes(line[line.length - 1].slice(-1));
 
-        // 只有在推下來之後仍然放得進一行的時候才推，不然會沒完沒了。
+        // 只有在推下來之後仍然放得進一行的時候才推, 不然會沒完沒了。
         if (wantsPullDown && line.length > 1 && widthOf([line[line.length - 1], ...carry]) <= maxWidth) {
           carry.unshift(line.pop());
         }
-        // 開括號不能留在行尾，連它一起帶下去。
+        // 開括號不能留在行尾, 連它一起帶下去。
         while (endsWithOpener() && widthOf([line[line.length - 1], ...carry]) <= maxWidth) {
           carry.unshift(line.pop());
         }
 
         flush();
         carry[0] = carry[0].trimStart();
-        // 換到新的一行之後，carry 本身可能就比一行還寬（很長的英文字），
+        // 換到新的一行之後, carry 本身可能就比一行還寬（很長的英文字）, 
         // 這裡要立刻再硬切一次 —— 迴圈開頭那個檢查只管得到 line 是空的時候。
         if (carry.length === 1 && ctx.measureText(carry[0]).width > maxWidth) {
           const pieces = hardBreak(ctx, carry[0], maxWidth);
@@ -114,21 +114,21 @@ export function wrapText(ctx, text, maxWidth) {
 /** 把圖層的字型設定套到 ctx 上。 */
 export function applyFont(ctx, font, size = font.size) {
   ctx.font = `${font.weight} ${size}px ${font.family}`;
-  // letterSpacing 是比較新的 API，沒有就當成 0，只影響字距不影響能不能用。
+  // letterSpacing 是比較新的 API, 沒有就當成 0, 只影響字距不影響能不能用。
   if ("letterSpacing" in ctx) ctx.letterSpacing = `${font.letterSpacing || 0}px`;
 }
 
 /**
  * 算出一個文字圖層要用多大的字、折成哪幾行。
  *
- * autoShrink 開著的話會從設定的字級往下找，直到高度塞得進框裡 ——
- * IG 標題最常出事就是字打太多，與其溢出去不如自動縮。
+ * autoShrink 開著的話會從設定的字級往下找, 直到高度塞得進框裡 ——
+ * IG 標題最常出事就是字打太多, 與其溢出去不如自動縮。
  *
  * @returns {{lines:string[], size:number, total:number, shrunk:boolean, overflow:boolean}}
  */
 export function layoutText(ctx, layer) {
   const { rect, font } = layer;
-  // 下限不能大於基準字級，不然迴圈一次都不會跑，等於 autoShrink 沒作用。
+  // 下限不能大於基準字級, 不然迴圈一次都不會跑, 等於 autoShrink 沒作用。
   const floor = Math.min(font.size, Math.max(8, Math.round(font.size * 0.45)));
 
   const measure = (size) => {
@@ -166,7 +166,7 @@ export function fitPhoto({ imgW, imgH, box, fit, scale = 1, dx = 0, dy = 0 }) {
   let x = box.x + (box.w - w) / 2 + dx;
   let y = box.y + (box.h - h) / 2 + dy;
 
-  // cover 的時候不讓框邊露出底色 —— 拖過頭會看到白邊，那絕對不是使用者要的。
+  // cover 的時候不讓框邊露出底色 —— 拖過頭會看到白邊, 那絕對不是使用者要的。
   if (fit === "cover") {
     x = w >= box.w ? clamp(x, box.x + box.w - w, box.x) : box.x + (box.w - w) / 2;
     y = h >= box.h ? clamp(y, box.y + box.h - h, box.y) : box.y + (box.h - h) / 2;
@@ -176,7 +176,7 @@ export function fitPhoto({ imgW, imgH, box, fit, scale = 1, dx = 0, dy = 0 }) {
 
 /**
  * 反推: 拖曳之後的位移要夾在什麼範圍內。
- * 給 UI 用，讓拖曳到底的時候滑桿也停在對應的位置。
+ * 給 UI 用, 讓拖曳到底的時候滑桿也停在對應的位置。
  */
 export function clampOffset({ imgW, imgH, box, fit, scale, dx, dy }) {
   if (fit !== "cover") return { dx, dy };

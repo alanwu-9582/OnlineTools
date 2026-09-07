@@ -11,7 +11,7 @@ renderNavigation();
 startRouter();
 registerServiceWorker();
 
-/** 側邊欄底部: 站名與幾個外部連結，資料同樣來自 site.json。 */
+/** 側邊欄底部: 站名與幾個外部連結, 資料同樣來自 site.json。 */
 getSite().then((site) => {
   const foot = document.getElementById("nav-foot");
   if (!foot) return;

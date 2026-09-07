@@ -1,6 +1,6 @@
-// js/pages/links.js — 其他工具: 外部工具網站的清單，可搜尋、可依分類篩選。
+// js/pages/links.js — 其他工具: 外部工具網站的清單, 可搜尋、可依分類篩選。
 //
-// 資料來自 data/links.json，全部手動維護 —— 這頁不是自動爬來的，
+// 資料來自 data/links.json, 全部手動維護 —— 這頁不是自動爬來的, 
 // 每一個都是真的用過才放上來。
 
 import { $, el, icon, escapeHtml, debounce, normalizeText, compareTitle } from "../utils/utils.js";
@@ -73,7 +73,7 @@ function render() {
     return;
   }
   if (!hits.length) {
-    body.appendChild(stateBlock("search", "沒有符合的結果", "換個關鍵字，或把分類篩選清掉。"));
+    body.appendChild(stateBlock("search", "沒有符合的結果", "換個關鍵字, 或把分類篩選清掉。"));
     return;
   }
 
@@ -131,7 +131,7 @@ function chip(label, active, color, onClick) {
   return btn;
 }
 
-/** 只顯示網域，卡片上才看得出要去哪裡。 */
+/** 只顯示網域, 卡片上才看得出要去哪裡。 */
 function hostOf(url) {
   try {
     return new URL(url).hostname.replace(/^www\./, "");

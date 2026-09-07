@@ -44,7 +44,7 @@
   border-radius: var(--radius);
   background: var(--card-bg);
 }
-/* 刪除鈕靠右，跟上面那排欄位底部對齊。 */
+/* 刪除鈕靠右, 跟上面那排欄位底部對齊。 */
 .sb-expense-head { display: flex; align-items: flex-end; gap: 10px; }
 .sb-expense-head > .tool-row { flex: 1 1 auto; min-width: 0; }
 .sb-remove {
@@ -81,7 +81,7 @@
   color: var(--text-muted);
 }
 .sb-participants { display: flex; flex-wrap: wrap; gap: 6px; }
-.sb-participant { padding: 4px 9px; font-size: var(--text-caption); }
+.sb-participant { font-size: var(--text-caption); }
 
 /* ---------- 結果 ---------- */
 .sb-balances {

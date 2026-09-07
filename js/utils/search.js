@@ -1,7 +1,7 @@
 // js/utils/search.js — 依關鍵字 + 類別 + 標籤過濾內容（工具與文檔共用）。
 //
 // 標題／描述／標籤這些 metadata 永遠會被搜到。當有帶入 data/search-index.json
-// 產生的全文索引時，內文也會被搜到，而且每個命中會記住是哪一節，
+// 產生的全文索引時, 內文也會被搜到, 而且每個命中會記住是哪一節, 
 // 結果就能直接連到那個標題。
 
 import { normalizeText } from "./utils.js";
@@ -17,12 +17,12 @@ export function searchableFields(doc) {
   ];
 }
 
-/** 產生摘要時，命中字詞前後各留幾個字。 */
+/** 產生摘要時, 命中字詞前後各留幾個字。 */
 const SNIPPET_PAD = 42;
 
 /**
- * 在 text 中，圍繞第一個命中的詞切出一段可讀的視窗。
- * 回傳原本的大小寫，highlight 是渲染時才做。
+ * 在 text 中, 圍繞第一個命中的詞切出一段可讀的視窗。
+ * 回傳原本的大小寫, highlight 是渲染時才做。
  */
 function snippetAround(text, terms) {
   const hay = text.toLowerCase();
@@ -69,10 +69,10 @@ function bestBlock(blocks, terms) {
  * @param {Array}  docs
  * @param {object} opts
  * @param {string} opts.query      自由搜尋；以空白分隔的每個詞都必須命中
- * @param {string} opts.category   單一類別 id，"" 代表全部
- * @param {string[]} opts.tags     必須全部具備的標籤（AND），[] 代表全部
+ * @param {string} opts.category   單一類別 id, "" 代表全部
+ * @param {string[]} opts.tags     必須全部具備的標籤（AND）, [] 代表全部
  * @param {Map<string, Array>} [opts.index]  以文章 id 為鍵的全文索引
- * @returns {Array} 命中的內容，可能帶有 `match` 欄位標示命中在內文的哪一節
+ * @returns {Array} 命中的內容, 可能帶有 `match` 欄位標示命中在內文的哪一節
  */
 export function filterEntries(docs, { query = "", category = "", tags = [], index = null } = {}) {
   const q = normalizeText(query);
@@ -95,7 +95,7 @@ export function filterEntries(docs, { query = "", category = "", tags = [], inde
       continue;
     }
 
-    // 關鍵字可能分散在標題與內文，所以先整篇比對，再找出最適合當摘要的那一節。
+    // 關鍵字可能分散在標題與內文, 所以先整篇比對, 再找出最適合當摘要的那一節。
     const full = `${meta} ${blocks.map((b) => `${b.h} ${b.t}`).join(" ")}`.toLowerCase();
     if (!terms.every((t) => full.includes(t))) continue;
 
