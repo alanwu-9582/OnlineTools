@@ -66,10 +66,6 @@
     "transit": {
       "label": "交通",
       "color": "#87d1ff"
-    },
-    "study": {
-      "label": "學習",
-      "color": "#ffbc5e"
     }
   }
 }

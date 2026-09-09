@@ -103,6 +103,13 @@
       "group": "design",
       "desc": "CC 授權設定網站。",
       "tags": ["設計", "素材"]
+    },
+    {
+      "name": "NTUTTools",
+      "url": "https://alanwu-9582.github.io/NTUTTools/",
+      "group": "learn",
+      "desc": "北科大工具網站, 提供各種前端工具。",
+      "tags": ["學習", "工具"]
     }
   ]
 }

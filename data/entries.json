@@ -1,23 +1,6 @@
 {
   "entries": [
     {
-      "id": "credit-master",
-      "type": "tool",
-      "title": "學分大師",
-      "description": "成績與畢業學分管理",
-      "path": "content/tools/credit-master.md",
-      "category": "life",
-      "tags": [
-        "study"
-      ],
-      "tools": [
-        "credit-master"
-      ],
-      "publishedDate": "2026/09/07",
-      "updatedDate": "2026/09/07",
-      "readingMinutes": 1
-    },
-    {
       "id": "rail-map",
       "type": "tool",
       "title": "臺灣鐵路路網圖",
@@ -31,7 +14,7 @@
         "rail-map"
       ],
       "publishedDate": "2026/09/06",
-      "updatedDate": "2026/09/06",
+      "updatedDate": "2026/09/07",
       "readingMinutes": 1
     },
     {
@@ -48,7 +31,7 @@
         "split-bill"
       ],
       "publishedDate": "2026/08/29",
-      "updatedDate": "2026/08/29",
+      "updatedDate": "2026/09/07",
       "readingMinutes": 1
     },
     {
@@ -65,7 +48,7 @@
         "ig-template"
       ],
       "publishedDate": "2026/08/29",
-      "updatedDate": "2026/09/03",
+      "updatedDate": "2026/09/07",
       "readingMinutes": 4
     },
     {
@@ -82,7 +65,7 @@
         "paper-bag"
       ],
       "publishedDate": "2026/08/28",
-      "updatedDate": "2026/09/03",
+      "updatedDate": "2026/09/07",
       "readingMinutes": 3
     },
     {
@@ -99,7 +82,7 @@
         "text-stats"
       ],
       "publishedDate": "2026/08/20",
-      "updatedDate": "2026/08/28",
+      "updatedDate": "2026/09/07",
       "readingMinutes": 1
     },
     {
@@ -113,7 +96,7 @@
         "meta"
       ],
       "publishedDate": "2026/08/19",
-      "updatedDate": "2026/09/03",
+      "updatedDate": "2026/09/07",
       "readingMinutes": 4
     },
     {
@@ -131,7 +114,7 @@
         "text-stats"
       ],
       "publishedDate": "2026/08/18",
-      "updatedDate": "2026/09/03",
+      "updatedDate": "2026/09/07",
       "readingMinutes": 2
     }
   ]

@@ -11,7 +11,7 @@
 //
 // 改動下面的 SHELL 清單時, 記得把 CACHE_VERSION 往上加一版, 舊快取才會被丟掉。
 
-const CACHE_VERSION = "onlinetools-v28";
+const CACHE_VERSION = "onlinetools-v29";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -93,13 +93,6 @@ const SHELL = [
   "js/tools/rail-map/gestures.js",
   "js/tools/rail-map/rail-map.css",
   "data/rail-network.json",
-  "js/tools/credit-master/index.js",
-  "js/tools/credit-master/curriculum.js",
-  "js/tools/credit-master/grades.js",
-  "js/tools/credit-master/storage.js",
-  "js/tools/credit-master/credit-master.css",
-  "data/ntut-curriculum.json",
-  "data/ntut-courses.json",
   "assets/templates/index.json",
   "assets/templates/basic/template.json",
   "assets/templates/basic/preview.jpg",
