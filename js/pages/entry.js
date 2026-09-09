@@ -242,7 +242,10 @@ function neighbourLink(doc, dir) {
     class: `doc-nav-link is-${dir}`,
     href: buildHash("entry", { id: doc.id, from: doc.type }),
   },
-    el("span", { class: "doc-nav-dir" }, dir === "prev" ? `← ${label}` : `${label} →`),
+    el("span", { class: "doc-nav-dir" },
+      dir === "prev" ? el("span", { class: "doc-nav-arrow is-prev", html: icon("arrowRight", { size: "13px" }) }) : null,
+      label,
+      dir === "next" ? el("span", { class: "doc-nav-arrow", html: icon("arrowRight", { size: "13px" }) }) : null),
     el("span", { class: "doc-nav-title" }, doc.title),
   );
 }

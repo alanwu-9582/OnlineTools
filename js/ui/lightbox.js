@@ -3,6 +3,8 @@
 // 截圖與示意圖在內文欄寬下常常看不清楚, 而手機上「在新分頁開啟圖片」
 // 又不是一般人會想到的操作。
 
+import { icon } from "../utils/utils.js";
+
 let overlay = null;
 
 function close() {
@@ -26,7 +28,7 @@ function open(src, caption) {
   overlay.setAttribute("aria-modal", "true");
   overlay.setAttribute("aria-label", caption || "圖片檢視");
   overlay.innerHTML = `
-    <button class="lightbox-close" type="button" aria-label="關閉圖片">×</button>
+    <button class="lightbox-close" type="button" aria-label="關閉圖片">${icon("x", { size: "18px" })}</button>
     <img class="lightbox-img" alt="">
     <div class="lightbox-cap"></div>
   `;

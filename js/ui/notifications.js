@@ -40,7 +40,7 @@ export function toast(message, type = "info", opts = {}) {
       ${title ? '<div class="toast-title"></div>' : ""}
       <div class="toast-msg"></div>
     </div>
-    <button class="toast-x" type="button" aria-label="關閉通知">×</button>
+    <button class="toast-x" type="button" aria-label="關閉通知">${icon("x", { size: "14px" })}</button>
   `;
   if (title) node.querySelector(".toast-title").textContent = title;
   node.querySelector(".toast-msg").textContent = message;

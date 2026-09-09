@@ -74,7 +74,7 @@ export function mount(host) {
         "aria-label": `移除 ${name}`,
         title: `移除 ${name}`,
         onclick: () => removeMember(name),
-      }, "×"),
+      }, el("span", { html: icon("x", { size: "13px" }) })),
     )));
     if (!members.length) {
       memberList.appendChild(el("span", { class: "sb-empty" }, "還沒有人"));
@@ -204,7 +204,7 @@ export function mount(host) {
 
     transferList.replaceChildren(...transfers.map((t) => el("div", { class: "sb-transfer" },
       el("span", { class: "sb-transfer-from" }, t.from),
-      el("span", { class: "sb-transfer-arrow" }, "→"),
+      el("span", { class: "sb-transfer-arrow", html: icon("arrowRight", { size: "15px" }) }),
       el("span", { class: "sb-transfer-to" }, t.to),
       el("span", { class: "sb-transfer-amount" }, fmt(t.amount)),
     )));

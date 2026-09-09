@@ -11,7 +11,7 @@
 //
 // 改動下面的 SHELL 清單時, 記得把 CACHE_VERSION 往上加一版, 舊快取才會被丟掉。
 
-const CACHE_VERSION = "onlinetools-v27";
+const CACHE_VERSION = "onlinetools-v28";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -90,6 +90,7 @@ const SHELL = [
   "js/tools/rail-map/source.js",
   "js/tools/rail-map/layout.js",
   "js/tools/rail-map/render.js",
+  "js/tools/rail-map/gestures.js",
   "js/tools/rail-map/rail-map.css",
   "data/rail-network.json",
   "js/tools/credit-master/index.js",
@@ -112,6 +113,26 @@ const SHELL = [
   "data/links.json",
   "data/search-index.json",
   "assets/images/icon.svg",
+  "assets/icons/airport.svg",
+  "assets/icons/alert.svg",
+  "assets/icons/arrow-right.svg",
+  "assets/icons/book.svg",
+  "assets/icons/check.svg",
+  "assets/icons/chevron-left.svg",
+  "assets/icons/copy.svg",
+  "assets/icons/external.svg",
+  "assets/icons/filter.svg",
+  "assets/icons/grid.svg",
+  "assets/icons/home.svg",
+  "assets/icons/info.svg",
+  "assets/icons/link.svg",
+  "assets/icons/lock.svg",
+  "assets/icons/menu.svg",
+  "assets/icons/pause.svg",
+  "assets/icons/play.svg",
+  "assets/icons/search.svg",
+  "assets/icons/tool.svg",
+  "assets/icons/x.svg",
 ];
 
 const CDN_HOSTS = new Set(["cdn.jsdelivr.net", "fonts.googleapis.com", "fonts.gstatic.com"]);

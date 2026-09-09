@@ -185,7 +185,11 @@ export async function mount(host) {
       el("span", { class: "cm-bar-fill", style: `width:${(ratio * 100).toFixed(1)}%` }));
   }
 
-  const flag = (met) => el("span", { class: met ? "cm-flag is-ok" : "cm-flag" }, met ? "✓" : "✕");
+  const flag = (met) => el("span", {
+    class: met ? "cm-flag is-ok" : "cm-flag",
+    "aria-label": met ? "已達成" : "未達成",
+    html: icon(met ? "check" : "x", { size: "14px" }),
+  });
 
   /* ============================ 總覽 ============================ */
 

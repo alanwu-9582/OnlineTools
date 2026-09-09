@@ -41,6 +41,7 @@ const priorityOf = (grade, lines, interchange) =>
 
 /** 只標真正的航廈／航空站, 避免把「機場旅館」也畫成機場。 */
 const AIRPORT_STOP = /^(松山機場|高雄國際機場|機場第一航廈|機場第二航廈|第一航廈|第二航廈)$/;
+const AIRPORT_ICON = new URL("../../../assets/icons/airport.svg", import.meta.url).href;
 
 /**
  * 兩站之間只用水平、垂直與 45° 斜線。端點仍是真實站位, 較長的軸留一小段
@@ -62,10 +63,21 @@ function topologySegment(a, b) {
 function pathData(path, view, topology) {
   const points = path.map(([x, y]) => toScreen(view, x, y));
   if (!points.length) return "";
-  let d = `M${points[0][0].toFixed(1)} ${points[0][1].toFixed(1)}`;
+  const routed = [points[0]];
   for (let i = 1; i < points.length; i++) {
-    const routed = topology ? topologySegment(points[i - 1], points[i]) : [points[i]];
-    for (const [x, y] of routed) d += `L${x.toFixed(1)} ${y.toFixed(1)}`;
+    routed.push(...(topology ? topologySegment(points[i - 1], points[i]) : [points[i]]));
+  }
+  let d = `M${routed[0][0].toFixed(1)} ${routed[0][1].toFixed(1)}`;
+  for (let i = 1; i < routed.length; i++) {
+    const point = routed[i], previous = routed[i - 1], next = routed[i + 1];
+    if (!topology || !next) { d += `L${point[0].toFixed(1)} ${point[1].toFixed(1)}`; continue; }
+    const before = Math.hypot(point[0] - previous[0], point[1] - previous[1]);
+    const after = Math.hypot(next[0] - point[0], next[1] - point[1]);
+    const radius = Math.min(8, before / 4, after / 4);
+    if (!radius) continue;
+    const entry = point.map((v, axis) => v + (previous[axis] - v) * radius / before);
+    const exit = point.map((v, axis) => v + (next[axis] - v) * radius / after);
+    d += `L${entry[0].toFixed(1)} ${entry[1].toFixed(1)}Q${point[0].toFixed(1)} ${point[1].toFixed(1)} ${exit[0].toFixed(1)} ${exit[1].toFixed(1)}`;
   }
   return d;
 }
@@ -224,13 +236,15 @@ export function drawMap(model) {
     if (airport) {
       const iconX = markX + halfWidth + 4;
       const iconY = markY - 7;
-      landmarkLayer.appendChild(s("g", {
+      landmarkLayer.appendChild(s("image", {
         class: "railmap-landmark is-airport",
-        transform: `translate(${iconX.toFixed(1)} ${iconY.toFixed(1)})`,
+        x: iconX.toFixed(1),
+        y: iconY.toFixed(1),
+        width: 14,
+        height: 14,
+        href: AIRPORT_ICON,
         "aria-label": "機場",
-      },
-      s("rect", { x: 0, y: 0, width: 14, height: 14, rx: 3 }),
-      s("text", { x: 7, y: 10.6, "text-anchor": "middle" }, "✈")));
+      }));
     }
 
     const badgeCodes = group.flatMap((station) => station.codes.map((code) => {
@@ -352,8 +366,7 @@ export function standalone(svg, host) {
     .railmap-stop.is-interchange { stroke: ${inkStrong}; }
     .railmap-transfer { fill: ${paper}; stroke: ${inkStrong}; stroke-width: 2.4; }
     .railmap-stop.is-selected, .railmap-transfer.is-selected { stroke: ${link}; }
-    .railmap-landmark rect { fill: ${inkStrong}; stroke: ${paper}; stroke-width: 1.5; }
-    .railmap-landmark text { fill: ${paper}; font: 700 10px "Segoe UI Symbol", sans-serif; }
+    .railmap-landmark { pointer-events: none; }
     .railmap-labels text {
       paint-order: stroke fill; fill: ${ink}; stroke: ${paper};
       stroke-width: 3.5; stroke-linejoin: round; font-weight: 500;

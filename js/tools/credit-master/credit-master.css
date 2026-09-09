@@ -75,7 +75,22 @@
 .cm-input tr.is-fail td:first-child { box-shadow: inset 3px 0 0 var(--critical); }
 .cm-input tr.is-fail { background: rgb(var(--rgb-danger) / 0.06); }
 
-.cm-score { width: 74px; max-width: 74px; }
+.cm-score {
+  width: 76px;
+  min-width: 76px;
+  max-width: 76px;
+  padding-inline: 10px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  appearance: textfield;
+}
+/* 平板瀏覽器的原生微調按鈕會蓋住兩位數分數；觸控輸入仍保留數字鍵盤。 */
+.cm-score::-webkit-inner-spin-button,
+.cm-score::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+}
 .cm-mark {
   margin-left: 4px;
   color: var(--warning);
@@ -100,7 +115,9 @@
 }
 
 .cm-flag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 1.2em;
   color: var(--critical);
   font-weight: 700;

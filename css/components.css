@@ -41,6 +41,36 @@
 .btn-ghost:hover { background: var(--card-bg-alt); }
 .btn-sm { padding: 6px 11px; font-size: 12.5px; }
 .btn .btn-ico { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.svg-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  background: currentColor;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.icon-home { -webkit-mask-image: url("../assets/icons/home.svg"); mask-image: url("../assets/icons/home.svg"); }
+.icon-book { -webkit-mask-image: url("../assets/icons/book.svg"); mask-image: url("../assets/icons/book.svg"); }
+.icon-search { -webkit-mask-image: url("../assets/icons/search.svg"); mask-image: url("../assets/icons/search.svg"); }
+.icon-filter { -webkit-mask-image: url("../assets/icons/filter.svg"); mask-image: url("../assets/icons/filter.svg"); }
+.icon-x { -webkit-mask-image: url("../assets/icons/x.svg"); mask-image: url("../assets/icons/x.svg"); }
+.icon-alert { -webkit-mask-image: url("../assets/icons/alert.svg"); mask-image: url("../assets/icons/alert.svg"); }
+.icon-check { -webkit-mask-image: url("../assets/icons/check.svg"); mask-image: url("../assets/icons/check.svg"); }
+.icon-info { -webkit-mask-image: url("../assets/icons/info.svg"); mask-image: url("../assets/icons/info.svg"); }
+.icon-link { -webkit-mask-image: url("../assets/icons/link.svg"); mask-image: url("../assets/icons/link.svg"); }
+.icon-copy { -webkit-mask-image: url("../assets/icons/copy.svg"); mask-image: url("../assets/icons/copy.svg"); }
+.icon-arrow-right { -webkit-mask-image: url("../assets/icons/arrow-right.svg"); mask-image: url("../assets/icons/arrow-right.svg"); }
+.icon-external { -webkit-mask-image: url("../assets/icons/external.svg"); mask-image: url("../assets/icons/external.svg"); }
+.icon-tool { -webkit-mask-image: url("../assets/icons/tool.svg"); mask-image: url("../assets/icons/tool.svg"); }
+.icon-grid { -webkit-mask-image: url("../assets/icons/grid.svg"); mask-image: url("../assets/icons/grid.svg"); }
+.icon-play { -webkit-mask-image: url("../assets/icons/play.svg"); mask-image: url("../assets/icons/play.svg"); }
+.icon-pause { -webkit-mask-image: url("../assets/icons/pause.svg"); mask-image: url("../assets/icons/pause.svg"); }
+.icon-lock { -webkit-mask-image: url("../assets/icons/lock.svg"); mask-image: url("../assets/icons/lock.svg"); }
+.icon-chevron-left { -webkit-mask-image: url("../assets/icons/chevron-left.svg"); mask-image: url("../assets/icons/chevron-left.svg"); }
+.icon-menu { -webkit-mask-image: url("../assets/icons/menu.svg"); mask-image: url("../assets/icons/menu.svg"); }
 .btn:disabled { color: var(--disabled); opacity: 0.65; cursor: not-allowed; }
 
 .icon-btn {
@@ -81,8 +111,8 @@ input[type="search"]::-webkit-search-cancel-button {
   width: 16px;
   height: 16px;
   background-color: var(--text-muted);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 7l10 10M17 7 7 17' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 7l10 10M17 7 7 17' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("../assets/icons/x.svg") center / contain no-repeat;
+  mask: url("../assets/icons/x.svg") center / contain no-repeat;
   cursor: pointer;
 }
 
@@ -102,7 +132,6 @@ input[type="search"]::-webkit-search-cancel-button {
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
-.badge-emoji { font-size: 13px; line-height: 1; }
 
 .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
 
@@ -231,7 +260,7 @@ input[type="search"]::-webkit-search-cancel-button {
   color: var(--text-muted);
 }
 .state-block .ico { opacity: 0.6; display: block; margin-bottom: 10px; }
-.state-block .ico svg { display: inline-block; }
+.state-block .ico .svg-icon { display: inline-block; }
 .state-block .st-title { font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .state-block .st-msg { font-size: 13px; }
 

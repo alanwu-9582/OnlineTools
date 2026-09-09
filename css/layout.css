@@ -97,7 +97,7 @@ textarea:focus-visible,
 }
 .sidebar-toggle:hover { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
 .sidebar-toggle:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
-.sidebar-toggle svg { transition: transform 0.18s ease; flex-shrink: 0; }
+.sidebar-toggle .svg-icon { transition: transform 0.18s ease; flex-shrink: 0; }
 
 /* brand 是連結, 但它讀起來是站名而不是可點文字, 所以退出全域連結色與底線。 */
 .brand {
@@ -183,7 +183,7 @@ textarea:focus-visible,
 
 /* ---------- 收合成圖示軌 ---------- */
 .side-nav.collapsed { width: 76px; padding-left: 10px; padding-right: 10px; }
-.side-nav.collapsed .sidebar-toggle svg { transform: rotate(180deg); }
+.side-nav.collapsed .sidebar-toggle .svg-icon { transform: rotate(180deg); }
 .side-nav.collapsed .brand { justify-content: center; padding: 0; gap: 0; }
 .side-nav.collapsed .brand-text { display: none; }
 .side-nav.collapsed .nav-link { justify-content: center; padding: 10px; }
@@ -217,7 +217,14 @@ textarea:focus-visible,
 .section-head:first-child { margin-top: 0; }
 .section-title { margin: 0; font-size: var(--text-section); font-weight: 800; }
 .section-desc { margin: 3px 0 0; font-size: var(--text-supporting); color: var(--text-muted); }
-.section-more { font-size: var(--text-supporting); font-weight: 700; color: var(--text-muted); }
+.section-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-supporting);
+  font-weight: 700;
+  color: var(--text-muted);
+}
 .section-more:hover { color: var(--interactive); text-decoration: none; }
 
 /* ---------- 窄螢幕: 頂欄 + 漢堡選單 ---------- */
@@ -248,10 +255,10 @@ textarea:focus-visible,
 
   .nav-menu-toggle { display: inline-flex; }
   .side-nav.menu-open .nav-menu-toggle { color: var(--text); background: var(--card-bg-alt); }
-  /* 漢堡在選單展開時變成關閉的叉。 */
-  .side-nav.menu-open .bar-top { transform: translateY(5px) rotate(45deg); }
-  .side-nav.menu-open .bar-mid { opacity: 0; }
-  .side-nav.menu-open .bar-bot { transform: translateY(-5px) rotate(-45deg); }
+  .side-nav.menu-open .nav-menu-toggle .svg-icon {
+    -webkit-mask-image: url("../assets/icons/x.svg");
+    mask-image: url("../assets/icons/x.svg");
+  }
 
   .nav-group {
     display: none;

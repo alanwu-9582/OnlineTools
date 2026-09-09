@@ -15,6 +15,8 @@ import {
 } from "./layout.js";
 import { drawMap, drawLabels, standalone, MAJOR_PRIORITY } from "./render.js";
 
+import { bindGestures } from "./gestures.js";
+
 export const styles = new URL("./rail-map.css", import.meta.url).href;
 
 export const meta = { title: "臺灣鐵路路網圖" };
@@ -58,15 +60,16 @@ export async function mount(host) {
   let frame = 0;
   let aborter = null;
   let currentRegion = REGIONS[0];
+  let pickMarks = [];
   let stationById = new Map();
   let transferByStation = new Map();
   // 使用者自己拖過、縮過之後, 就不要再因為視窗大小改變把畫面拉回去。
   let userMoved = false;
 
   /* ---------- 版面 ---------- */
-  const stage = el("div", { class: "railmap-stage", tabindex: "0" });
+  const stage = el("div", { class: "railmap-stage", tabindex: "0", "aria-label": "鐵路路網圖；方向鍵平移，加減鍵縮放，Escape 關閉車站資訊" });
   const legend = el("div", { class: "railmap-legend", hidden: true });
-  const detail = el("div", { class: "railmap-detail", hidden: true });
+  const detail = el("div", { class: "railmap-detail", hidden: true, "aria-live": "polite", "aria-label": "車站資訊" });
   const info = status();
 
   const searchInput = textInput({ placeholder: "找車站…", onInput: onSearch });
@@ -108,6 +111,7 @@ export async function mount(host) {
       legend,
       detail,
     ),
+    note("點選車站或站名查看資訊 · 單指拖曳 · 雙指縮放 · 滾輪縮放"),
     info,
     el("div", { class: "tool-actions" }, updateButton, downloadButton),
     note(
@@ -160,6 +164,7 @@ export async function mount(host) {
       network, view, width, height, visible, focusLine, selected,
     });
 
+    pickMarks = marks;
     const cutoff = LABEL_CUTOFF[size.label];
     if (Number.isFinite(cutoff)) {
       const wanted = marks.filter(
@@ -170,7 +175,6 @@ export async function mount(host) {
       });
       drawLabels(root, placed, size.font);
     }
-    root.addEventListener("click", onPick);
     stage.replaceChildren(root);
   }
 
@@ -179,6 +183,15 @@ export async function mount(host) {
   function onPick(event) {
     const node = event.target.closest("[data-station]");
     if (node) { select(stationById.get(node.dataset.station)); return; }
+    // 在密集站點中選最近的站，不讓重疊的透明點擊區遮住鄰站。
+    if (Number.isFinite(event.clientX)) {
+      const box = stage.getBoundingClientRect();
+      const x = event.clientX - box.left, y = event.clientY - box.top;
+      const radius = event.pointerType === "touch" ? 22 : 10;
+      const nearest = pickMarks.map((mark) => ({ mark, distance: Math.hypot(mark.x - x, mark.y - y) }))
+        .filter((hit) => hit.distance <= radius).sort((a, b) => a.distance - b.distance)[0];
+      if (nearest) { select(stationById.get(nearest.mark.id)); return; }
+    }
     const lineNode = event.target.closest("[data-line]");
     if (lineNode) { setFocus(focusLine === lineNode.dataset.line ? null : lineNode.dataset.line); return; }
     select(null);
@@ -203,7 +216,8 @@ export async function mount(host) {
       el("button", {
         type: "button", class: "railmap-detail-close", "aria-label": "關閉",
         onclick: () => select(null),
-      }, el("span", { html: icon("x", { size: "13px" }) })),
+      }, el("span", { html: icon("x", { size: "18px" }) })),
+      el("div", { class: "railmap-detail-kind" }, lines.length > 1 ? "轉乘車站" : "一般車站"),
       el("div", { class: "railmap-detail-name" }, displayName),
       nameEn ? el("div", { class: "railmap-detail-en" }, nameEn) : null,
       codes.length
@@ -324,23 +338,26 @@ export async function mount(host) {
 
   /* ---------- 拖曳與滾輪 ---------- */
 
-  let dragging = null;
-  stage.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0) return;
-    dragging = { x: event.clientX, y: event.clientY, tx: view.tx, ty: view.ty, moved: false };
-    try { stage.setPointerCapture(event.pointerId); } catch { /* 沒抓到就算了, 照樣能拖 */ }
+  const unbindGestures = bindGestures(stage, {
+    getView: () => view,
+    setView: (next) => { view = next; userMoved = true; schedule(); },
+    pick: onPick,
+    minScale: MIN_SCALE,
+    maxScale: MAX_SCALE,
   });
-  stage.addEventListener("pointermove", (event) => {
-    if (!dragging) return;
-    const dx = event.clientX - dragging.x;
-    const dy = event.clientY - dragging.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) { dragging.moved = true; userMoved = true; }
-    view = { ...view, tx: dragging.tx + dx, ty: dragging.ty + dy };
-    schedule();
+  stage.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") { select(null); return; }
+    if (event.key === "+" || event.key === "=") zoomBy(1.4);
+    else if (event.key === "-") zoomBy(1 / 1.4);
+    else {
+      const offset = { ArrowLeft: [40, 0], ArrowRight: [-40, 0], ArrowUp: [0, 40], ArrowDown: [0, -40] }[event.key];
+      if (!offset) return;
+      view = { ...view, tx: view.tx + offset[0], ty: view.ty + offset[1] };
+      userMoved = true;
+      schedule();
+    }
+    event.preventDefault();
   });
-  const endDrag = () => { dragging = null; };
-  stage.addEventListener("pointerup", endDrag);
-  stage.addEventListener("pointercancel", endDrag);
 
   stage.addEventListener("wheel", (event) => {
     event.preventDefault();
@@ -455,6 +472,7 @@ export async function mount(host) {
 
   /* ---------- 收拾 ---------- */
   return () => {
+    unbindGestures();
     observer.disconnect();
     if (frame) cancelAnimationFrame(frame);
     if (aborter) aborter.abort();

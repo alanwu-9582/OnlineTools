@@ -30,7 +30,7 @@ export async function mountPage({ routeTo }) {
         title: "工具",
         desc: "資料只會在本地瀏覽器。",
         moreHref: "#/tools",
-        moreLabel: "全部工具 →",
+        moreLabel: "全部工具",
         items: tools.slice(0, TOOL_COUNT),
         emptyTitle: "還沒有工具",
         emptyMsg: "把 .md 放進 content/tools/ 之後執行 node tools/build-data.mjs。",
@@ -42,7 +42,7 @@ export async function mountPage({ routeTo }) {
         title: "教學文檔",
         desc: "工具背後的原理與用法。",
         moreHref: "#/docs",
-        moreLabel: "全部文檔 →",
+        moreLabel: "全部文檔",
         items: docs.slice(0, DOC_COUNT),
         emptyTitle: "還沒有文檔",
         emptyMsg: "把 .md 放進 content/docs/ 之後執行 node tools/build-data.mjs。",
@@ -104,7 +104,8 @@ function listSection(cfg) {
       el("h2", { class: "section-title" }, cfg.title),
       el("p", { class: "section-desc" }, cfg.desc),
     ),
-    el("a", { class: "section-more", href: cfg.moreHref }, cfg.moreLabel),
+    el("a", { class: "section-more", href: cfg.moreHref },
+      cfg.moreLabel, el("span", { html: icon("arrowRight", { size: "13px" }) })),
   );
 
   if (!cfg.items.length) {
@@ -156,7 +157,8 @@ function linksSection(links) {
       el("h2", { class: "section-title" }, "其他工具"),
       el("p", { class: "section-desc" }, "還有一些他好用工具"),
     ),
-    el("a", { class: "section-more", href: "#/links" }, "全部連結 →"),
+    el("a", { class: "section-more", href: "#/links" },
+      "全部連結", el("span", { html: icon("arrowRight", { size: "13px" }) })),
   );
   const row = el("div", { class: "link-row" }, sites.slice(0, LINK_COUNT).map((site) => {
     const pill = el("a", {

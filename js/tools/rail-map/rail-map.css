@@ -34,7 +34,7 @@
   stroke-linejoin: round;
 }
 /* 底色墊在色帶下面, 交會處才看得出上下關係。 */
-.railmap-casing { stroke: var(--card-bg); }
+.railmap-casing { stroke: var(--map-paper); }
 
 .railmap-line.is-dim { opacity: 0.16; }
 
@@ -63,18 +63,7 @@
 
 /* ---------- 地標 ---------- */
 
-.railmap-landmark rect {
-  fill: var(--map-ink-strong);
-  stroke: var(--map-paper);
-  stroke-width: 1.5;
-}
-.railmap-landmark text {
-  fill: var(--map-paper);
-  font-family: "Segoe UI Symbol", sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  pointer-events: none;
-}
+.railmap-landmark { pointer-events: none; }
 
 /* ---------- 標籤 ---------- */
 
@@ -251,16 +240,22 @@
 
 .railmap-detail-close {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 6px;
+  right: 6px;
   display: inline-flex;
-  padding: 4px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  line-height: 1;
   border: 0;
   border-radius: 4px;
   background: none;
   color: var(--text-muted);
   cursor: pointer;
 }
+.railmap-detail-close > span { display: flex; align-items: center; justify-content: center; }
 .railmap-detail-close:hover { background: var(--card-bg-alt); }
 
 .railmap-detail-name { font-size: 15px; font-weight: 600; }
@@ -367,4 +362,21 @@
     width: auto;
   }
   .railmap-legend { max-height: 46%; }
+}
+
+/* 路網與控制項沿用網站的深色佈景。 */
+.railmap-svg { background: var(--map-paper); }
+.railmap-labels text[data-station] { pointer-events: auto; cursor: pointer; }
+.railmap-stop:hover, .railmap-transfer:hover { stroke: #0076b8; }
+.railmap-detail-kind { color: var(--text-muted); font-size: 11px; margin-bottom: 4px; }
+.railmap-detail-kind, .railmap-detail-name { padding-right: 36px; }
+.railmap-detail { max-height: 45%; overflow-y: auto; overscroll-behavior: contain; }
+.railmap-legend-toggle, .railmap-zoom { min-width: 44px; min-height: 44px; }
+.railmap-legend { top: calc(var(--space-2) + 48px); right: calc(var(--space-2) + 48px); }
+.railmap-detail-line, .railmap-legend-line, .railmap-result { min-height: 36px; }
+@media (pointer: coarse) {
+  .railmap-detail-close { width: 44px; height: 44px; top: 2px; right: 2px; }
+  .railmap-detail-kind, .railmap-detail-name { padding-right: 42px; }
+  .railmap-detail-line, .railmap-legend-line, .railmap-result { min-height: 44px; }
+  .railmap-stop { stroke-width: 2; }
 }

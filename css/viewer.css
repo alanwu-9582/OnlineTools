@@ -104,7 +104,15 @@
 /* 空的一格讓剩下的連結留在自己那一側。 */
 .doc-nav-link.is-empty { border-color: transparent; background: none; pointer-events: none; }
 .doc-nav-link.is-next { text-align: right; }
-.doc-nav-dir { font-size: var(--text-caption); font-weight: 700; color: var(--text-dim); }
+.doc-nav-dir {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.doc-nav-arrow.is-prev { transform: rotate(180deg); }
 .doc-nav-link:hover .doc-nav-dir { color: var(--interactive); }
 .doc-nav-title {
   font-size: var(--text-supporting);

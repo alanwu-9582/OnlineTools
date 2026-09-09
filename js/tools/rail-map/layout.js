@@ -218,15 +218,14 @@ export function topologizeNetwork(network) {
 /**
  * 貼標籤, 會擋到別人的就不貼。
  *
- * 站名一律試著擺右邊, 右邊放不下才翻到左邊。已經佔掉的位置存成一堆矩形, 
- * 新的標籤跟任何一個重疊就整個放棄 —— 疊在一起的字比沒有字更難讀。
+ * 比較八個方向的留白與距離，優先放在鄰站及其他標籤較少的一側。
+ * 已佔用的位置以矩形避讓，避免站名重疊。
  *
  * @param {Array<{x:number,y:number,text:string,priority:number}>} items 畫面座標
  */
 export function placeLabels(items, {
   width, height, fontSize = 11, gap = 4, obstacles = [], majorPriority = Infinity,
 } = {}) {
-  const charWidth = fontSize * 0.62;
   const placed = [];
   const labels = [];        // 已經放好的標籤
   const marks = obstacles;  // 車站記號, 標籤不要壓在上面
@@ -235,9 +234,11 @@ export function placeLabels(items, {
   const hits = (a, b) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
   const inside = (r) => r[0] >= 0 && r[1] >= 0 && r[2] <= width && r[3] <= height;
 
-  /** 依偏好排序的候選位置: 先左右, 再斜角, 最後上下；放不下就往外推。 */
+  /** 八方向候選位置；以實際字寬避讓，放不下就往外推。 */
   function candidates(item) {
-    const labelWidth = item.labelWidth || item.text.length * charWidth;
+    const textScale = 1 + (item.grade ?? 0) * 0.07;
+    const labelWidth = item.labelWidth || [...item.text].reduce((sum, char) =>
+      sum + (char.codePointAt(0) > 255 ? 1 : 0.62) * fontSize * textScale, 0);
     const labelHeight = item.labelHeight || fontSize + gap * 0.5;
     // 從記號的邊緣往外量, 不是從圓心 —— 等級高的站記號大, 從圓心量會被自己擋掉。
     const edge = Math.max(item.halfWidth || 0, item.halfHeight || 0, item.radius || 0) + gap;
@@ -262,6 +263,7 @@ export function placeLabels(items, {
         const top = spot.y - fontSize;
         out.push({
           spot,
+          step,
           rect: [left, top, left + labelWidth, top + labelHeight],
         });
       }
@@ -271,7 +273,18 @@ export function placeLabels(items, {
 
   // 重要的先貼: 轉乘站與大站被擠掉的話, 地圖就沒有地標可以定位了。
   for (const item of [...items].sort((a, b) => b.priority - a.priority)) {
-    const options = candidates(item);
+    // 同樣能放下時，選周圍留白較多的位置；限制外推距離以保留站名歸屬。
+    const distance = (a, b) => Math.hypot(
+      Math.max(0, a[0] - b[2], b[0] - a[2]),
+      Math.max(0, a[1] - b[3], b[1] - a[3]),
+    );
+    const neighbours = marks.filter((rect) =>
+      !(rect[0] <= item.x && rect[2] >= item.x && rect[1] <= item.y && rect[3] >= item.y));
+    const options = candidates(item).map((option) => ({
+      ...option,
+      score: Math.min(32, ...[...neighbours, ...labels].map((rect) => distance(option.rect, rect)))
+        - option.step * 1.5,
+    })).sort((a, b) => b.score - a.score);
 
     let chosen = options.find((option) => inside(option.rect)
       && !labels.some((other) => hits(option.rect, other))

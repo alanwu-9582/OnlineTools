@@ -334,7 +334,7 @@ function removableChip(label, color, onRemove) {
   if (color) chip.style.setProperty("--chip-color", color);
   const x = el("button", {
     type: "button", class: "active-chip-x", "aria-label": `移除篩選: ${label}`, onclick: onRemove,
-  }, "×");
+  }, el("span", { html: icon("x", { size: "12px" }) }));
   chip.appendChild(x);
   return chip;
 }

@@ -150,7 +150,7 @@ function linkCard(site, groupMeta) {
   },
     el("div", { class: "link-card-top" },
       el("h3", { class: "link-name" }, site.name),
-      el("span", { class: "link-open" }, "開啟 ↗"),
+      el("span", { class: "link-open" }, "開啟", el("span", { html: icon("external", { size: "12px" }) })),
     ),
     site.desc ? el("p", { class: "link-desc" }, site.desc) : null,
     el("div", { class: "link-foot" },

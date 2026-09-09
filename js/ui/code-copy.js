@@ -2,9 +2,7 @@
 
 import { notify } from "./notifications.js";
 import { copyText } from "../utils/clipboard.js";
-
-const COPY_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>';
-const DONE_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+import { icon } from "../utils/utils.js";
 
 /**
  * Wrap each `pre.code-block` so a copy button can float above the code
@@ -26,7 +24,7 @@ export function addCopyButtons(container) {
     button.className = "code-copy";
     button.title = "複製程式碼";
     button.setAttribute("aria-label", "複製程式碼");
-    button.innerHTML = `<span class="code-copy-ico">${COPY_ICON}</span>`;
+    button.innerHTML = `<span class="code-copy-ico">${icon("copy", { size: "14px" })}</span>`;
 
     let resetTimer = null;
     button.addEventListener("click", async () => {
@@ -39,11 +37,11 @@ export function addCopyButtons(container) {
       }
       notify.success("已複製程式碼");
       button.classList.add("is-copied");
-      button.innerHTML = `<span class="code-copy-ico">${DONE_ICON}</span>`;
+      button.innerHTML = `<span class="code-copy-ico">${icon("check", { size: "14px" })}</span>`;
       if (resetTimer) clearTimeout(resetTimer);
       resetTimer = setTimeout(() => {
         button.classList.remove("is-copied");
-        button.innerHTML = `<span class="code-copy-ico">${COPY_ICON}</span>`;
+        button.innerHTML = `<span class="code-copy-ico">${icon("copy", { size: "14px" })}</span>`;
       }, 1800);
     });
 

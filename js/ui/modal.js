@@ -1,5 +1,7 @@
 // js/ui/modal.js — accessible modal dialog helper.
 
+import { icon } from "../utils/utils.js";
+
 let activeModal = null;
 let lastFocused = null;
 
@@ -39,7 +41,7 @@ export function openModal(cfg) {
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="modal-head">
         <h2 id="modal-title"></h2>
-        <button class="modal-close" type="button" aria-label="關閉">×</button>
+        <button class="modal-close" type="button" aria-label="關閉">${icon("x", { size: "16px" })}</button>
       </div>
       <div class="modal-body"></div>
     </div>
