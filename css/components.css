@@ -73,13 +73,6 @@
 .icon-menu { -webkit-mask-image: url("../assets/icons/menu.svg"); mask-image: url("../assets/icons/menu.svg"); }
 .btn:disabled { color: var(--disabled); opacity: 0.65; cursor: not-allowed; }
 
-.icon-btn {
-  background: transparent; border: none; color: var(--text-muted);
-  cursor: pointer; font-size: 13px; padding: 3px 5px; border-radius: var(--radius-xs);
-  display: inline-flex; align-items: center;
-}
-.icon-btn:hover { background: var(--border); color: var(--text); }
-.icon-btn:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
 
 /* ---------- Inputs ---------- */
 input, select, textarea {
@@ -291,6 +284,5 @@ input[type="search"]::-webkit-search-cancel-button {
 
 @media (pointer: coarse) {
   .btn,
-  .icon-btn,
   .toast-x { min-height: var(--hit-min); }
 }

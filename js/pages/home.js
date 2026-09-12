@@ -3,6 +3,7 @@
 import { $, el, icon, escapeHtml, formatDate, readingLabel } from "../utils/utils.js";
 import { getSite, getEntries, getLinks, getConfig } from "../services/data-service.js";
 import { categoryTag } from "../ui/labels.js";
+import { storageSection } from "../ui/storage-panel.js";
 
 const TOOL_COUNT = 6;
 const DOC_COUNT = 3;
@@ -51,6 +52,7 @@ export async function mountPage({ routeTo }) {
         routeTo,
       }),
       ...linksSection(links),
+      ...storageSection(),
     );
   } catch (err) {
     console.error(err);

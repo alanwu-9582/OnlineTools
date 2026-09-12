@@ -564,7 +564,6 @@
 /* 觸控裝置沒有 hover, 按鈕一律保持看得見。 */
 @media (hover: none) {
   .code-copy { opacity: 1; }
-  .code-copy .code-copy-label { display: none; }
   .doc-content .code-wrap > pre.code-block { padding-right: 60px; }
 }
 

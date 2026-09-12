@@ -15,6 +15,7 @@
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -377,17 +378,84 @@ if (existsSync(TOOL_MODULE_DIR)) {
   }
 }
 
+/* ---------- Service Worker 的預先快取清單 ---------- */
+
+/** 會被丟進離線快取的檔案。副檔名以外的東西（建置腳本、原始 .md）不進去。 */
+const SHELL_ROOTS = [
+  { dir: "css", ext: [".css"] },
+  { dir: "js", ext: [".js", ".css"] },
+  { dir: "pages", ext: [".html"] },
+  { dir: "data", ext: [".json"] },
+  { dir: "assets/icons", ext: [".svg"] },
+  { dir: "assets/templates", ext: [".json", ".jpg", ".png", ".svg"] },
+];
+const SHELL_FILES = ["./", "index.html", "manifest.webmanifest", "assets/images/icon.svg"];
+const SW_JS = path.join(ROOT, "sw.js");
+
+function walkFiles(dir, exts, out = []) {
+  const full = path.join(ROOT, dir);
+  if (!existsSync(full)) return out;
+  for (const name of readdirSync(full).sort()) {
+    const rel = `${dir}/${name}`;
+    if (statSync(path.join(ROOT, rel)).isDirectory()) walkFiles(rel, exts, out);
+    else if (exts.includes(path.extname(name))) out.push(rel);
+  }
+  return out;
+}
+
+/**
+ * 產生 sw.js 裡那段預先快取清單。
+ *
+ * 以前這份清單是手寫的, 於是它慢慢跟現實脫節 —— 稽核時裡面躺著九個
+ * 早就刪掉的檔案, 而每次改動又都要記得手動把 CACHE_VERSION 加一。
+ * 兩件事都交給這裡: 清單用掃的, 版本號是所有檔案內容的雜湊,
+ * 內容一變就自動換一個名字, 舊快取自然被丟掉。
+ */
+function buildPrecache(pending) {
+  const files = [...SHELL_FILES];
+  for (const { dir, ext } of SHELL_ROOTS) files.push(...walkFiles(dir, ext));
+
+  const hash = createHash("sha256");
+  for (const rel of files) {
+    if (rel === "./") continue;
+    hash.update(rel);
+    // data/entries.json 與搜尋索引也在清單裡, 而它們正是這次要覆寫的東西。
+    // 讀磁碟上那份舊的會讓雜湊比實際內容慢一步 —— 寫完之後再跑 --check 就會
+    // 說「不同步」。所以這一輪要寫出去的內容直接拿來算。
+    hash.update(pending.get(rel) ?? readFileSync(path.join(ROOT, rel)));
+  }
+  const version = `onlinetools-${hash.digest("hex").slice(0, 12)}`;
+
+  const block = "/* build:precache:start */\n"
+    + `const CACHE_VERSION = ${JSON.stringify(version)};\n`
+    + `const SHELL = [\n${files.map((f) => `  ${JSON.stringify(f)},`).join("\n")}\n];\n`
+    + "/* build:precache:end */";
+
+  const source = readFileSync(SW_JS, "utf8");
+  const next = source.replace(
+    /\/\* build:precache:start \*\/[\s\S]*?\/\* build:precache:end \*\//,
+    () => block,
+  );
+  return { next, changed: next !== source, count: files.length };
+}
+
 /* ---------- 輸出 ---------- */
 
 const entriesOut = `${JSON.stringify({ entries }, null, 2)}\n`;
 const searchOut = `${JSON.stringify({ entries: searchDocs })}\n`;
+
+const precache = buildPrecache(new Map([
+  ["data/entries.json", entriesOut],
+  ["data/search-index.json", searchOut],
+]));
 
 const readOrEmpty = (file) => {
   try { return readFileSync(file, "utf8").trim(); } catch { return ""; }
 };
 const changed =
   readOrEmpty(ENTRIES_JSON) !== entriesOut.trim() ||
-  readOrEmpty(SEARCH_JSON) !== searchOut.trim();
+  readOrEmpty(SEARCH_JSON) !== searchOut.trim() ||
+  precache.changed;
 
 for (const w of warnings) console.warn(`! ${w}`);
 
@@ -400,6 +468,10 @@ if (CHECK_ONLY) {
 } else {
   writeFileSync(ENTRIES_JSON, entriesOut);
   writeFileSync(SEARCH_JSON, searchOut);
+  if (precache.changed) {
+    writeFileSync(SW_JS, precache.next);
+    console.log(`v 離線清單 ${precache.count} 個檔案 -> sw.js`);
+  }
   const tools = entries.filter((doc) => doc.type === "tool").length;
   const kb = (Buffer.byteLength(searchOut) / 1024).toFixed(0);
   console.log(`v ${entries.length} 筆內容（工具 ${tools}、文檔 ${entries.length - tools}） -> data/entries.json`);

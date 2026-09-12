@@ -189,14 +189,6 @@ export function writeCache(network) {
   }
 }
 
-export function clearCache() {
-  try {
-    localStorage.removeItem(CACHE_KEY);
-  } catch {
-    /* 沒有 localStorage 就當作已經清掉了 */
-  }
-}
-
 /**
  * 開啟工具時要顯示的那一份: 有快取就用快取, 否則用快照。
  * @returns {Promise<{network: object, from: "cache"|"snapshot"}>}

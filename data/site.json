@@ -66,6 +66,10 @@
     "transit": {
       "label": "交通",
       "color": "#87d1ff"
+    },
+    "meta": {
+      "label": "站務",
+      "color": "#afafaf"
     }
   }
 }

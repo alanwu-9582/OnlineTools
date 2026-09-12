@@ -111,12 +111,13 @@ export const styles = new URL("./gear-ratio.css", import.meta.url).href;
 node tools/build-data.mjs
 ```
 
-會重新產生兩個檔案: 
+會重新產生三個地方: 
 
 - `data/entries.json` — 工具與文檔的清單
 - `data/search-index.json` — 全文搜尋索引
+- `sw.js` 的離線清單與版本號 — 新工具的檔案會自動被收進去, 版本號是所有檔案內容的雜湊, 改了就自動換, 舊快取會被丟掉
 
-**這兩個檔案是自動產生的, 不要手動編輯。**
+**這些都是自動產生的, 不要手動編輯。**
 出現 `!` 開頭的訊息就照著修 —— 它會檢查工具模組存不存在、類別與標籤有沒有定義過。
 
 想確認有沒有忘記更新: 
