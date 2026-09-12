@@ -1,0 +1,533 @@
+/* js/tools/md2docs/md2docs.css — MD2DOCS。
+ *
+ * 分成兩半:
+ *   .md2-shell 以下是工具本身的介面, 跟著網站的深色主題走。
+ *   .md2-page  以下是「紙」, 一律白底黑字、單位用 mm 與 pt ——
+ *              它要跟列印出來的結果一模一樣, 所以完全不碰主題變數。
+ *
+ * 同一份檔案也負責列印: 列印用的 iframe 會把這份 CSS 原樣載進去,
+ * 版面規則只有一份, 預覽跟印出來不會各走各的。
+ */
+
+/* ============================ 工具介面 ============================ */
+
+.md2-shell {
+  display: grid;
+  gap: var(--space-4);
+  /* 用容器查詢而不是 @media: 這個工具活在文章欄裡, 旁邊還有大綱側欄,
+     視窗 1280px 時它自己其實只有 600px 左右。看視窗寬度會誤判成很寬,
+     然後把預覽擠成指甲大小。 */
+  container-type: inline-size;
+}
+
+.md2-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.md2-toolbar .tool-field {
+  grid-template-rows: auto auto;
+  margin: 0;
+}
+
+.md2-toolbar > .btn {
+  height: var(--control-height);
+}
+
+.md2-spacer { flex: 1 1 auto; }
+
+.md2-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+/* 一張 A4 縮到讀得出字大概要 460px, 左右各一張才值得並排。 */
+@container (min-width: 960px) {
+  .md2-split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+.md2-pane {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* display:grid 的優先度高過瀏覽器內建的 [hidden]{display:none},
+   沒有這一條的話 hidden 屬性完全沒作用。 */
+.md2-pane[hidden] { display: none; }
+
+.md2-pane-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-supporting);
+  color: var(--text-muted);
+}
+
+.md2-pane-head .tool-subhead { margin: 0; }
+
+.md2-pane-head .tool-input {
+  width: auto;
+  min-width: 0;
+}
+
+.md2-editor-shell {
+  position: relative;
+  min-height: 420px;
+}
+
+/* 著色是「一張畫好的 <pre> 墊在透明的 textarea 底下」。
+ * 只要有一個會影響字怎麼排的屬性兩邊不一樣, 字就會錯開 —— 而且不是差一點,
+ * 是每一行累積下去, 捲到後面整片對不上。所以下面這一串必須同時套到兩個元素,
+ * 不能只寫在其中一邊:
+ *
+ *   font / size / line-height / letter-spacing / tab-size  每個字與每一行的尺寸
+ *   padding / border-width                                  文字起點
+ *   white-space / overflow-wrap / word-break                在哪裡換行
+ *   scrollbar-gutter                                        可用寬度（見下）
+ *
+ * 選擇器要壓過 css/tools.css 的 `.doc-content .tool-textarea`（同為 0,2,0,
+ * md2docs.css 後載入所以會贏）—— 那一條的 line-height: 1.5 原本只打到 textarea,
+ * 讓兩邊的行高差了 2px。
+ */
+.md2-editor-shell .md2-editor,
+.md2-editor-shell .md2-editor-highlight {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 8px 11px;
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-weight: 400;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: normal;
+  line-height: 1.65;
+  tab-size: 2;
+  text-indent: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: normal;
+  /* textarea 一長就會冒出捲軸, 佔掉的寬度會讓它比 <pre> 早換行。
+     兩邊都固定留出捲軸的位置, 可用寬度才會一樣。 */
+  scrollbar-gutter: stable;
+}
+
+.md2-editor-shell .md2-editor {
+  position: relative;
+  z-index: 1;
+  min-height: 420px;
+  resize: vertical;
+  color: transparent;
+  caret-color: var(--text);
+  background: transparent;
+}
+
+.md2-editor-shell .md2-editor::selection {
+  color: transparent;
+  background: rgba(var(--rgb-primary), 0.32);
+}
+
+/* 打中文的時候把真正的文字顯示出來。組字中的注音／拼音還沒進到 value,
+   底下那張 <pre> 畫不出來, 文字又是透明的 —— 不切換就等於盲打。 */
+.md2-editor-shell.is-composing .md2-editor {
+  color: var(--text);
+}
+
+.md2-editor-shell.is-composing .md2-editor-highlight {
+  visibility: hidden;
+}
+
+.md2-editor-highlight {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--text);
+  background: var(--card-bg);
+  border-color: var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.md2-editor-shell:focus-within .md2-editor-highlight {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(var(--rgb-primary), 0.3);
+}
+
+/* 著色只准改顏色與底線。粗體會換成另一套字面, 每個字寬度就變了,
+   底下的 textarea 不知道這件事, 字立刻錯開 —— 所以這裡沒有 font-weight。 */
+.md2-syn-comment { color: #6a9955; }
+.md2-syn-marker, .md2-syn-list { color: #569cd6; }
+.md2-syn-heading { color: #4ec9b0; }
+.md2-syn-fence { color: #c586c0; }
+.md2-syn-codeblock, .md2-syn-code { color: #ce9178; }
+.md2-syn-link { color: #4fc1ff; text-decoration: underline; }
+.md2-syn-strong { color: #dcdcaa; }
+.md2-syn-strike { color: #808080; text-decoration: line-through; }
+.md2-syn-math { color: #b5cea8; }
+.md2-syn-tag { color: #808080; }
+.md2-syn-quote { color: #6a9955; }
+.md2-syn-quote-text { color: #9cdcfe; }
+.md2-syn-rule { color: #808080; }
+
+.md2-json {
+  min-height: 260px;
+  resize: vertical;
+  font-size: var(--text-caption);
+  line-height: 1.5;
+}
+
+.md2-drop {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+  text-align: center;
+  transition: border-color var(--duration-fast) var(--easing-standard),
+              color var(--duration-fast) var(--easing-standard);
+}
+
+.md2-drop.is-over {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.md2-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+}
+
+.md2-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--card-bg);
+}
+
+.md2-chip button {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  padding: 0;
+}
+
+.md2-chip button:hover { color: var(--text); }
+
+/* 預覽視窗。紙張是原尺寸畫的, 再整塊縮到面板寬度 —— 縮放只動外觀,
+   分頁結果不受影響。縮放掛在 .md2-surface（shadow host）上而不是紙本身,
+   紙那一層要跟列印用的那份一模一樣, 不能多一個 transform。 */
+.md2-viewport {
+  position: relative;
+  overflow: auto;
+  max-height: 78vh;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg-alt, var(--card-bg));
+}
+
+.md2-scaler { position: relative; }
+
+/* shadow host: 出了流之後高度才由裡面的紙決定, 外框的大小由 JS 補成縮放後的尺寸。 */
+.md2-surface {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  transform-origin: top left;
+}
+
+.md2-paper {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+.md2-pageno {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  font-size: 10px;
+  color: #9a9a9a;
+  font-family: var(--font-mono);
+}
+
+/* 量測區: 必須真的參與版面（有寬高、能算座標）, 只是看不到。
+   display:none 會讓所有量測歸零, 不能用。 */
+.md2-stage {
+  position: fixed;
+  top: 0;
+  left: -30000px;
+  width: 1200px;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============================ 紙 ============================ */
+
+.md2-page {
+  position: relative;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #000000;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+
+  /* shadow DOM 擋得住選擇器, 擋不住「繼承」—— 字體、字級、行高、顏色還是會從
+     外面的 .doc-content 流進來。這裡把會影響排版的繼承屬性一次歸零,
+     預覽、量測、列印三邊的起點才真的一樣。 */
+  font-size: 12pt;
+  font-weight: 400;
+  font-style: normal;
+  font-variant: normal;
+  line-height: normal;
+  text-align: left;
+  text-indent: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  white-space: normal;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+/* 內文連結配合 Word 的 Hyperlink 樣式（0563C1 + 底線）, 目錄的連結則是黑色無底線
+   —— Word 的目錄項目本來就不套 Hyperlink 字元樣式, 點得動但看起來是普通文字。 */
+.md2-page a {
+  color: #0563c1;
+  text-decoration: underline;
+}
+
+.md2-page a.md2-toc-row {
+  color: inherit;
+  text-decoration: none;
+}
+
+.md2-band,
+.md2-body {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.md2-body { overflow: hidden; }
+
+.md2-band {
+  color: #000000;
+  white-space: pre;
+}
+
+.md2-page > .md2-body > *:first-child { margin-top: 0 !important; }
+
+.md2-h {
+  margin: 0;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+.md2-p { margin: 0; }
+
+.md2-list {
+  margin: 0 0 0 0;
+  padding-left: 0;
+}
+
+.md2-list li { margin: 0; }
+
+/* 左邊那條 bar 對應 Word 的段落左框線（2.25pt = 3px）, 離文字的距離由
+   quote.gap 決定, 兩邊用同一個數字, 位置才會一樣。margin/padding 由 JS 依模板給。 */
+.md2-quote {
+  margin: 8pt 0;
+  border-left: 2.25pt solid #bbbbbb;
+}
+
+/* 框線寬度與內距同樣對齊 Word: 0.5pt 的段落框線, 左右內距 = code.pad。 */
+.md2-code {
+  margin: 6pt 0;
+  border: 0.5pt solid #dddddd;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.md2-codespan { padding: 0 1px; }
+
+.md2-hr {
+  border: none;
+  border-top: 1px solid #999999;
+  margin: 8pt 0;
+}
+
+/* table-layout: fixed 對應 Word 的 <w:tblLayout w:type="fixed"/> 加上等寬的
+   <w:gridCol> —— 兩邊都是「欄寬平分, 內容自己換行」。放任自動撐開的話,
+   瀏覽器與 Word 的自動欄寬演算法不一樣, 同一張表會長出兩種樣子。
+   內距 3pt/4.5pt 對應 <w:tblCellMar> 的 60/90 twip。 */
+.md2-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 4pt 0;
+}
+
+.md2-table th,
+.md2-table td {
+  padding: 3pt 4.5pt;
+  vertical-align: middle;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.md2-table th { text-align: center; }
+
+.md2-table[data-border="all"] th,
+.md2-table[data-border="all"] td { border: 0.5pt solid #000000; }
+
+.md2-table[data-border="row"] th,
+.md2-table[data-border="row"] td { border-top: 0.5pt solid #000000; }
+.md2-table[data-border="row"] tbody tr:last-child td { border-bottom: 0.5pt solid #000000; }
+
+.md2-table[data-border="threeline"] { border-top: 1.5pt solid #000000; border-bottom: 1.5pt solid #000000; }
+.md2-table[data-border="threeline"] thead th { border-bottom: 1pt solid #000000; }
+
+/* 公式。KaTeX 的樣式一起載進影子裡了, 這裡只管它在版面上佔多少空間。 */
+.md2-math {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.md2-math .katex-display {
+  margin: 0;
+  display: block;
+}
+
+.md2-math-inline .katex { font-size: 1em; }
+
+/* 流程圖。內嵌 SVG 由外框決定大小, viewBox 負責等比例縮放。 */
+.md2-diagram {
+  margin: 0 auto;
+}
+
+.md2-diagram svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.md2-figure {
+  margin: 6pt 0 0;
+  text-align: center;
+}
+
+.md2-figure img {
+  display: block;
+  margin: 0 auto;
+  height: auto;
+}
+
+.md2-inline-img {
+  vertical-align: text-bottom;
+  max-height: 1.6em;
+  width: auto;
+}
+
+.md2-caption {
+  margin: 2pt 0 8pt;
+}
+
+.md2-missing {
+  color: #c00000;
+  font-size: 9pt;
+}
+
+
+
+.md2-cover-rule {
+  margin-top: 6pt;
+  border-bottom: 1pt solid #666666;
+}
+
+.md2-toc-title {
+  margin-bottom: 18pt;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* 目錄一列: 文字 — 點點 — 頁碼。點點用 repeating background 畫,
+   比 border-bottom: dotted 更接近 Word 的定位點前置字元。 */
+.md2-toc-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 4pt;
+  color: inherit;
+  text-decoration: none;
+  line-height: 1.5;
+}
+
+.md2-toc-text { flex: 0 1 auto; }
+
+.md2-toc-dots {
+  flex: 1 1 auto;
+  min-width: 12px;
+  height: 1em;
+  background-image: radial-gradient(circle, #555555 0.6px, transparent 0.7px);
+  background-position: bottom 0.32em left 0;
+  background-size: 4px 4px;
+  background-repeat: repeat-x;
+}
+
+.md2-toc-gap { flex: 1 1 auto; }
+
+.md2-toc-page {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================ 列印 ============================ */
+
+@media print {
+  /* 邊界設 0, 讓 .md2-page 自己就是整張紙 —— 頁邊距已經畫在頁面裡了,
+     再讓瀏覽器加一層就會被縮到不成比例。 */
+  @page { margin: 0; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .md2-paper {
+    display: block;
+    gap: 0;
+  }
+
+  .md2-page {
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+    margin: 0;
+  }
+
+  .md2-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .md2-pageno { display: none; }
+}

@@ -1,7 +1,7 @@
-// js/tools/ig-template/zip.js — 最小可用的 ZIP 讀寫。零依賴。
+// js/tools/zip.js — 最小可用的 ZIP 讀寫。零依賴。
 //
-// 為什麼自己寫: 模板要把「版面資料 + 素材圖 + 參考成品」放在同一個檔案裡, 
-// ZIP 是唯一使用者手上一定有工具能打開來看、能自己改完再壓回去的格式。
+// 兩個地方在用: ig-template 的模板包（版面資料 + 素材圖 + 參考成品放同一個檔案）,
+// 以及 md2docs 產生的 .docx —— .docx 就是一個裝著一疊 XML 的 ZIP。
 // 引一個 zip 函式庫進來就違反了整站「不外掛 JS 套件」的規則。
 //
 // 壓縮本身不用自己實作 —— CompressionStream("deflate-raw") 就是 DEFLATE, 

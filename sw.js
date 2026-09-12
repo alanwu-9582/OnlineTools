@@ -11,7 +11,7 @@
 //
 // 改動下面的 SHELL 清單時, 記得把 CACHE_VERSION 往上加一版, 舊快取才會被丟掉。
 
-const CACHE_VERSION = "onlinetools-v29";
+const CACHE_VERSION = "onlinetools-v36";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -80,10 +80,20 @@ const SHELL = [
   "js/tools/ig-template/render.js",
   "js/tools/ig-template/editor.js",
   "js/tools/ig-template/bundle.js",
-  "js/tools/ig-template/zip.js",
+  "js/tools/zip.js",
   "js/tools/ig-template/color.js",
   "js/tools/ig-template/import-pptx.js",
   "js/tools/ig-template/ig-template.css",
+  "js/tools/md2docs/index.js",
+  "js/tools/md2docs/meta.js",
+  "js/tools/md2docs/doc-model.js",
+  "js/tools/md2docs/templates.js",
+  "js/tools/md2docs/images.js",
+  "js/tools/md2docs/math.js",
+  "js/tools/md2docs/diagram.js",
+  "js/tools/md2docs/paper.js",
+  "js/tools/md2docs/docx.js",
+  "js/tools/md2docs/md2docs.css",
   "js/tools/rail-map/index.js",
   "js/tools/rail-map/geo.js",
   "js/tools/rail-map/network.js",

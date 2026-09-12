@@ -15,7 +15,7 @@
 // 理由: 純文字的 template.json 進得了 git diff, 二進位的 zip 進不去。
 // 兩條路徑最後都收斂成同一個 Bundle 物件, 下游不用分。
 
-import { readZip, writeZip, looksLikeZip } from "./zip.js";
+import { readZip, writeZip, looksLikeZip } from "../zip.js";
 import { parseTemplate, serializeTemplate } from "./schema.js";
 import { importPptx, looksLikePptx } from "./import-pptx.js";
 

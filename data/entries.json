@@ -1,6 +1,23 @@
 {
   "entries": [
     {
+      "id": "md2docs",
+      "type": "tool",
+      "title": "MD2DOCS",
+      "description": "用 Markdown 寫報告, 產出有封面與可點選目錄的 .docx 或 PDF, 排版套可替換的模板",
+      "path": "content/tools/md2docs.md",
+      "category": "text",
+      "tags": [
+        "writing"
+      ],
+      "tools": [
+        "md2docs"
+      ],
+      "publishedDate": "2026/09/12",
+      "updatedDate": "2026/09/12",
+      "readingMinutes": 3
+    },
+    {
       "id": "rail-map",
       "type": "tool",
       "title": "臺灣鐵路路網圖",

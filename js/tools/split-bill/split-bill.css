@@ -47,6 +47,7 @@
 /* 刪除鈕靠右, 跟上面那排欄位底部對齊。 */
 .sb-expense-head { display: flex; align-items: flex-end; gap: 10px; }
 .sb-expense-head > .tool-row { flex: 1 1 auto; min-width: 0; }
+.sb-expense-head .tool-field { grid-template-rows: auto auto; }
 .sb-remove {
   flex: 0 0 auto;
   display: inline-flex;

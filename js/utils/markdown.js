@@ -44,6 +44,10 @@ function loadCss(href) {
   if (document.querySelector(`link[data-md-css="${href}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
+  // 用 CORS 要這份樣式: 不加的話瀏覽器（與 Service Worker）收下的是一份
+  // opaque 回應, 之後任何人想讀它的內容都只會拿到空字串。
+  // md2docs 要把 KaTeX 的樣式複製進 shadow DOM, 就是靠讀得到這份內容。
+  link.crossOrigin = "anonymous";
   link.href = href;
   link.dataset.mdCss = href;
   document.head.appendChild(link);
