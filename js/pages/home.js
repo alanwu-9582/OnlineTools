@@ -41,7 +41,7 @@ export async function mountPage({ routeTo }) {
       }),
       ...listSection({
         title: "教學文檔",
-        desc: "工具背後的原理與用法。",
+        desc: "教學與使用說明。",
         moreHref: "#/docs",
         moreLabel: "全部文檔",
         items: docs.slice(0, DOC_COUNT),

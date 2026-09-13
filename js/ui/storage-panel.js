@@ -41,7 +41,7 @@ async function openDialog(refresh) {
     `${snapshot.offline.files} 個檔案。刪掉只是下次連線時重新下載。`, true);
   const data = checkbox("clear-data", "工具儲存的資料",
     snapshot.items.length
-      ? `${snapshot.items.map((i) => i.label).join("、")}。刪掉就找不回來了。`
+      ? `${snapshot.items.map((i) => i.label).join("、")}。永久刪除。`
       : "目前沒有任何工具存過東西。", false);
   data.input.disabled = !snapshot.items.length;
 
@@ -79,8 +79,7 @@ async function openDialog(refresh) {
 export function storageSection() {
   const head = el("div", { class: "section-head" },
     el("div", {},
-      el("h2", { class: "section-title" }, "本機儲存"),
-      el("p", { class: "section-desc" }, "這個網站在你的瀏覽器裡留下的東西。沒有伺服器, 所有資料都只在本機。"),
+      el("h2", { class: "section-title" }, "本機儲存")
     ));
 
   const panel = el("div", { class: "storage-panel" });
@@ -90,7 +89,7 @@ export function storageSection() {
     const total = items.reduce((sum, i) => sum + i.bytes, 0);
     panel.replaceChildren(
       row("離線快取", offline.files ? `${offline.files} 個檔案` : "尚未建立",
-        `離線時用來開啟這個網站${usage ? `。瀏覽器估計本站總共佔用約 ${formatBytes(usage)}` : ""}。`),
+        `離線時用來開啟這個網站${usage ? `。瀏覽器估計總共佔用約 ${formatBytes(usage)}` : ""}。`),
       row("工具資料", items.length ? `${items.length} 項 · ${formatBytes(total)}` : "沒有",
         items.length ? items.map((i) => i.label).join("、") : "各工具的草稿與設定會存在這裡。"),
       el("div", { class: "storage-actions" },

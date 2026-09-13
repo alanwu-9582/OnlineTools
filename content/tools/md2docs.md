@@ -16,12 +16,16 @@
 
 ```markdown
 <!--
-  school: 國立臺北科技大學
-  department: 材料及資源工程系
-  title: 金相實習課報告
-  instructor: 王大明
-  student_id: 112345678
-  author: 王小明
+  school: 學校
+  department: 系所
+  course: 課程
+  title: 報告標題
+  subtitle: 報告副標題
+  instructor: 指導老師
+  class: 班級
+  group: 組別
+  student_id: 學號
+  author: 姓名
 -->
 ```
 
@@ -137,12 +141,6 @@ JSON, 在工具裡按「編輯模板」直接改, 存在瀏覽器。單位: 頁�
 頁碼在預覽就算好了, 預覽第幾頁就是印出來第幾頁。
 
 列印對話框: 邊界選**無**, 取消勾選**頁首及頁尾**。
-
-## 預覽就是輸出
-
-紙畫在 shadow DOM 裡, 網站的樣式一條都進不去；表格欄寬固定平分 —— Word 與瀏覽器的自動欄寬演算法不一樣。
-
-對不齊的只剩 Word 自己的斷行與分散對齊, 段落的斷頁位置可能差一行。
 
 ## 做不到
 

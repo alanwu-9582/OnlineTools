@@ -18,23 +18,6 @@
       "readingMinutes": 3
     },
     {
-      "id": "rail-map",
-      "type": "tool",
-      "title": "臺灣鐵路路網圖",
-      "description": "臺鐵、高鐵與各地捷運輕軌地圖, 資料來自 OpenStreetMap",
-      "path": "content/tools/rail-map.md",
-      "category": "life",
-      "tags": [
-        "transit"
-      ],
-      "tools": [
-        "rail-map"
-      ],
-      "publishedDate": "2026/09/06",
-      "updatedDate": "2026/09/07",
-      "readingMinutes": 1
-    },
-    {
       "id": "split-bill",
       "type": "tool",
       "title": "分帳結算",
@@ -113,8 +96,8 @@
         "meta"
       ],
       "publishedDate": "2026/08/19",
-      "updatedDate": "2026/09/07",
-      "readingMinutes": 4
+      "updatedDate": "2026/09/12",
+      "readingMinutes": 5
     },
     {
       "id": "markdown-guide",

@@ -110,6 +110,20 @@
       "group": "learn",
       "desc": "北科大工具網站, 提供各種前端工具。",
       "tags": ["學習", "工具"]
+    },
+    {
+      "name": "Color Hunt",
+      "url": "https://colorhunt.co/",
+      "group": "design",
+      "desc": "免費配色網站, 提供各種配色方案。",
+      "tags": ["設計", "配色"]
+    },
+    {
+      "name": "railisland",
+      "url": "https://railisland.tw/",
+      "group":"learn",
+      "desc":"軌島 · 台灣鐵道即時軌跡",
+      "tags": ["鐵路", "即時"]
     }
   ]
 }

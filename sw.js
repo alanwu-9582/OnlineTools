@@ -14,7 +14,7 @@
 // 都要記得把版本號往上加。現在版本號是檔案內容的雜湊, 改了就自動換。
 
 /* build:precache:start */
-const CACHE_VERSION = "onlinetools-3cf0af957b37";
+const CACHE_VERSION = "onlinetools-9d4eba76d393";
 const SHELL = [
   "./",
   "index.html",
@@ -64,14 +64,6 @@ const SHELL = [
   "js/tools/paper-bag/index.js",
   "js/tools/paper-bag/net.js",
   "js/tools/paper-bag/paper-bag.css",
-  "js/tools/rail-map/geo.js",
-  "js/tools/rail-map/gestures.js",
-  "js/tools/rail-map/index.js",
-  "js/tools/rail-map/layout.js",
-  "js/tools/rail-map/network.js",
-  "js/tools/rail-map/rail-map.css",
-  "js/tools/rail-map/render.js",
-  "js/tools/rail-map/source.js",
   "js/tools/split-bill/index.js",
   "js/tools/split-bill/settle.js",
   "js/tools/split-bill/split-bill.css",

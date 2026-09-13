@@ -16,17 +16,18 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+import {
+  ROOT, slugify, walkMarkdown, relPath, readJSON,
+  parseFrontmatter, stripFrontmatter, extractToolIds, resolveCover,
+} from "./lib.mjs";
+
 const CONTENT_DIR = path.join(ROOT, "content");
 const TOOL_MODULE_DIR = path.join(ROOT, "js", "tools");
 const ENTRIES_JSON = path.join(ROOT, "data", "entries.json");
 const SITE_JSON = path.join(ROOT, "data", "site.json");
 const SEARCH_JSON = path.join(ROOT, "data", "search-index.json");
-/** 檔頭只寫檔名時, 封面圖從這裡找。 */
-const COVER_BASE = "assets/images/covers";
 
 /** 頂層資料夾 → 內容種類。檔頭的 type 可以蓋過去。 */
 const FOLDER_TYPE = { tools: "tool", docs: "doc" };
@@ -37,17 +38,6 @@ const warnings = [];
 const warn = (msg) => warnings.push(msg);
 
 /* ============================ 小工具 ============================ */
-
-/** 必須與 js/utils/utils.js 的 slugify() 完全一致, 否則搜尋深連結會對不上。 */
-function slugify(value) {
-  return String(value ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/[\s/\\]+/g, "-")
-    .replace(/[^\w一-鿿-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
 
 /** 去掉行內 Markdown 語法, 取純文字（標題 slug 與全文索引都要用）。 */
 function stripInline(text) {
@@ -62,30 +52,6 @@ function stripInline(text) {
     .replace(/<[^>]+>/g, "")                    // 裸 HTML 標籤（工具佔位也在這裡被吃掉）
     .replace(/\s+/g, " ")
     .trim();
-}
-
-function walkMarkdown(dir) {
-  if (!existsSync(dir)) return [];
-  const out = [];
-  for (const entry of readdirSync(dir)) {
-    const full = path.join(dir, entry);
-    if (statSync(full).isDirectory()) out.push(...walkMarkdown(full));
-    else if (entry.toLowerCase().endsWith(".md")) out.push(full);
-  }
-  return out.sort();
-}
-
-/** 以 / 分隔的相對路徑（entries.json 的 path 欄位格式）。 */
-function relPath(absolute) {
-  return path.relative(ROOT, absolute).split(path.sep).join("/");
-}
-
-function readJSON(file, fallback) {
-  try {
-    return JSON.parse(readFileSync(file, "utf8"));
-  } catch {
-    return fallback;
-  }
 }
 
 /** git 最後提交時間 → YYYY/MM/DD；未追蹤或非 git 環境回傳 null。 */
@@ -111,49 +77,6 @@ function normalizeDate(value) {
 }
 
 /* ============================ 解析 Markdown ============================ */
-
-/** 讀檔頭連續的 `<!-- key: value -->`；遇到第一個非註解、非空白行就停。 */
-function parseFrontmatter(source) {
-  const meta = {};
-  for (const line of source.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (trimmed === "") continue;
-    const m = trimmed.match(/^<!--\s*([^:]+?)\s*:\s*([\s\S]*?)\s*-->$/);
-    if (!m) break;
-    meta[m[1].trim().toLowerCase()] = m[2].trim();
-  }
-  return meta;
-}
-
-/** 去掉檔頭註解後的正文。 */
-function stripFrontmatter(source) {
-  const lines = source.split(/\r?\n/);
-  let i = 0;
-  while (i < lines.length) {
-    const trimmed = lines[i].trim();
-    if (trimmed === "" || /^<!--[\s\S]*-->$/.test(trimmed)) i++;
-    else break;
-  }
-  return lines.slice(i).join("\n");
-}
-
-/**
- * 內文裡出現過的工具 id, 依出現順序、不重複。
- * 程式碼區塊裡的要跳過 —— 說明文件會把佔位當範例寫出來, 那不是真的要掛工具。
- */
-function extractToolIds(body) {
-  const ids = [];
-  let inFence = false;
-  for (const line of body.split(/\r?\n/)) {
-    if (/^\s*(```|~~~)/.test(line)) { inFence = !inFence; continue; }
-    if (inFence) continue;
-    for (const m of line.matchAll(/data-tool\s*=\s*["']([^"']+)["']/g)) {
-      const id = m[1].trim();
-      if (id && !ids.includes(id)) ids.push(id);
-    }
-  }
-  return ids;
-}
 
 /**
  * 把正文切成 { headingId, heading, text } 區塊, 搜尋結果才能直接跳到章節。
@@ -216,16 +139,6 @@ function readingMinutes(plainText) {
   const cjk = (plainText.match(/[㐀-鿿豈-﫿]/g) || []).length;
   const words = (plainText.replace(/[㐀-鿿豈-﫿]/g, " ").match(/[A-Za-z0-9_.-]+/g) || []).length;
   return Math.max(1, Math.round(cjk / 350 + words / 200));
-}
-
-/** 封面: 完整路徑原樣用, 只寫檔名就補上 assets/images/covers/。 */
-function resolveCover(value) {
-  const raw = String(value ?? "").trim();
-  if (!raw) return "";
-  if (/^(https?:)?\/\//i.test(raw) || raw.startsWith("/") || raw.includes("/")) {
-    return raw.replace(/^\.\//, "");
-  }
-  return `${COVER_BASE}/${raw}`;
 }
 
 /* ============================ 主流程 ============================ */

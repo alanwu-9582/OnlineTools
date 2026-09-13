@@ -126,6 +126,30 @@ node tools/build-data.mjs
 node tools/build-data.mjs --check
 ```
 
+## 刪掉一個工具或文檔
+
+```bash
+node tools/remove-entry.mjs
+```
+
+列出全部讓你選編號（也可以直接打 id）。動手前會先把完整清單印出來: 
+
+| 東西 | 會怎樣 |
+| --- | --- |
+| `.md`、`js/tools/<id>/`、只有它在用的封面圖 | 刪掉 |
+| 別的 `.md` 也在用的工具模組、共用模組 | 留著, 並說明留的理由 |
+| 只有它在用的資料檔、連到它的內部連結、git 追不到的檔案 | 只提醒, 不動手 |
+
+刪完會自動重跑一次 `build-data.mjs`。
+
+| 參數 | 用途 |
+| --- | --- |
+| `--list` | 只列出, 不問 |
+| `--dry-run` | 只印出會刪什麼 |
+| `--yes` | 不問直接刪 |
+
+VS Code 裡對應的 task 是 `Remove tool or doc`。
+
 ## 檔頭欄位
 
 | 欄位 | 必填 | 說明 |

@@ -232,6 +232,97 @@
   text-decoration: none;
 }
 
+/* ================= 本機儲存 ================= */
+.storage-panel {
+  display: grid;
+  gap: 14px;
+}
+.storage-row-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+.storage-row-label { color: var(--text); font-weight: 600; }
+.storage-row-value { color: var(--text-muted); }
+.storage-row-hint {
+  margin: 4px 0 0;
+  color: var(--text-dim);
+  font-size: var(--text-supporting);
+  line-height: 1.6;
+}
+.storage-actions { margin-top: 2px; }
+
+.storage-dialog {
+  display: grid;
+  gap: 8px;
+}
+.storage-dialog-lead {
+  margin: 0 0 8px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.storage-option {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--easing-standard),
+              border-color var(--duration-fast) var(--easing-standard);
+}
+.storage-option:hover {
+  background: var(--card-bg-alt);
+  border-color: var(--border-soft);
+}
+.storage-option:has(.storage-check:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: 1px;
+}
+.storage-option:has(.storage-check:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.storage-option:has(.storage-check:disabled):hover {
+  background: transparent;
+  border-color: transparent;
+}
+.storage-check {
+  width: 16px;
+  height: 16px;
+  margin: 3px 0 0;
+  accent-color: var(--interactive);
+}
+.storage-option > span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+.storage-option-label {
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.5;
+}
+.storage-option-hint {
+  color: var(--text-dim);
+  font-size: var(--text-supporting);
+  line-height: 1.6;
+}
+.storage-dialog-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .storage-row-main { align-items: flex-start; }
+  .storage-row-value { text-align: right; }
+}
+
 /* ================= 404 ================= */
 .not-found-actions {
   display: flex;
